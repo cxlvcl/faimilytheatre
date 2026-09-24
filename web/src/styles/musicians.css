@@ -1,0 +1,6 @@
+.musicians-strip { overflow: hidden; width: 100%; touch-action: pan-y; cursor: grab; user-select: none; }
+.musicians-strip:active { cursor: grabbing; }
+.musicians-strip__track { position: relative; display: flex; gap: clamp(16px, 2vw, 36px); width: max-content; will-change: transform; }
+.musicians-strip__portrait { flex: none; width: min(31vw, 470px); margin: 0; padding: 0; border: 0; }
+.musicians-strip__portrait img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 3; border: 0; object-fit: contain; pointer-events: none; }
+@media (max-width: 720px) { .musicians-strip__portrait { width: 78vw; } .musicians-strip__track { gap: 18px; } }

@@ -1,0 +1,22 @@
+{
+  "name": "theatre-music-sand",
+  "private": true,
+  "workspaces": [
+    "web",
+    "admin"
+  ],
+  "scripts": {
+    "build": "npm run build -w web && npm run build -w admin",
+    "lint": "npm run lint -w web && npm run lint -w admin",
+    "typecheck": "npm run typecheck -w web && npm run typecheck -w admin",
+    "package:hosting": "node scripts/package.mjs",
+    "test:api": "node --test tests/api.test.mjs",
+    "test:hero-video": "node --experimental-strip-types --test tests/hero-video.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

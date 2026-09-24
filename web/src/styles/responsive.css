@@ -1,0 +1,457 @@
+@media (max-width: 900px) {
+  :root {
+    --side: clamp(22px, 5vw, 48px);
+  }
+
+  .menu-overlay__meta {
+    display: none;
+  }
+
+  .about {
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  .about__phrase {
+    width: 95%;
+  }
+
+  .about__image-wrap {
+    width: 100%;
+  }
+
+  .about__intro {
+    margin-left: 1vw;
+  }
+
+  .partners__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 45px 12vw;
+  }
+
+  .site-footer__contacts {
+    gap: 5vw;
+  }
+
+  .site-footer__legal {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .site-footer__legal p:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .repertoire-scene__content,
+  .event-scene__content {
+    gap: 45px;
+  }
+
+  .franchise-mobility {
+    grid-template-columns: 1fr;
+    gap: 80px;
+  }
+
+  .franchise-mobility > div {
+    width: min(70vw, 650px);
+    margin-left: auto;
+  }
+
+  .franchise-economy__figures {
+    grid-template-columns: 1fr;
+    gap: 70px;
+  }
+
+  .franchise-form-scene__inner {
+    grid-template-columns: 1fr;
+    gap: 85px;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --side: 22px;
+  }
+
+  body {
+    font-size: 18px;
+  }
+
+  .site-header {
+    height: 86px;
+  }
+
+  .site-header__menu {
+    top: 23px;
+    width: 42px;
+  }
+
+  .site-header__menu span {
+    width: 32px;
+  }
+
+  .site-header__menu span:last-child {
+    width: 22px;
+  }
+
+  .site-header__logo {
+    top: 12px;
+    width: 64px;
+  }
+
+  .hero__logo {
+    width: clamp(90px, 25vw, 125px);
+  }
+
+  .menu-overlay__close {
+    top: 18px;
+    left: 18px;
+  }
+
+  .menu-overlay__logo {
+    top: 13px;
+    width: 72px;
+  }
+
+  .menu-overlay__nav {
+    width: calc(100% - 44px);
+    gap: 5px;
+  }
+
+  .menu-overlay__item {
+    font-size: clamp(30px, min(15vw, 10dvh), 66px);
+    line-height: 1.04;
+  }
+
+  .hero {
+    min-height: 440px;
+  }
+
+  .hero__slogan {
+    font-size: clamp(30px, 8vw, 44px);
+    line-height: 1.2;
+  }
+
+  .about {
+    display: block;
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .about__phrase {
+    width: 100%;
+    font-size: clamp(29px, 7.8vw, 42px);
+    line-height: 1.12;
+  }
+
+  .about__image-wrap {
+    width: 100%;
+    margin: 32px 0 0;
+  }
+
+  .about__intro {
+    width: 100%;
+    margin: 30px 0 0;
+    font-size: 19px;
+  }
+
+  .about__intro {
+    width: 88%;
+  }
+
+  .about__final {
+    width: 92%;
+    margin: 36px 0 0 auto;
+    font-size: 25px;
+  }
+
+  .musicians {
+    padding: 60px 0;
+  }
+
+  .musicians > h2 {
+    margin-bottom: 52px;
+    font-size: 16px;
+  }
+
+  .partners {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+
+  .partners h2 {
+    margin-bottom: 62px;
+    font-size: 16px;
+  }
+
+  .partners__grid {
+    gap: 38px 34px;
+  }
+
+  .partners__logo {
+    min-height: 105px;
+  }
+
+  .site-footer {
+    padding-top: 60px;
+    padding-bottom: 35px;
+  }
+
+  .site-footer__logo {
+    width: 54vw;
+    margin-bottom: 85px;
+  }
+
+  .site-footer__contacts {
+    grid-template-columns: 1fr;
+    gap: 38px;
+    font-size: 30px;
+  }
+
+  .site-footer__legal {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 75px;
+    font-size: 13px;
+  }
+
+  .site-footer__legal p:first-child {
+    grid-column: auto;
+    margin-bottom: 14px;
+  }
+
+  .simple-page {
+    padding-top: 115px;
+  }
+
+  .simple-page h1 {
+    font-size: 54px;
+  }
+
+  .repertoire-scene,
+  .event-scene {
+    min-height: 100svh;
+    padding-top: 110px;
+    padding-bottom: 65px;
+  }
+
+  .repertoire-scene__background,
+  .event-scene__background {
+    filter: blur(28px);
+  }
+
+  .repertoire-scene__content {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .repertoire-scene__cover {
+    width: min(58vw, 310px);
+    max-height: 50svh;
+    justify-self: center;
+  }
+
+  .repertoire-scene__copy {
+    text-align: center;
+  }
+
+  .repertoire-scene__copy h1,
+  .event-scene__copy h1 {
+    font-size: clamp(47px, 13vw, 63px);
+  }
+
+  .repertoire-scene__copy > p:last-child {
+    margin-top: 22px;
+    font-size: 18px;
+  }
+
+  .performance-detail__hero {
+    height: 52dvh;
+    min-height: 370px;
+  }
+
+  .performance-detail__hero-image {
+    object-position: var(--focus-mobile);
+  }
+
+  .performance-detail__body {
+    padding-bottom: 110px;
+  }
+
+  .performance-detail__cover {
+    width: 61vw;
+    max-height: 55dvh;
+    transform: translateY(-27%);
+  }
+
+  .performance-detail__copy {
+    margin-top: -55px;
+  }
+
+  .performance-detail__copy > h1 {
+    font-size: 52px;
+  }
+
+  .performance-detail__description {
+    margin-top: 62px;
+    font-size: 19px;
+  }
+
+  .event-scene__content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 25px;
+  }
+
+  .event-scene__date {
+    font-size: 34px;
+    text-align: center;
+  }
+
+  .event-scene__poster {
+    width: min(57vw, 310px);
+    max-height: 47dvh;
+    justify-self: center;
+  }
+
+  .event-scene__copy {
+    text-align: center;
+  }
+
+  .event-scene__venue {
+    margin-top: 21px;
+    font-size: 20px;
+  }
+
+  .event-scene__buy {
+    margin-top: 27px;
+    font-size: 27px;
+  }
+
+  .faq-page {
+    padding-top: 130px;
+    padding-bottom: 105px;
+  }
+
+  .faq-page > h1 {
+    margin-bottom: 60px;
+    font-size: 72px;
+  }
+
+  .faq-list {
+    margin-left: 0;
+  }
+
+  .faq-item h2 button {
+    gap: 20px;
+    padding: 29px 0;
+    font-size: clamp(25px, 7.7vw, 30px);
+  }
+
+  .faq-item__answer {
+    width: calc(100% - 28px);
+    font-size: 18px;
+  }
+
+  .franchise-hero__content {
+    width: 100%;
+    padding-top: 155px;
+  }
+
+  .franchise-hero h1,
+  .franchise-form-scene h2 {
+    font-size: clamp(48px, 13.5vw, 62px);
+    line-height: 0.98;
+  }
+
+  .franchise-hero p {
+    font-size: 19px;
+  }
+
+  .section-light,
+  .franchise-economy {
+    padding-top: 105px;
+    padding-bottom: 110px;
+  }
+
+  .franchise-benefits h2,
+  .franchise-mobility h2,
+  .franchise-economy h2,
+  .franchise-path h2 {
+    font-size: 49px;
+  }
+
+  .franchise-benefits__grid {
+    grid-template-columns: 1fr;
+    gap: 62px;
+    margin-top: 78px;
+  }
+
+  .franchise-benefits article {
+    gap: 10px 22px;
+  }
+
+  .franchise-benefits h3,
+  .franchise-path h3 {
+    font-size: 32px;
+  }
+
+  .franchise-mobility {
+    gap: 62px;
+  }
+
+  .franchise-mobility > div {
+    width: 100%;
+    font-size: 19px;
+  }
+
+  .franchise-economy__figures {
+    margin-top: 72px;
+  }
+
+  .franchise-economy__figures strong {
+    font-size: 48px;
+  }
+
+  .franchise-economy__note {
+    margin-top: 85px;
+  }
+
+  .franchise-path__steps {
+    width: 100%;
+    margin-top: 80px;
+  }
+
+  .franchise-path article {
+    grid-template-columns: 48px 1fr;
+    gap: 24px;
+    min-height: 165px;
+  }
+
+  .franchise-path article > span {
+    width: 48px;
+    height: 48px;
+    font-size: 14px;
+  }
+
+  .franchise-path__line {
+    left: 23px;
+  }
+
+  .franchise-form-scene__inner {
+    padding-top: 130px;
+    padding-bottom: 90px;
+    gap: 70px;
+  }
+
+  .franchise-form-scene__copy p {
+    margin-top: 30px;
+    font-size: 19px;
+  }
+
+  .franchise-form {
+    gap: 27px;
+  }
+
+  .franchise-form input {
+    font-size: 23px;
+  }
+}

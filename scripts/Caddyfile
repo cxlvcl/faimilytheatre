@@ -1,0 +1,16 @@
+{
+    admin off
+    auto_https off
+    frankenphp {
+        php_ini upload_max_filesize 16M
+        php_ini post_max_size 40M
+        php_ini memory_limit 256M
+    }
+}
+http://127.0.0.1:8080 {
+    bind 127.0.0.1
+    root * {$THEATRE_PROJECT_ROOT}
+    php_server {
+        try_files /scripts/dev-router.php
+    }
+}

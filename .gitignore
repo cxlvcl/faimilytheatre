@@ -1,0 +1,27 @@
+.DS_Store
+node_modules/
+.local-tools/
+dist/
+target/
+*.log
+
+# Local and production secrets
+.env
+.env.*
+!.env.example
+api/config.php
+private/config.php
+private/local-access.txt
+private/test-config.php
+private/logs/
+private/runtime/
+private/backups/
+
+# Runtime content
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+release/
+
+# Tauri local metadata
+admin/src-tauri/gen/
