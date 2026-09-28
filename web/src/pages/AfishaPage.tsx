@@ -1,94 +1,40 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useLayoutEffect, useRef } from 'react'
 import { LoadError } from '../components/LoadError'
 import { EventDate } from '../components/EventDate'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { Breadcrumbs } from '../components/Breadcrumbs'
+import { SmoothLink } from '../components/SmoothLink'
+import { usePublicResource } from '../hooks/usePublicResource'
 import { publicApi } from '../lib/api'
+import { setupRepertoireMotion } from '../lib/repertoireMotion'
 import type { EventItem } from '../types'
-
-gsap.registerPlugin(ScrollTrigger)
 
 export default function AfishaPage() {
   const root = useRef<HTMLDivElement>(null)
-  const [events, setEvents] = useState<EventItem[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  useDocumentTitle('Афиша')
-
-  const load = useCallback(() => {
-    setStatus('loading')
-    publicApi
-      .events()
-      .then((items) => {
-        setEvents(items)
-        setStatus('ready')
-      })
-      .catch(() => setStatus('error'))
-  }, [])
-  useEffect(load, [load])
-
+  const { data: events = [], status, retry } = usePublicResource<EventItem[]>('/public/events')
   useLayoutEffect(() => {
-    if (!root.current || events.length === 0) return
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const context = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>('.event-scene').forEach((scene) => {
-        gsap.fromTo(
-          scene.querySelector('.event-scene__content'),
-          { autoAlpha: 0, y: reduce ? 0 : 30, filter: reduce ? 'blur(0px)' : 'blur(14px)' },
-          {
-            autoAlpha: 1,
-            y: 0,
-            filter: 'blur(0px)',
-            scrollTrigger: { trigger: scene, start: 'top 75%', end: 'top 36%', scrub: reduce ? false : 0.45 },
-          },
-        )
-      })
-    }, root)
-    return () => context.revert()
+    if (!root.current || !events.length) return
+    return setupRepertoireMotion(root.current, 'event')
   }, [events])
-
-  if (status === 'error') {
-    return (
-      <section className="simple-page simple-page--dark">
-        <LoadError retry={load} />
-      </section>
-    )
-  }
+  if (status === 'error') return <section className="simple-page simple-page--dark"><LoadError retry={retry} /></section>
   if (status === 'loading') return <div className="page-wash page-wash--dark" aria-hidden="true" />
-  if (events.length === 0) {
-    return (
-      <section className="simple-page simple-page--dark afisha-empty">
-        <h1>Новые даты скоро появятся</h1>
-      </section>
-    )
-  }
-
-  return (
-    <div ref={root} className="afisha-page">
-      {events.map((event) => (
-        <article className="event-scene" key={event.id}>
-          <img className="event-scene__background" src={event.poster_image} alt="" aria-hidden="true" />
-          <div className="event-scene__shade" />
-          <div className="event-scene__content">
-            <p className="event-scene__date"><EventDate date={event.event_date} time={event.event_time} /></p>
-            <img className="event-scene__poster" src={event.poster_image} alt="" loading="lazy" />
-            <div className="event-scene__copy">
-              <h1>{event.performance.title}</h1>
-              {event.performance.is_premiere && <p className="premiere">Премьера</p>}
-              <p className="event-scene__venue">{event.venue}</p>
-              <a
-                className="event-scene__buy"
-                href={event.ticket_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => publicApi.ticketClick(event.id)}
-              >
-                Купить билет
-              </a>
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-  )
+  if (!events.length) return <section className="simple-page simple-page--dark afisha-empty"><Breadcrumbs items={[{ name: 'Главная', path: '/' }, { name: 'Афиша' }]} /><h1>Афиша</h1><p>Новые даты скоро появятся</p></section>
+  return <div ref={root} className="afisha-page">
+    <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Афиша</h1></div>
+    {events.map((event, index) => <article className="event-scene" id={`event-${event.id}`} key={event.id}>
+      <img className="event-scene__background" src={event.poster_image} alt="" aria-hidden="true" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority="low" />
+      <div className="event-scene__shade" />
+      <div className="event-scene__content">
+        <p className="event-scene__date"><EventDate date={event.event_date} time={event.event_time} /></p>
+        <SmoothLink className="event-scene__poster-link" to={`/repertoire/${event.performance.slug}`} aria-label={`О спектакле «${event.performance.title}»`}>
+          <img className="event-scene__poster" src={event.poster_image} alt={`Афиша спектакля «${event.performance.title}»`} width="750" height="1000" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority={index === 0 ? 'high' : 'auto'} />
+        </SmoothLink>
+        <div className="event-scene__copy">
+          <h2><SmoothLink to={`/repertoire/${event.performance.slug}`}>{event.performance.title}</SmoothLink></h2>
+          {event.performance.is_premiere && <p className="premiere">Премьера</p>}
+          <p className="event-scene__venue">{event.venue}</p>
+          <a className="event-scene__buy" href={event.ticket_url} target="_blank" rel="noopener noreferrer" onClick={() => publicApi.ticketClick(event.id)}>Купить билет</a>
+        </div>
+      </div>
+    </article>)}
+  </div>
 }

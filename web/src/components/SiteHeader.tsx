@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { SmoothLink } from './SmoothLink'
 
 interface Props {
@@ -9,10 +9,13 @@ interface Props {
 
 export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
   const [introActive, setIntroActive] = useState(
-    () => { try { return isHome && sessionStorage.getItem('theatre_intro_seen') !== '1' } catch { return isHome } },
+    () => {
+      if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+      try { return isHome && sessionStorage.getItem('theatre_intro_seen') !== '1' } catch { return isHome }
+    },
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const complete = () => setIntroActive(false)
     window.addEventListener('theatre:intro-complete', complete)
     return () => window.removeEventListener('theatre:intro-complete', complete)

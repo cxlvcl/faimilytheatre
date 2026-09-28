@@ -14,6 +14,8 @@ export function SmoothLink({ to, state, onClick, ...props }: Props) {
     onClick?.(event)
     if (
       event.defaultPrevented ||
+      (props.target && props.target !== '_self') ||
+      props.download !== undefined ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||
@@ -28,4 +30,3 @@ export function SmoothLink({ to, state, onClick, ...props }: Props) {
 
   return <a href={typeof to === 'string' ? to : undefined} onClick={handleClick} {...props} />
 }
-

@@ -3,9 +3,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function setupRepertoireMotion(root: HTMLElement): () => void {
+export function setupRepertoireMotion(root: HTMLElement, kind: 'repertoire' | 'event' = 'repertoire'): () => void {
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
-  const contents = root.querySelectorAll<HTMLElement>('.repertoire-scene__content')
+  const contents = root.querySelectorAll<HTMLElement>(`.${kind}-scene__content`)
   let context: gsap.Context | undefined
 
   const reset = () => {
@@ -18,11 +18,12 @@ export function setupRepertoireMotion(root: HTMLElement): () => void {
     // No hidden content or scroll work when the visitor requests less motion.
     if (preference.matches) return
     context = gsap.context(() => {
-      root.querySelectorAll<HTMLElement>('.repertoire-scene').forEach(scene => {
-        const content = scene.querySelector<HTMLElement>('.repertoire-scene__content')
+      const scenes = root.querySelectorAll<HTMLElement>(`.${kind}-scene`)
+      scenes.forEach((scene, index) => {
+        const content = scene.querySelector<HTMLElement>(`.${kind}-scene__content`)
         if (!content) return
         const updateLayer = (trigger: ScrollTrigger) => {
-          if (trigger.isActive) content.style.willChange = 'transform, opacity'
+          if (trigger.isActive) content.style.willChange = 'transform, opacity, filter'
           else content.style.removeProperty('will-change')
         }
         // A single timeline owns the entrance and exit. The background blur is
@@ -38,8 +39,8 @@ export function setupRepertoireMotion(root: HTMLElement): () => void {
             onRefresh: updateLayer,
           },
         })
-          .fromTo(content, { opacity: 0.28, y: 24 }, { opacity: 1, y: 0, duration: 0.22 })
-          .to(content, { opacity: 0.28, y: -18, duration: 0.22 }, 0.78)
+          .fromTo(content, { opacity: index === 0 ? 1 : 0.28, y: index === 0 ? 0 : 18, filter: index === 0 ? 'blur(0px)' : 'blur(4px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.22 })
+          .to(content, { opacity: index === scenes.length - 1 ? 1 : 0.28, y: index === scenes.length - 1 ? 0 : -18, filter: index === scenes.length - 1 ? 'blur(0px)' : 'blur(4px)', duration: 0.22 }, 0.78)
       })
     }, root)
   }

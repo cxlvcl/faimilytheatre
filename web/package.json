@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "node ../scripts/build-lettering.mjs && tsc -b && vite build && node ../scripts/build-server-pages.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false"
@@ -30,4 +30,3 @@
     "vite": "8.3.0"
   }
 }
-

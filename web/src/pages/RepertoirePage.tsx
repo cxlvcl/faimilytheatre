@@ -1,29 +1,14 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { LoadError } from '../components/LoadError'
 import { SmoothLink } from '../components/SmoothLink'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
-import { publicApi } from '../lib/api'
+import { usePublicResource } from '../hooks/usePublicResource'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 import { setupRepertoireMotion } from '../lib/repertoireMotion'
 import type { PerformanceSummary } from '../types'
 
 export default function RepertoirePage() {
   const root = useRef<HTMLDivElement>(null)
-  const [performances, setPerformances] = useState<PerformanceSummary[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
-  useDocumentTitle('Репертуар')
-
-  const load = useCallback(() => {
-    setStatus('loading')
-    publicApi
-      .performances()
-      .then((items) => {
-        setPerformances(items)
-        setStatus('ready')
-      })
-      .catch(() => setStatus('error'))
-  }, [])
-
-  useEffect(load, [load])
+  const { data: performances = [], status, retry: load } = usePublicResource<PerformanceSummary[]>('/public/performances')
 
   useLayoutEffect(() => {
     if (status !== 'ready' || !root.current || performances.length === 0) return
@@ -50,6 +35,7 @@ export default function RepertoirePage() {
 
   return (
     <div ref={root} className="repertoire-page">
+      <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Репертуар</h1></div>
       {performances.map((performance, index) => (
         <article className="repertoire-scene" key={performance.id}>
           <img
@@ -69,10 +55,10 @@ export default function RepertoirePage() {
               state={{ fromRepertoire: true }}
               aria-label={`Открыть спектакль «${performance.title}»`}
             >
-              <img src={performance.cover_image} alt="" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority={index === 0 ? 'high' : 'auto'} />
+              <img src={performance.cover_image} alt="" width="750" height="1000" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority={index === 0 ? 'high' : 'auto'} />
             </SmoothLink>
             <div className="repertoire-scene__copy">
-              <h1>{performance.title}</h1>
+              <h2><SmoothLink to={`/repertoire/${performance.slug}`}>{performance.title}</SmoothLink></h2>
               {performance.is_premiere && <p className="premiere">Премьера</p>}
               <p>{performance.short_description}</p>
             </div>

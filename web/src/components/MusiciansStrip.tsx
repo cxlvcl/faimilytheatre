@@ -27,9 +27,15 @@ export function MusiciansStrip() {
       draw()
     })
     resize.observe(strip)
-    const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting })
+    const wake = () => {
+      cancelAnimationFrame(frame)
+      previous = 0
+      frame = visible && !document.hidden && !media.matches ? requestAnimationFrame(animate) : 0
+    }
+    const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; wake() })
     intersection.observe(element)
     const animate = (now: number) => {
+      if (!visible || document.hidden || media.matches) { frame = 0; previous = 0; return }
       if (previous && visible && !document.hidden && !media.matches && !state.hover && !state.focus && !state.dragging && now > state.idle) {
         state.offset += Math.min(now - previous, 40) / 1000 * (innerWidth < 720 ? 4 : 6)
         draw()
@@ -37,8 +43,9 @@ export function MusiciansStrip() {
       previous = now
       frame = requestAnimationFrame(animate)
     }
-    frame = requestAnimationFrame(animate)
-    return () => { cancelAnimationFrame(frame); resize.disconnect(); intersection.disconnect() }
+    document.addEventListener('visibilitychange', wake)
+    media.addEventListener('change', wake)
+    return () => { cancelAnimationFrame(frame); resize.disconnect(); intersection.disconnect(); document.removeEventListener('visibilitychange', wake); media.removeEventListener('change', wake) }
   }, [])
   const release = () => { movement.current.dragging = false; movement.current.idle = performance.now() + 3000 }
   return (

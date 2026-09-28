@@ -1,7 +1,7 @@
 import { type FormEvent, useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { Breadcrumbs } from '../components/Breadcrumbs'
 import { useReveal } from '../hooks/useReveal'
 import { ApiError, publicApi } from '../lib/api'
 
@@ -45,22 +45,22 @@ export default function FranchisePage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitState, setSubmitState] = useState<'idle' | 'sending' | 'success'>('idle')
   const [serverError, setServerError] = useState('')
-  useDocumentTitle('Франшиза')
   useReveal(root)
 
   useLayoutEffect(() => {
     if (!root.current) return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) return
     const context = gsap.context(() => {
       gsap.fromTo(
         '.franchise-hero__background',
-        { autoAlpha: 0, filter: reduce ? 'blur(0px)' : 'blur(18px)' },
-        { autoAlpha: 1, filter: 'blur(0px)', duration: reduce ? 0.4 : 1.5, ease: 'power2.out' },
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.8, ease: 'power2.out', clearProps: 'opacity,visibility' },
       )
       gsap.fromTo(
         '.franchise-hero__content > *',
-        { autoAlpha: 0, y: reduce ? 0 : 25, filter: reduce ? 'blur(0px)' : 'blur(10px)' },
-        { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.9, stagger: 0.17, delay: 0.35 },
+        { autoAlpha: 0, y: 16, filter: 'blur(4px)' },
+        { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.75, stagger: 0.1, clearProps: 'opacity,visibility,filter,transform' },
       )
       if (!reduce) {
         gsap.fromTo(
@@ -134,6 +134,7 @@ export default function FranchisePage() {
         <img className="franchise-hero__background" src="/media/franchise-swan.png" alt="" width="1500" height="964" fetchPriority="high" />
         <div className="franchise-hero__shade" />
         <div className="franchise-hero__content">
+          <Breadcrumbs items={[{ name: 'Главная', path: '/' }, { name: 'Франшиза' }]} />
           <h1>
             Откройте Театр Музыки и Песка
             <br />в своём городе

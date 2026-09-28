@@ -14,11 +14,11 @@ function load(file, mocks, globals = {}) {
   return exports
 }
 
-function motion(reduce = false) {
+function motion(reduce = false, kind = 'repertoire') {
   const timelines = [], contexts = [], listeners = new Map()
   const contents = Array.from({ length: 4 }, () => ({ style: { removeProperty() { delete this.willChange } } }))
   const scenes = contents.map(content => ({ querySelector: () => content }))
-  const root = { querySelectorAll: selector => selector === '.repertoire-scene' ? scenes : contents }
+  const root = { querySelectorAll: selector => selector === `.${kind}-scene` ? scenes : contents }
   const preference = { matches: reduce, addEventListener: (name, callback) => listeners.set(name, callback), removeEventListener: name => listeners.delete(name) }
   const gsap = {
     registerPlugin() {},
@@ -30,11 +30,11 @@ function motion(reduce = false) {
     },
   }
   const { setupRepertoireMotion } = load('web/src/lib/repertoireMotion.ts', { gsap, 'gsap/ScrollTrigger': { ScrollTrigger: {} } }, { window: { matchMedia: () => preference } })
-  const cleanup = setupRepertoireMotion(root)
+  const cleanup = setupRepertoireMotion(root, kind)
   return { timelines, contexts, contents, preference, listeners, cleanup }
 }
 
-test('Each repertoire scene has one scroll controller and animates only opacity/transform', () => {
+test('Each scene has one controller and limits blur to 4px on content, not the background', () => {
   const state = motion()
   assert.equal(state.timelines.length, 4)
   state.timelines.forEach((timeline, index) => {
@@ -43,16 +43,27 @@ test('Each repertoire scene has one scroll controller and animates only opacity/
     assert.equal(timeline.steps[1].position, 0.78, 'Keep the content clear in the middle of the scene')
     for (const step of timeline.steps) {
       assert.equal(step.target, state.contents[index])
-      for (const key of [...Object.keys(step.from ?? {}), ...Object.keys(step.to)]) assert.ok(['opacity', 'y', 'duration'].includes(key), `Expensive scroll property: ${key}`)
+      for (const key of [...Object.keys(step.from ?? {}), ...Object.keys(step.to)]) assert.ok(['opacity', 'y', 'filter', 'duration'].includes(key), `Unexpected scroll property: ${key}`)
+      for (const properties of [step.from, step.to].filter(Boolean)) assert.ok(['blur(0px)', 'blur(4px)'].includes(properties.filter))
     }
     timeline.options.scrollTrigger.onToggle({ isActive: true })
-    assert.equal(state.contents[index].style.willChange, 'transform, opacity')
+    assert.equal(state.contents[index].style.willChange, 'transform, opacity, filter')
     timeline.options.scrollTrigger.onToggle({ isActive: false })
     assert.equal(state.contents[index].style.willChange, undefined)
   })
   state.cleanup()
   assert.ok(state.contexts.every(context => context.reverted))
   assert.equal(state.listeners.size, 0)
+})
+
+test('Afisha uses the same bounded blur/fade and keeps the first and last content readable', () => {
+  const state = motion(false, 'event')
+  assert.equal(state.timelines.length, 4)
+  assert.equal(state.timelines[0].steps[0].from.opacity, 1)
+  assert.equal(state.timelines[0].steps[0].from.filter, 'blur(0px)')
+  assert.equal(state.timelines[3].steps[1].to.opacity, 1)
+  assert.equal(state.timelines[3].steps[1].to.filter, 'blur(0px)')
+  state.cleanup()
 })
 
 test('Reduced motion and unmount leave no scroll controllers or compositing hints', () => {
@@ -72,10 +83,9 @@ test('Reduced motion and unmount leave no scroll controllers or compositing hint
 
 test('Covers keep their source quality, decode asynchronously and defer distant images', () => {
   const performances = Array.from({ length: 4 }, (_, id) => ({ id, slug: `show-${id}`, title: `Show ${id}`, short_description: 'Description', cover_image: `/uploads/original-${id}.webp` }))
-  let stateIndex = 0
   const { default: RepertoirePage } = load('web/src/pages/RepertoirePage.tsx', {
-    react: { ...React, useRef: () => ({ current: null }), useState: () => [[performances, 'ready'][stateIndex++], () => {}], useCallback: callback => callback, useEffect() {}, useLayoutEffect() {} },
-    '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../hooks/useDocumentTitle': { useDocumentTitle() {} }, '../lib/api': {}, '../lib/repertoireMotion': {},
+    react: { ...React, useRef: () => ({ current: null }), useLayoutEffect() {} },
+    '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../components/Breadcrumbs': { Breadcrumbs: () => null }, '../hooks/usePublicResource': { usePublicResource: () => ({ data: performances, status: 'ready' }) }, '../lib/repertoireMotion': {},
   })
   const collect = node => !React.isValidElement(node) ? [] : [node, ...React.Children.toArray(node.props.children).flatMap(collect)]
   const images = collect(RepertoirePage()).filter(node => node.type === 'img')

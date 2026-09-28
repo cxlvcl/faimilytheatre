@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 $bootstrap = getenv('THEATRE_API_BOOTSTRAP') ?: dirname(__DIR__) . '/bootstrap.php';
 $app = require $bootstrap;
-$base = (string) $app->config['base_url'];
-$staticPaths = ['/', '/repertoire', '/afisha', '/faq', '/franchise'];
+$base = rtrim((string) $app->config['base_url'], '/');
+$staticPaths = array_keys(\Theatre\Core\Seo::ROUTES);
 $rows = $app->db()->pdo()->query('SELECT slug, updated_at FROM performances ORDER BY id')->fetchAll();
 
 header('Content-Type: application/xml; charset=utf-8');
-header('Cache-Control: public, max-age=3600');
+header('Cache-Control: public, max-age=300');
 echo '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
 echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
 foreach ($staticPaths as $path) {
@@ -21,4 +21,3 @@ foreach ($rows as $row) {
     echo "  <url><loc>{$url}</loc><lastmod>{$lastModified}</lastmod></url>" . PHP_EOL;
 }
 echo '</urlset>';
-

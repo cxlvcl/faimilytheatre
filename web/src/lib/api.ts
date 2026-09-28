@@ -30,6 +30,28 @@ export class ApiError extends Error {
 
 const apiBase = (import.meta.env.VITE_API_BASE ?? '/api').replace(/\/$/, '')
 
+declare global {
+  interface Window { __THEATRE_DATA__?: Record<string, unknown> }
+}
+const publicCache = new Map<string, { value: unknown; expires: number }>(Object.entries(typeof window === 'undefined' ? {} : window.__THEATRE_DATA__ ?? {}).map(([path, value]) => [path, { value, expires: Date.now() + 60000 }]))
+const pending = new Map<string, Promise<unknown>>()
+export function cachedPublic<T>(path: string): T | undefined {
+  const cached = publicCache.get(path)
+  return cached && cached.expires > Date.now() ? cached.value as T : undefined
+}
+export function publicRequest<T>(path: string, refresh = false): Promise<T> {
+  if (refresh) publicCache.delete(path)
+  const cached = cachedPublic<T>(path)
+  if (cached !== undefined) return Promise.resolve(cached)
+  if (pending.has(path)) return pending.get(path) as Promise<T>
+  const result = request<T>(path).then(value => {
+    publicCache.set(path, { value, expires: Date.now() + 60000 })
+    return value
+  }).finally(() => pending.delete(path))
+  pending.set(path, result)
+  return result
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBase}${path}`, {
     credentials: 'same-origin',
@@ -90,10 +112,10 @@ function beacon(path: string, body: Record<string, unknown>): void {
 }
 
 export const publicApi = {
-  performances: () => request<PerformanceSummary[]>('/public/performances'),
-  performance: (slug: string) => request<Performance>(`/public/performances/${encodeURIComponent(slug)}`),
-  events: () => request<EventItem[]>('/public/events'),
-  faq: () => request<FaqItem[]>('/public/faq'),
+  performances: () => publicRequest<PerformanceSummary[]>('/public/performances'),
+  performance: (slug: string) => publicRequest<Performance>(`/public/performances/${encodeURIComponent(slug)}`),
+  events: () => publicRequest<EventItem[]>('/public/events'),
+  faq: () => publicRequest<FaqItem[]>('/public/faq'),
   franchise: (application: FranchiseApplication) =>
     request<{ id: number }>('/public/franchise/applications', {
       method: 'POST',

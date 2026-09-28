@@ -1,0 +1,6 @@
+Options -Indexes
+RewriteEngine On
+RewriteRule ^(?:src|seo)(?:/|$) - [F,L]
+RewriteRule ^(?:bootstrap|config.*)\.php$ - [F,L]
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [QSA,L]

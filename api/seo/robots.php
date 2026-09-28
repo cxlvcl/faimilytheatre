@@ -7,6 +7,6 @@ header('Content-Type: text/plain; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
 echo "User-agent: *\n";
 echo "Allow: /\n";
-echo "Disallow: /api/admin/\n";
+foreach (['/admin', '/auth', '/login', '/api/', '/preview', '/debug', '/.'] as $path) echo "Disallow: {$path}\n";
+if (($app->config['environment'] ?? 'development') !== 'production') echo "Disallow: /\n";
 echo 'Sitemap: ' . $app->config['base_url'] . "/sitemap.xml\n";
-

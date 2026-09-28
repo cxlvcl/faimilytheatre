@@ -8,6 +8,12 @@ return [
     'environment' => getenv('APP_ENV') ?: 'production',
     'base_url' => rtrim((string) (getenv('APP_BASE_URL') ?: 'https://example.ru'), '/'),
     'api_prefix' => '/api',
+    'seo' => [
+        'google_verification' => getenv('THEATRE_GOOGLE_VERIFICATION') ?: '',
+        'yandex_verification' => getenv('THEATRE_YANDEX_VERIFICATION') ?: '',
+        'redirects' => [], // Explicit old path => new path, only if a URL changes.
+        'trusted_proxies' => [], // Exact proxy IPs, only if hosting terminates HTTPS upstream.
+    ],
     'db' => [
         'dsn' => getenv('DB_DSN') ?: 'mysql:host=127.0.0.1;dbname=theatre;charset=utf8mb4',
         'user' => getenv('DB_USER') ?: '',

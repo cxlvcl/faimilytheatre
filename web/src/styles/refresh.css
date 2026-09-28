@@ -1,0 +1,65 @@
+/* Photo refresh: the media keeps its natural aspect ratio and reserves space. */
+html { overflow-anchor: none; }
+html.intro-pending .hero__visual,
+html.intro-pending .hero__logo,
+html.intro-pending .hero__slogan,
+html.intro-pending .site-header__menu { visibility: hidden; }
+.server-navigation { padding: 30px var(--side); background: #080808; color: #fff; }
+/* Keep the original full-screen hero composition. */
+.hero { --hero-logo-size: clamp(72px, 7vw, 108px); height: 100svh; }
+.hero__logo-position { position: absolute; top: 20px; left: 50%; width: var(--hero-logo-size); height: var(--hero-logo-size); display: block; transform: translateX(-50%); }
+.hero__logo { width: 100%; height: 100%; aspect-ratio: 1; object-fit: contain; filter: invert(1); }
+.hero__media { object-fit: cover; object-position: center 55%; }
+.hero__overlay { background: linear-gradient(180deg, transparent 45%, rgba(0,0,0,.12) 60%, rgba(0,0,0,.75)); }
+.hero__slogan { position: absolute; bottom: 3%; width: min(63vw, 810px); font-family: inherit; }
+.theatre-lettering { width: 100%; height: auto; }
+.about { grid-template-columns: 1fr 1fr; column-gap: clamp(32px, 5vw, 84px); }
+.about__phrase { width: min(78%, 620px); font-family: inherit; margin: 0 auto; }
+.about__image-wrap { width: min(100%, 470px); justify-self: center; }
+.about__image-wrap img { aspect-ratio: 2 / 3; object-fit: contain; }
+.about__intro { width: 100%; font-size: clamp(24px, 2.2vw, 34px); line-height: 1.35; }
+.about__final { width: min(76%, 830px); margin-top: 24px; }
+.about__final p + p { margin-top: 1em; font-size: .8em; line-height: 1.4; }
+/* Reveal blur belongs to the wrapper so it never replaces the image's inversion. */
+.site-footer__logo-reveal { display: flow-root; width: fit-content; max-width: 100%; margin: 0 auto; }
+.site-footer__logo { filter: invert(1); width: clamp(170px, 22vw, 300px); height: auto; aspect-ratio: 1; object-fit: contain; }
+.site-footer__legal { opacity: 1; visibility: visible; }
+.repertoire-scene__copy h2, .event-scene__copy h2 { max-width: 800px; font-size: clamp(56px, 6.2vw, 92px); font-weight: 300; line-height: .94; }
+.repertoire-scene__copy h2 a, .event-scene__copy h2 a { text-decoration: none; }
+.event-scene__poster-link { display: block; width: min(100%, 470px); aspect-ratio: 3 / 4; max-height: 68svh; justify-self: end; }
+.event-scene__poster-link img { width: 100%; height: 100%; object-fit: contain; }
+.event-scene { min-height: 100svh; contain: paint; isolation: isolate; }
+.performance-detail__cover { aspect-ratio: 3 / 4; }
+.breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: 17px; line-height: 1.4; margin-bottom: 28px; }
+.breadcrumbs a { text-underline-offset: 4px; }
+.listing-heading { position: absolute; z-index: 2; top: 108px; left: var(--side); font-size: 16px; font-weight: 400; letter-spacing: .06em; }
+.listing-heading .breadcrumbs { display: inline-flex; font-size: inherit; margin: 0; }
+.listing-heading h1 { display: inline; font: inherit; }
+.listing-heading h1::before { content: ' / '; }
+.return-to-list { display: block; margin: 0 auto 28px; border: 0; padding: 0; background: none; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; font-size: 18px; }
+.performance-detail__copy .breadcrumbs { justify-content: center; }
+.performance-detail__events { margin: 70px auto 0; max-width: 760px; text-align: left; }
+.performance-detail__events h2 { font-weight: 400; margin-bottom: 24px; }
+.performance-detail__events li { margin: 20px 0; }
+.performance-detail__events a { text-underline-offset: 4px; }
+@media (max-width: 900px) { .about__final { width: 85%; } }
+@media (max-width: 680px) {
+  .hero { --hero-logo-size: 74px; }
+  .hero__logo-position { top: 15px; }
+  .hero__media { object-position: center; }
+  .hero__slogan { top: 16%; bottom: auto; width: 94%; }
+  .hero__slogan .theatre-lettering { filter: invert(1); }
+  .hero__overlay { background: linear-gradient(transparent 85%,rgba(0,0,0,.15)); }
+  .about { display: grid; grid-template-columns: 1fr; grid-template-areas: 'phrase' 'intro' 'image' 'final'; gap: 24px; }
+  .about__phrase { width: min(92%, 360px); }
+  .about__intro { margin: 0; font-size: 23px; width: 100%; }
+  .about__image-wrap { margin: 0; width: min(100%, 420px); }
+  .about__final { width: 100%; margin: 0; font-size: 28px; }
+  .site-footer__logo { width: min(62vw, 260px); margin-bottom: 50px; }
+  .repertoire-scene__copy h2, .event-scene__copy h2 { font-size: clamp(47px, 13vw, 63px); }
+  .event-scene__poster-link { width: min(58vw, 310px); max-height: 50svh; justify-self: center; }
+  .listing-heading { top: 91px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
