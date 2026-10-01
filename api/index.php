@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Theatre\Controllers\AdminArticlesController;
 use Theatre\Controllers\AdminAuthController;
 use Theatre\Controllers\AdminContentController;
 use Theatre\Controllers\AdminStatsController;
@@ -33,12 +34,15 @@ $public = new PublicController($app);
 $auth = new AdminAuthController($app);
 $content = new AdminContentController($app);
 $stats = new AdminStatsController($app);
+$articles = new AdminArticlesController($app);
 $router = new Router();
 
 $router->get('/public/performances', static fn (): array => $public->performances());
 $router->get('/public/performances/{slug}', static fn (Request $request, string $slug): array => $public->performance($slug));
 $router->get('/public/events', static fn (): array => $public->events());
 $router->get('/public/faq', static fn (): array => $public->faq());
+$router->get('/public/articles', static fn (): array => $public->articles());
+$router->get('/public/articles/{slug}', static fn (Request $request, string $slug): array => $public->article($slug));
 $router->get('/public/seo', static function (Request $request) use ($app): array {
     $path = $request->query('path', '/');
     if (!is_string($path) || strlen($path) > 255) throw new HttpException(400, 'invalid_path', 'Некорректный путь');
@@ -71,6 +75,11 @@ $router->get('/admin/faq', static fn (Request $request): array => $content->faq(
 $router->post('/admin/faq', static fn (Request $request): array => $content->createFaq($request));
 $router->put('/admin/faq/{id}', static fn (Request $request, string $id): array => $content->updateFaq($request, (int) $id));
 $router->delete('/admin/faq/{id}', static fn (Request $request, string $id): array => $content->deleteFaq($request, (int) $id));
+
+$router->get('/admin/articles', static fn (Request $request): array => $articles->list($request));
+$router->post('/admin/articles', static fn (Request $request): array => $articles->create($request));
+$router->put('/admin/articles/{id}', static fn (Request $request, string $id): array => $articles->update($request, (int) $id));
+$router->delete('/admin/articles/{id}', static fn (Request $request, string $id): array => $articles->delete($request, (int) $id));
 
 $router->get('/admin/statistics', static fn (Request $request): array => $stats->statistics($request));
 $router->get('/admin/franchise/statistics', static fn (Request $request): array => $stats->franchiseStatistics($request));

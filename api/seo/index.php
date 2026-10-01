@@ -62,6 +62,9 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#080808">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <title><?= e($meta['title']) ?></title>
   <meta name="description" content="<?= e($meta['description']) ?>">
   <meta name="robots" content="<?= e($meta['robots']) ?>">
@@ -88,13 +91,14 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
   <link rel="preload" href="/fonts/CormorantGaramond-Cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <?php if ($path === '/'): ?>
   <script>try { if (sessionStorage.getItem('theatre_intro_seen') !== '1' && !matchMedia('(prefers-reduced-motion: reduce)').matches) { document.documentElement.classList.add('intro-pending'); setTimeout(function () { document.documentElement.classList.remove('intro-pending'); }, 6000); } } catch (_) {}</script>
-  <link rel="preload" as="image" href="/media/hero-mobile.webp" imagesrcset="/media/hero-mobile-600.webp 600w, /media/hero-mobile.webp 941w" imagesizes="100vw" media="(max-width: 680px)" fetchpriority="high">
-  <link rel="preload" as="image" href="/media/hero-desktop.webp" imagesrcset="/media/hero-desktop-1000.webp 1000w, /media/hero-desktop.webp 1672w" imagesizes="100vw" media="(min-width: 681px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/media/hero-2026-mobile-poster.webp" media="(max-width: 680px), (orientation: portrait) and (max-width: 1024px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/media/hero-2026-desktop-poster.webp" media="(min-width: 681px) and (orientation: landscape), (min-width: 1025px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/media/hero-center-logo.webp" fetchpriority="high">
 <?php endif; ?>
 </head>
 <body>
   <div id="root"><?= $body ?></div>
-  <noscript><nav class="server-navigation" aria-label="Разделы сайта"><a href="/">Главная</a> · <a href="/repertoire">Репертуар</a> · <a href="/afisha">Афиша</a> · <a href="/#about">О театре</a> · <a href="/#contacts">Контакты</a> · <a href="/faq">FAQ</a> · <a href="/franchise">Франшиза</a></nav></noscript>
+  <noscript><nav class="server-navigation" aria-label="Разделы сайта"><a href="/">Главная</a> · <a href="/repertoire">Репертуар</a> · <a href="/afisha">Афиша</a> · <a href="/#about">О театре</a> · <a href="/#contacts">Контакты</a> · <a href="/articles">Статьи</a> · <a href="/faq">FAQ</a> · <a href="/franchise">Франшиза</a></nav></noscript>
   <script>window.__THEATRE_DATA__ = <?= jsonForHtml($data) ?>;</script>
   <script type="module" src="<?= e($script) ?>"></script>
 </body>

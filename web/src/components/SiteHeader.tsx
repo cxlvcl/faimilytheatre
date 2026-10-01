@@ -33,8 +33,7 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
         aria-label="Открыть меню"
         aria-expanded={menuOpen}
       >
-        <span />
-        <span />
+        <span className="site-header__menu-label">Меню</span>
       </button>
       {!isHome && (
         <SmoothLink className="site-header__logo" to="/" aria-label="Театр Музыки и Песка — главная">

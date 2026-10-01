@@ -38,3 +38,17 @@ export interface FranchiseApplication {
   phone: string
   website?: string
 }
+
+export interface ArticleSummary {
+  id: number
+  slug: string
+  title: string
+  excerpt: string
+  cover_image: string
+  published_on: string
+}
+
+export interface Article extends ArticleSummary {
+  body: string
+  updated_at: string
+}

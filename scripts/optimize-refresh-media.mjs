@@ -7,8 +7,13 @@ const assets = [
   ['hero-team-mobile.png', 'hero-mobile-600.webp', 600],
   ['about-team.png', 'about-team.webp', 1024],
   ['contact-logo.jpg', 'contact-logo.webp', 800],
+  ['franchise-swan.png', 'franchise-swan.webp', 1500, 82],
+  ['franchise-masterpieces.png', 'franchise-masterpieces.webp', 1664, 82],
 ];
-for (const [source, destination, width] of assets) {
-  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', `web/public/media/${source}`, '-vf', `scale=${width}:-1:flags=lanczos`, '-c:v', 'libwebp', '-quality', '91', '-compression_level', '6', 'web/public/media/' + destination]);
+const requested = new Set(process.argv.slice(2));
+for (const [source, destination, width, quality = 91] of assets) {
+  if (requested.size && !requested.has(destination)) continue;
+  const pixelFormat = destination === 'franchise-swan.webp' ? ['-pix_fmt', 'yuva420p'] : [];
+  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', `web/public/media/${source}`, '-vf', `scale=${width}:-1:flags=lanczos`, '-c:v', 'libwebp', ...pixelFormat, '-quality', String(quality), '-compression_level', '6', 'web/public/media/' + destination]);
   console.log(destination);
 }

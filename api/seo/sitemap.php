@@ -20,4 +20,10 @@ foreach ($rows as $row) {
     $lastModified = (new DateTimeImmutable((string) $row['updated_at'], new DateTimeZone('UTC')))->format('Y-m-d');
     echo "  <url><loc>{$url}</loc><lastmod>{$lastModified}</lastmod></url>" . PHP_EOL;
 }
+$articles = $app->db()->pdo()->query("SELECT slug, updated_at FROM articles WHERE is_published = 1 AND published_on <= CURDATE() ORDER BY published_on DESC")->fetchAll();
+foreach ($articles as $row) {
+    $url = htmlspecialchars($base . '/articles/' . $row['slug'], ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    $lastModified = (new DateTimeImmutable((string) $row['updated_at'], new DateTimeZone('UTC')))->format('Y-m-d');
+    echo "  <url><loc>{$url}</loc><lastmod>{$lastModified}</lastmod></url>" . PHP_EOL;
+}
 echo '</urlset>';

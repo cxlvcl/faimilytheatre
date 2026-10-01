@@ -11,6 +11,7 @@ const links = [
   { label: 'Главная', path: '/' },
   { label: 'Репертуар', path: '/repertoire' },
   { label: 'Афиша', path: '/afisha' },
+  { label: 'Статьи', path: '/articles' },
   { label: 'FAQ', path: '/faq' },
   { label: 'Франшиза', path: '/franchise' },
 ]
@@ -19,6 +20,7 @@ const preloadPage: Record<string, () => Promise<unknown>> = {
   '/': () => import('../pages/HomePage'),
   '/repertoire': () => import('../pages/RepertoirePage'),
   '/afisha': () => import('../pages/AfishaPage'),
+  '/articles': () => import('../pages/ArticlesPage'),
   '/faq': () => import('../pages/FaqPage'),
   '/franchise': () => import('../pages/FranchisePage'),
 }

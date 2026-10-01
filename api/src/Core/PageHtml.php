@@ -16,6 +16,35 @@ final class PageHtml
             return '<p>' . $text . '</p>';
         }, $paragraphs));
     }
+    private static function inline(string $text): string
+    {
+        $text = self::e($text);
+        $text = preg_replace('/\*\*(.+?)\*\*/su', '<strong>$1</strong>', $text);
+        return (string) preg_replace('/(?<!\*)\*([^*]+)\*(?!\*)/su', '<em>$1</em>', (string) $text);
+    }
+    /** Article markup: paragraphs, "## "/"### " subheadings and "- " lists. */
+    public static function articleMarkdown(string $value): string
+    {
+        $html = '';
+        foreach (preg_split('/\n\s*\n/u', trim(str_replace("\r\n", "\n", $value))) ?: [] as $block) {
+            $lines = array_map('trim', explode("\n", $block));
+            if (preg_match('/^(#{2,3})\s+(.+)$/u', $lines[0], $match) && count($lines) === 1) {
+                $level = strlen($match[1]);
+                $html .= "<h{$level}>" . self::inline($match[2]) . "</h{$level}>";
+            } elseif (array_filter($lines, static fn ($line) => !str_starts_with($line, '- ')) === []) {
+                $html .= '<ul>' . implode('', array_map(static fn ($line) => '<li>' . self::inline(substr($line, 2)) . '</li>', $lines)) . '</ul>';
+            } else {
+                $html .= '<p>' . self::inline(implode(' ', $lines)) . '</p>';
+            }
+        }
+        return $html;
+    }
+    public static function articleDate(string $date): string
+    {
+        $value = new \DateTimeImmutable($date, new \DateTimeZone('Europe/Moscow'));
+        $months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+        return '<time datetime="' . self::e($date) . '">' . $value->format('j') . ' ' . $months[(int) $value->format('n') - 1] . ' ' . $value->format('Y') . '</time>';
+    }
     public static function breadcrumbs(array $items): string
     {
         $links = [];
@@ -76,6 +105,20 @@ final class PageHtml
                 $body .= '</ul>';
             }
             $body .= '</section></div></div></article>';
+        } elseif ($path === '/articles') {
+            $body = '<section class="articles-page">' . $crumbs . '<h1>Статьи</h1>';
+            if (!$data['/public/articles']) $body .= '<p class="articles-page__empty">Скоро здесь появятся первые статьи.</p>';
+            else {
+                $body .= '<div class="article-grid">';
+                foreach ($data['/public/articles'] as $index => $item) {
+                    $url = '/articles/' . self::e($item['slug']);
+                    $body .= '<article class="article-card"><a class="article-card__link" href="' . $url . '"><img class="article-card__image" src="' . self::e($item['cover_image']) . '" alt="" width="1200" height="800" loading="' . ($index < 3 ? 'eager' : 'lazy') . '" decoding="async"><div class="article-card__copy"><p class="article-card__date">' . self::articleDate($item['published_on']) . '</p><h2>' . self::e($item['title']) . '</h2><p>' . self::e($item['excerpt']) . '</p></div></a></article>';
+                }
+                $body .= '</div>';
+            }
+            $body .= '</section>';
+        } elseif ($article = $page['article'] ?? null) {
+            $body = '<article class="article-detail"><header class="article-detail__header">' . $crumbs . '<p class="article-detail__date">' . self::articleDate($article['published_on']) . '</p><h1>' . self::e($article['title']) . '</h1><p class="article-detail__lead">' . self::e($article['excerpt']) . '</p></header><img class="article-detail__cover" src="' . self::e($article['cover_image']) . '" alt="" width="1600" height="900" fetchpriority="high"><div class="article-detail__body">' . self::articleMarkdown($article['body']) . '</div></article>';
         } elseif ($path === '/faq') {
             $body = '<section class="faq-page">' . $crumbs . '<h1>FAQ</h1><div class="faq-list">';
             foreach ($data['/public/faq'] as $faq) $body .= '<details class="faq-item"><summary>' . self::e($faq['question']) . '</summary><div class="faq-item__answer">' . self::markdown($faq['answer']) . '</div></details>';

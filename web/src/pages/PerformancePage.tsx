@@ -25,7 +25,7 @@ export default function PerformancePage() {
   }, [status])
   if (status === 'not-found') return <section className="simple-page"><h1>Спектакль не найден</h1></section>
   if (status === 'error') return <section className="simple-page"><LoadError retry={retry} /></section>
-  if (!performance || status === 'loading') return <div className="page-wash" aria-hidden="true" />
+  if (!performance || status === 'loading') return <div className="page-wash page-wash--dark" aria-hidden="true" />
   const focus = { '--focus-desktop': `${performance.hero_focus_desktop_x}% ${performance.hero_focus_desktop_y}%`, '--focus-mobile': `${performance.hero_focus_mobile_x}% ${performance.hero_focus_mobile_y}%` } as React.CSSProperties
   const upcoming = events.filter(event => event.performance.slug === slug)
   return <article ref={root} className="performance-detail" style={focus}>

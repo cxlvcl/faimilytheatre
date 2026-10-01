@@ -93,6 +93,31 @@ final class PublicController
         ], $rows);
     }
 
+    public function articles(): array
+    {
+        $statement = $this->app->db()->pdo()->prepare(
+            'SELECT id, slug, title, excerpt, cover_image, published_on
+             FROM articles WHERE is_published = 1 AND published_on <= :today
+             ORDER BY published_on DESC, id DESC'
+        );
+        $statement->execute(['today' => $this->moscowToday()]);
+        return array_map([$this, 'articleSummary'], $statement->fetchAll());
+    }
+
+    public function article(string $slug): array
+    {
+        $statement = $this->app->db()->pdo()->prepare(
+            'SELECT id, slug, title, excerpt, body, cover_image, published_on, updated_at
+             FROM articles WHERE slug = :slug AND is_published = 1 AND published_on <= :today LIMIT 1'
+        );
+        $statement->execute(['slug' => $slug, 'today' => $this->moscowToday()]);
+        $row = $statement->fetch();
+        if (!is_array($row)) {
+            throw new HttpException(404, 'not_found', 'Статья не найдена');
+        }
+        return $this->articleSummary($row) + ['body' => (string) $row['body'], 'updated_at' => (string) $row['updated_at']];
+    }
+
     public function franchise(Request $request): array
     {
         $input = $request->body();
@@ -143,7 +168,7 @@ final class PublicController
         if (!is_string($input['page_path'] ?? null) || !is_string($input['visitor_id'] ?? null)) throw new HttpException(422, 'validation_failed', 'Некорректные данные');
         $path = '/' . ltrim($input['page_path'], '/');
         $path = (string) (parse_url($path, PHP_URL_PATH) ?: '/');
-        $validPath = preg_match('#^/(?:$|repertoire(?:/[a-z0-9-]{1,180})?|afisha|faq|franchise)$#', $path) === 1;
+        $validPath = preg_match('#^/(?:$|repertoire(?:/[a-z0-9-]{1,180})?|articles(?:/[a-z0-9-]{1,180})?|afisha|faq|franchise)$#', $path) === 1;
         if (!$validPath || strlen($path) > 255) {
             throw new HttpException(422, 'validation_failed', 'Некорректный путь', ['page_path' => 'Некорректный путь']);
         }
@@ -202,6 +227,23 @@ final class PublicController
             'cover_image' => (string) $row['cover_image'],
             'is_premiere' => (bool) $row['is_premiere'],
         ];
+    }
+
+    private function articleSummary(array $row): array
+    {
+        return [
+            'id' => (int) $row['id'],
+            'slug' => (string) $row['slug'],
+            'title' => (string) $row['title'],
+            'excerpt' => (string) $row['excerpt'],
+            'cover_image' => (string) $row['cover_image'],
+            'published_on' => (string) $row['published_on'],
+        ];
+    }
+
+    private function moscowToday(): string
+    {
+        return (new DateTimeImmutable('now', new DateTimeZone('Europe/Moscow')))->format('Y-m-d');
     }
 
     private function visitorHash(string $visitorId): string

@@ -13,4 +13,5 @@ function migrateTheatreDatabase(PDO $pdo): void
     if ((int) $column->fetchColumn() === 0) {
         $pdo->exec(file_get_contents(__DIR__ . '/migrations/002_event_time.sql'));
     }
+    $pdo->exec(file_get_contents(__DIR__ . '/migrations/003_articles.sql'));
 }

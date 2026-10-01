@@ -20,13 +20,13 @@ const publicRoot = join(release, 'public-update')
 const privateRoot = join(release, 'private-update')
 const activateRoot = join(release, 'activate-update')
 for (const path of [publicRoot, privateRoot, activateRoot]) await mkdir(path, { recursive: true })
-for (const name of ['assets', 'fonts']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
+for (const name of ['assets', 'fonts', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
 
 // Only deployed media: no unused videos or original photo files.
 const media = [
   'hero-desktop.webp', 'hero-desktop-1000.webp', 'hero-mobile.webp', 'hero-mobile-600.webp',
   'about-team.webp', 'contact-logo.webp', 'logo.webp', 'menu-sand-performance.webp',
-  'franchise-swan.png', 'franchise-masterpieces.png', 'lettering', 'musicians', 'partners',
+  'franchise-swan.webp', 'franchise-masterpieces.webp', 'lettering', 'musicians', 'partners',
 ]
 await mkdir(join(publicRoot, 'media'))
 for (const name of media) await cp(join(full.publicRoot, 'media', name), join(publicRoot, 'media', name), { recursive: true })
@@ -52,7 +52,7 @@ async function files(directory, prefix = '') {
   return result.sort()
 }
 const archives = [
-  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media']],
+  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']],
   ['02-private-update.zip', privateRoot, ['api/src', 'api/config.example.php', 'api/bootstrap.php', 'api/index.php', 'ssr']],
   ['03-activate-update.zip', activateRoot, ['manifest.json', 'api/seo']],
 ]

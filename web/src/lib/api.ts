@@ -1,4 +1,6 @@
 import type {
+  Article,
+  ArticleSummary,
   EventItem,
   FaqItem,
   FranchiseApplication,
@@ -116,6 +118,8 @@ export const publicApi = {
   performance: (slug: string) => publicRequest<Performance>(`/public/performances/${encodeURIComponent(slug)}`),
   events: () => publicRequest<EventItem[]>('/public/events'),
   faq: () => publicRequest<FaqItem[]>('/public/faq'),
+  articles: () => publicRequest<ArticleSummary[]>('/public/articles'),
+  article: (slug: string) => publicRequest<Article>(`/public/articles/${encodeURIComponent(slug)}`),
   franchise: (application: FranchiseApplication) =>
     request<{ id: number }>('/public/franchise/applications', {
       method: 'POST',

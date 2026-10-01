@@ -1,0 +1,92 @@
+/* October 2026: video hero, centred glowing logo, "Меню" label, text-only about. */
+html.intro-pending .hero__center-logo { visibility: hidden; }
+.hero[data-intro='true'] .hero__center-logo { opacity: 0; visibility: hidden; }
+.hero__overlay { background: radial-gradient(ellipse at center, rgba(0,0,0,.28) 0%, rgba(0,0,0,.12) 45%, rgba(0,0,0,.5) 100%); }
+.hero__poster { transition: opacity .6s ease; }
+.hero__center {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -46%);
+  pointer-events: none;
+}
+.hero__center-logo {
+  display: block;
+  width: auto;
+  height: min(58svh, 620px);
+  max-width: 82vw;
+  object-fit: contain;
+}
+
+.site-header__menu {
+  width: auto;
+  height: auto;
+  padding: 6px 0;
+  color: inherit;
+  font: 400 21px/1 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.site-header__menu-label {
+  display: block;
+  animation: menu-flicker 5.5s ease-in-out infinite;
+}
+.site-header__menu:hover .site-header__menu-label,
+.site-header__menu:focus-visible .site-header__menu-label {
+  animation-play-state: paused;
+  opacity: 1;
+}
+@keyframes menu-flicker {
+  0%, 100% { opacity: .5; }
+  38% { opacity: 1; }
+  44% { opacity: .72; }
+  48% { opacity: 1; }
+  70% { opacity: .62; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header__menu-label { animation: none; opacity: 1; }
+}
+
+.about.about--text {
+  display: block;
+  padding: clamp(80px, 9vw, 140px) var(--side);
+}
+.about--text .about__phrase { width: min(78%, 620px); margin: 0 auto clamp(48px, 5vw, 80px); }
+.about__text {
+  max-width: 880px;
+  margin: 0 auto;
+  font-size: clamp(22px, 1.75vw, 28px);
+  line-height: 1.5;
+}
+.about__text p + p { margin-top: 1.1em; }
+.about__text .about__closing {
+  margin-top: 1.6em;
+  font-size: 1.25em;
+  font-style: italic;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .site-header__menu { font-size: 18px; letter-spacing: .14em; }
+  .hero__center-logo { height: min(50svh, 460px); }
+  .about--text .about__phrase { width: min(92%, 360px); }
+  .about__text { font-size: 20px; line-height: 1.5; }
+}
+/* Reset the former two-line burger span styles. */
+.site-header__menu .site-header__menu-label { position: static; width: auto; height: auto; background: none; transition: none; }
+/* The video is dark, so the small top logo stays white (no inversion). */
+.hero .hero__logo { filter: none; }
+
+/* Route change: a short fade instead of a hard cut (not on the first load). */
+.route-view--enter { animation: route-in .42s ease-out backwards; }
+@keyframes route-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .route-view--enter { animation: none; } }
+
+/* Wide desktops: content stays in a centred 1600px column; backgrounds stay full-bleed. */
+@media (min-width: 1700px) {
+  :root { --side: calc((100vw - 1600px) / 2); }
+  .site-header__menu { left: 112px; }
+  .franchise-hero__content { width: calc(1120px + var(--side)); padding-right: 0; }
+}

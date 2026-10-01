@@ -1,40 +1,43 @@
 import { type RefObject, useLayoutEffect } from 'react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-gsap.registerPlugin(ScrollTrigger)
-
+/**
+ * Soft reveal on entering the viewport. IntersectionObserver also reports
+ * elements that are already visible on first paint, so nothing stays hidden
+ * until the visitor scrolls (ScrollTrigger missed those on initial load).
+ */
 export function useReveal<T extends HTMLElement>(
   root: RefObject<T | null>,
   selector = '[data-reveal]',
   ready: unknown = true,
 ): void {
   useLayoutEffect(() => {
-    if (!root.current || !ready) return
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce) return
-    const context = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(selector).forEach((element, index) => {
-        gsap.fromTo(
-          element,
-          { autoAlpha: 0, filter: 'blur(5px)', y: 16 },
-          {
-            autoAlpha: 1,
-            filter: 'blur(0px)',
-            y: 0,
-            duration: 0.8,
-            clearProps: 'opacity,visibility,filter,transform',
-            delay: Math.min(index * 0.04, 0.2),
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: element,
-              start: 'clamp(top 92%)',
-              once: true,
-            },
-          },
-        )
-      })
-    }, root)
-    return () => context.revert()
+    const element = root.current
+    if (!element || !ready) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const targets = gsap.utils.toArray<HTMLElement>(selector, element)
+    gsap.set(targets, { autoAlpha: 0, y: 16, filter: 'blur(5px)' })
+    let batch = 0
+    let frame = 0
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        observer.unobserve(entry.target)
+        gsap.to(entry.target, {
+          autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out',
+          delay: Math.min(batch++ * 0.06, 0.3),
+          clearProps: 'opacity,visibility,filter,transform',
+        })
+      }
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => { batch = 0 })
+    }, { rootMargin: '0px 0px -8% 0px' })
+    targets.forEach(target => observer.observe(target))
+    return () => {
+      observer.disconnect()
+      cancelAnimationFrame(frame)
+      gsap.killTweensOf(targets)
+      gsap.set(targets, { clearProps: 'opacity,visibility,filter,transform' })
+    }
   }, [root, selector, ready])
 }

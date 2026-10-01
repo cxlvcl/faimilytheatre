@@ -11,6 +11,7 @@ final class Seo
         '/' => ['Театр Музыки и Песка — музыкальные спектакли и песочная анимация', 'Театр Музыки и Песка — музыкальные спектакли, живая музыка и песочная анимация. Репертуар, афиша и ближайшие показы.', 'Главная'],
         '/repertoire' => ['Репертуар — Театр Музыки и Песка', 'Спектакли Театра Музыки и Песка: истории, рассказанные живой музыкой, словом и песочной анимацией. Описание постановок и ближайшие показы.', 'Репертуар'],
         '/afisha' => ['Афиша — Театр Музыки и Песка', 'Ближайшие показы Театра Музыки и Песка. Даты, время, площадки проведения спектаклей и ссылки на билеты.', 'Афиша'],
+        '/articles' => ['Статьи — Театр Музыки и Песка', 'Статьи Театра Музыки и Песка: о спектаклях, живой музыке, песочной анимации и о том, как мы создаём истории для детей и взрослых.', 'Статьи'],
         '/faq' => ['Вопросы и ответы — Театр Музыки и Песка', 'Ответы на вопросы о спектаклях Театра Музыки и Песка: формат представлений, посещение и информация для зрителей.', 'FAQ'],
         '/franchise' => ['Франшиза — Театр Музыки и Песка', 'Откройте Театр Музыки и Песка в своём городе: готовый репертуар, подготовка команды и сопровождение запуска.', 'Франшиза'],
     ];
@@ -29,18 +30,33 @@ final class Seo
         if ($text !== '' && preg_match('/^(.{40,220}?[.!?])(?:\s|$)/u', $text, $match)) return $match[1];
         return '«' . $show['title'] . '» — спектакль Театра Музыки и Песка. Описание постановки, фотографии и ближайшие показы.';
     }
+    private function excerpt(string $value): string
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', $value) ?? '');
+        return mb_strlen($text) <= 240 ? $text : rtrim(mb_substr($text, 0, 237)) . '…';
+    }
     public function page(string $rawPath): array
     {
         $path = self::path($rawPath);
         $api = new PublicController($this->app);
         $data = [];
         $show = null;
+        $article = null;
         $status = 200;
         $info = self::ROUTES[$path] ?? null;
         $image = $this->absolute('/media/hero-desktop.webp');
         if ($path === '/repertoire') $data['/public/performances'] = $api->performances();
         if ($path === '/afisha') $data['/public/events'] = $api->events();
         if ($path === '/faq') $data['/public/faq'] = $api->faq();
+        if ($path === '/articles') $data['/public/articles'] = $api->articles();
+        if (preg_match('#^/articles/([a-z0-9-]{1,180})$#', $path, $match)) {
+            try {
+                $article = $api->article($match[1]);
+                $data['/public/articles/' . $match[1]] = $article;
+                $info = [$article['title'] . ' | Театр Музыки и Песка', $this->excerpt($article['excerpt']), $article['title']];
+                if ($article['cover_image'] !== '') $image = $this->absolute($article['cover_image']);
+            } catch (HttpException $error) { if ($error->status !== 404) throw $error; }
+        }
         if (preg_match('#^/repertoire/([a-z0-9-]{1,180})$#', $path, $match)) {
             try {
                 $show = $api->performance($match[1]);
@@ -66,8 +82,18 @@ final class Seo
         if ($path !== '/' && $status === 200) {
             $breadcrumbs = [['name' => 'Главная', 'path' => '/']];
             if ($show) $breadcrumbs[] = ['name' => 'Репертуар', 'path' => '/repertoire'];
+            if ($article) $breadcrumbs[] = ['name' => 'Статьи', 'path' => '/articles'];
             $breadcrumbs[] = ['name' => $info[2], 'path' => $path];
             $graph[] = ['@type' => 'BreadcrumbList', 'itemListElement' => array_map(fn ($item, $position) => ['@type' => 'ListItem', 'position' => $position + 1, 'name' => $item['name'], 'item' => $this->absolute($item['path'])], $breadcrumbs, array_keys($breadcrumbs))];
+        }
+        if ($article) {
+            $graph[] = [
+                '@type' => 'Article', '@id' => $canonical . '#article', 'headline' => $article['title'],
+                'description' => $info[1], 'image' => $image, 'mainEntityOfPage' => $canonical,
+                'datePublished' => $article['published_on'],
+                'dateModified' => (new \DateTimeImmutable($article['updated_at'], new \DateTimeZone('UTC')))->format(DATE_ATOM),
+                'author' => ['@id' => $organization['@id']], 'publisher' => ['@id' => $organization['@id']],
+            ];
         }
         foreach ($data['/public/events'] ?? [] as $event) {
             if ($show && $event['performance']['slug'] !== $show['slug']) continue;
@@ -85,6 +111,6 @@ final class Seo
         $meta = ['path' => $path, 'status' => $status, 'title' => $info[0], 'description' => $info[1], 'canonical' => $canonical, 'image' => $image,
             'robots' => $status === 404 || ($this->app->config['environment'] ?? 'development') !== 'production' ? 'noindex, follow' : 'index, follow, max-image-preview:large',
             'schema' => ['@context' => 'https://schema.org', '@graph' => $graph], 'breadcrumbs' => $breadcrumbs];
-        return ['meta' => $meta, 'data' => $data, 'performance' => $show];
+        return ['meta' => $meta, 'data' => $data, 'performance' => $show, 'article' => $article];
     }
 }

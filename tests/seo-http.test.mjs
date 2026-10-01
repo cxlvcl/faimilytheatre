@@ -65,13 +65,15 @@ test('Unknown pages return real 404/noindex and normalized public URLs redirect 
 
 test('Sitemap lists every real page, excludes technical URLs, and robots protects preview', async () => {
   const shows = await api('/public/performances');
+  const articles = await api('/public/articles');
   const sitemap = await get('/sitemap.xml');
   assert.equal(sitemap.response.status, 200);
   const urls = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
-  assert.equal(urls.length, shows.length + 5);
+  assert.equal(urls.length, shows.length + articles.length + 6);
   assert.equal(new Set(urls).size, urls.length);
   assert.ok(urls.every(url => !/\/(admin|api|auth|preview)(\/|$)/.test(new URL(url).pathname)));
   for (const show of shows) assert.ok(urls.some(url => url.endsWith('/repertoire/' + show.slug)));
+  for (const article of articles) assert.ok(urls.some(url => url.endsWith('/articles/' + article.slug)));
   const robots = await get('/robots.txt');
   assert.equal(robots.response.status, 200);
   assert.match(robots.body, /^Disallow: \/$/m);
@@ -79,20 +81,43 @@ test('Sitemap lists every real page, excludes technical URLs, and robots protect
   assert.match(robots.body, /Sitemap: http[^\s]+\/sitemap.xml/);
 });
 
-test('Photo hero, exact handwritten About copy and unconditional legal details are present', async () => {
+test('Video hero, centred logo, About copy and unconditional legal details are present', async () => {
   const { body } = await get('/');
-  assert.ok(!body.includes('<video'));
-  assert.ok(body.includes('/media/hero-mobile.webp') && body.includes('/media/hero-desktop.webp'));
+  assert.ok(body.includes('<video'));
+  assert.ok(body.includes('/media/hero-2026-desktop-poster.webp') && body.includes('/media/hero-2026-mobile-poster.webp'));
+  assert.ok(body.includes('/media/hero-center-logo.webp'));
+  assert.ok(!body.includes('hero__slogan'));
   assert.ok(body.includes('Театр Музыки и Песка — истории, рассказанные музыкой, словом и песком'));
-  assert.ok(body.includes('Мы делаем спектакли, в которых музыка звучит вживую'));
-  assert.ok(body.includes('Нам хочется, чтобы после спектакля с человеком что-то осталось.'));
+  assert.ok(body.includes('единственный в Нижегородской области проект'));
+  assert.ok(body.includes('искусство, которое видят сердцем'));
+  assert.ok(!body.includes('about-team.webp'));
   assert.match(body, /class="site-footer__legal"(?![^>]*data-reveal)/);
   assert.match(body, /<div data-reveal="true" class="site-footer__logo-reveal"><img class="site-footer__logo"[^>]*><\/div>/);
-  for (const path of ['/media/hero-desktop.webp', '/media/hero-desktop-1000.webp', '/media/hero-mobile.webp', '/media/hero-mobile-600.webp', '/media/about-team.webp', '/media/contact-logo.webp', '/media/lettering/hero.svg', '/media/lettering/about.svg']) {
+  for (const path of ['/media/hero-2026-desktop-poster.webp', '/media/hero-2026-mobile-poster.webp', '/media/hero-center-logo.webp', '/media/contact-logo.webp', '/media/lettering/about.svg', '/favicon.ico']) {
     const resource = await get(path);
     assert.equal(resource.response.status, 200, path);
     assert.match(resource.response.headers.get('content-type'), /^image\//, path);
   }
+  for (const path of ['/media/hero-2026-desktop.mp4', '/media/hero-2026-desktop-1280.mp4', '/media/hero-2026-mobile.mp4']) {
+    const resource = await get(path);
+    assert.equal(resource.response.status, 200, path);
+    assert.match(resource.response.headers.get('content-type'), /^video\/mp4/, path);
+  }
+});
+
+test('Articles list and article pages render on the server with Article schema', async () => {
+  const articles = await api('/public/articles');
+  const list = await get('/articles');
+  assert.equal(list.response.status, 200);
+  assert.match(list.body, /<h1>Статьи<\/h1>/);
+  for (const article of articles) assert.ok(list.body.includes('/articles/' + article.slug));
+  if (articles.length) {
+    const page = await get('/articles/' + articles[0].slug);
+    assert.equal(page.response.status, 200);
+    assert.ok(page.body.includes('"@type":"Article"'));
+    assert.match(page.body, /class="article-detail__body"/);
+  }
+  assert.equal((await get('/articles/no-such-article')).response.status, 404);
 });
 
 test('Event schemas contain only real dates/venues and no invented prices or status', async () => {

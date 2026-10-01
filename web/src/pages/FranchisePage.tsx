@@ -131,7 +131,7 @@ export default function FranchisePage() {
   return (
     <div ref={root} className="franchise-page">
       <section className="franchise-hero">
-        <img className="franchise-hero__background" src="/media/franchise-swan.png" alt="" width="1500" height="964" fetchPriority="high" />
+        <img className="franchise-hero__background" src="/media/franchise-swan.webp" alt="" width="1500" height="964" fetchPriority="high" />
         <div className="franchise-hero__shade" />
         <div className="franchise-hero__content">
           <Breadcrumbs items={[{ name: 'Главная', path: '/' }, { name: 'Франшиза' }]} />
@@ -225,7 +225,7 @@ export default function FranchisePage() {
       </section>
 
       <section className="franchise-form-scene">
-        <img src="/media/franchise-masterpieces.png" alt="" className="franchise-form-scene__background" loading="lazy" />
+        <img src="/media/franchise-masterpieces.webp" alt="" className="franchise-form-scene__background" loading="lazy" />
         <div className="franchise-form-scene__shade" />
         <div className="franchise-form-scene__inner">
           <div data-reveal className="franchise-form-scene__copy">

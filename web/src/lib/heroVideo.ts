@@ -1,14 +1,25 @@
 export const heroVideoSources = {
-  poster: '/media/hero-7e5e35cf-poster.webp',
-  hdr: '/media/hero-7e5e35cf-hdr.mp4',
-  standard: '/media/hero-7e5e35cf-4k.mp4',
+  desktop: '/media/hero-2026-desktop.mp4',
+  desktopPoster: '/media/hero-2026-desktop-poster.webp',
+  mobile: '/media/hero-2026-mobile.mp4',
+  mobilePoster: '/media/hero-2026-mobile-poster.webp',
+  standard: '/media/hero-2026-desktop-1280.mp4',
 } as const
+
+export const heroMobileQuery = '(max-width: 680px), (orientation: portrait) and (max-width: 1024px)'
+
+/** Portrait screens get the vertical cut; small or low-density desktops the 720p file. */
+export function pickHeroVideo(): string {
+  if (window.matchMedia(heroMobileQuery).matches) return heroVideoSources.mobile
+  return window.innerWidth * Math.min(window.devicePixelRatio || 1, 2) >= 1600 ? heroVideoSources.desktop : heroVideoSources.standard
+}
 
 /** Decorative video: keep the separate poster visible until playback really starts. */
 export function createHeroVideoPlayback(
   video: HTMLVideoElement,
   visual: HTMLElement,
   viewportTarget: HTMLElement,
+  fallback: string = heroVideoSources.standard,
 ) {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
   let visible = false
@@ -17,7 +28,7 @@ export function createHeroVideoPlayback(
   let pending = false
   let autoplayBlocked = false
   let failed = false
-  let usingStandard = video.getAttribute('src') === heroVideoSources.standard
+  let usingStandard = video.getAttribute('src') === fallback
   let attempt = 0
 
   // Set DOM properties as well as attributes before the first play() call in Safari.
@@ -48,7 +59,7 @@ export function createHeroVideoPlayback(
     usingStandard = true
     attempt += 1
     pending = false
-    video.src = heroVideoSources.standard
+    video.src = fallback
     video.load()
     updatePlayback()
   }
@@ -69,7 +80,6 @@ export function createHeroVideoPlayback(
       showPoster()
       const name = error instanceof Error ? error.name : ''
       if (name === 'NotAllowedError') autoplayBlocked = true
-      // A claimed HEVC capability does not guarantee this HDR profile can decode.
       // Do not switch formats when the browser merely disallows autoplay.
       if (name === 'NotSupportedError') fallbackToStandard()
     }
