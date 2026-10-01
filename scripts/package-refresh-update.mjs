@@ -23,9 +23,11 @@ for (const path of [publicRoot, privateRoot, activateRoot]) await mkdir(path, { 
 for (const name of ['assets', 'fonts', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
 
 // Only deployed media: no unused videos or original photo files.
+// hero-desktop.webp stays as the default social-sharing image.
+const heroVideos = ['hero-2026-desktop.mp4', 'hero-2026-desktop-1280.mp4', 'hero-2026-mobile.mp4']
 const media = [
-  'hero-desktop.webp', 'hero-desktop-1000.webp', 'hero-mobile.webp', 'hero-mobile-600.webp',
-  'about-team.webp', 'contact-logo.webp', 'logo.webp', 'menu-sand-performance.webp',
+  ...heroVideos, 'hero-2026-desktop-poster.webp', 'hero-2026-mobile-poster.webp', 'hero-center-logo.webp',
+  'hero-desktop.webp', 'contact-logo.webp', 'logo.webp', 'menu-sand-performance.webp',
   'franchise-swan.webp', 'franchise-masterpieces.webp', 'lettering', 'musicians', 'partners',
 ]
 await mkdir(join(publicRoot, 'media'))
@@ -61,18 +63,21 @@ const checksums = []
 for (const [name, directory, entries] of archives) {
   inventory[name] = await files(directory)
   for (const file of inventory[name]) {
-    if (/(^|\/)(config\.php|uploads|database|backups|runtime|logs|\.env)(\/|$)|\.(?:sql|mp4)(?:\.|$)/i.test(file)) throw new Error(`Forbidden update file: ${file}`)
+    const allowedVideo = heroVideos.some(video => file === 'media/' + video)
+    if (/(^|\/)(config\.php|uploads|database|backups|runtime|logs|\.env)(\/|$)|\.sql(?:\.|$)/i.test(file) || (/\.mp4$/i.test(file) && !allowedVideo)) throw new Error(`Forbidden update file: ${file}`)
   }
   execFileSync('zip', ['-q', '-r', join(release, name), ...entries], { cwd: directory })
   execFileSync('unzip', ['-tq', join(release, name)])
   checksums.push(`${createHash('sha256').update(await readFile(join(release, name))).digest('hex')}  ${name}`)
 }
 await cp(join(root, 'docs/REG-RU-REFRESH-UPDATE.md'), join(release, 'READ-ME.md'))
+// Run in phpMyAdmin before unpacking: the new API reads the articles table.
+await cp(join(root, 'database/migrations/003_articles.sql'), join(release, '00-database-articles.sql'))
 await writeFile(join(release, 'SHA256SUMS.txt'), checksums.join('\n') + '\n')
 await writeFile(join(release, 'build-info.json'), JSON.stringify({
   created: new Date().toISOString(), entry: manifest['index.html'].file,
   sourcePackage: full.release, inventory,
-  installOrder: archives.map(([name]) => name),
+  installOrder: ['00-database-articles.sql', ...archives.map(([name]) => name)],
 }, null, 2) + '\n')
 console.log(release)
 console.log('Install 01 in the domain root; 02 then 03 in www/private, after a server backup.')
