@@ -1,0 +1,7 @@
+Options -Indexes
+RewriteEngine On
+# Apache CGI/FastCGI does not pass Authorization to PHP; the admin app needs it.
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [QSA,L]

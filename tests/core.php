@@ -5,7 +5,8 @@ require dirname(__DIR__) . '/api/src/Core/Validator.php';
 require dirname(__DIR__) . '/api/src/Core/Slugger.php';
 require dirname(__DIR__) . '/api/src/Core/Markdown.php';
 require dirname(__DIR__) . '/api/src/Core/RateLimiter.php';
-use Theatre\Core\{HttpException,Validator,Slugger,Markdown,RateLimiter};
+require dirname(__DIR__) . '/api/src/Core/Request.php';
+use Theatre\Core\{HttpException,Validator,Slugger,Markdown,RateLimiter,Request};
 $count = 0;
 function check(bool $condition, string $message): void { global $count; if (!$condition) throw new RuntimeException($message); $count++; }
 check(Slugger::make('Сказка о музыке') === 'skazka-o-muzyke', 'Cyrillic slug');
@@ -26,4 +27,11 @@ $file=glob($directory.'/*.json')[0]; $first=json_decode(file_get_contents($file)
 try { $limiter->enforce('test','key',2,60); } catch (HttpException) {}
 $second=json_decode(file_get_contents($file),true); check($first['blocked_until']===$second['blocked_until'],'Block must not extend forever');
 unlink($file); rmdir($directory);
+$token = str_repeat('a', 43);
+$_SERVER['REDIRECT_HTTP_AUTHORIZATION'] = "Bearer {$token}";
+check((new Request())->bearerToken() === $token, 'Authorization restored from Apache REDIRECT_ variable');
+$_SERVER['HTTP_AUTHORIZATION'] = 'Bearer direct-token';
+check((new Request())->bearerToken() === 'direct-token', 'Direct Authorization header wins');
+unset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'], $_SERVER['HTTP_AUTHORIZATION']);
+check((new Request())->bearerToken() === null, 'Missing Authorization stays empty');
 echo "Core: {$count} assertions passed.\n";

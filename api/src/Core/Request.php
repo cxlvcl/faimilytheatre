@@ -71,6 +71,13 @@ final class Request
                 }
             }
             $this->headers = array_change_key_case($headers, CASE_LOWER);
+            // Apache CGI/FastCGI drops Authorization; .htaccess passes it back as an
+            // environment variable, which internal rewrites prefix with REDIRECT_.
+            foreach (['REDIRECT_HTTP_AUTHORIZATION', 'REDIRECT_REDIRECT_HTTP_AUTHORIZATION'] as $key) {
+                if (!isset($this->headers['authorization']) && is_string($_SERVER[$key] ?? null) && $_SERVER[$key] !== '') {
+                    $this->headers['authorization'] = $_SERVER[$key];
+                }
+            }
         }
         $value = $this->headers[strtolower($name)] ?? null;
         return is_string($value) ? $value : null;
