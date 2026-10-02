@@ -84,4 +84,4 @@ await writeFile(join(release, 'build-info.json'), JSON.stringify({
 }, null, 2) + '\n')
 console.log(release)
 console.log('Install 01 in the domain root; 02 then 03 in www/private, after a server backup.')
-console.log('No database, config.php, uploads, passwords, DNS or web-server rules are changed.')
+console.log('No database, config.php, uploads, passwords or DNS are changed; api/.htaccess only passes Authorization to PHP.')
