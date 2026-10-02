@@ -5,6 +5,7 @@ import { Footer } from '../components/Footer'
 import { MusiciansStrip } from '../components/MusiciansStrip'
 import { useReveal } from '../hooks/useReveal'
 import { TheatreLettering } from '../components/TheatreLettering'
+import { UpcomingDates } from '../components/UpcomingDates'
 import { createHeroVideoPlayback, heroMobileQuery, heroVideoSources, pickHeroVideo } from '../lib/heroVideo'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -112,5 +113,5 @@ function Partners() {
 }
 
 export default function HomePage() {
-  return <div className="home-page"><Hero /><About /><Musicians /><Partners /><Footer /></div>
+  return <div className="home-page"><Hero /><UpcomingDates /><About /><Musicians /><Partners /><Footer /></div>
 }

@@ -21,13 +21,16 @@ const privateRoot = join(release, 'private-update')
 const activateRoot = join(release, 'activate-update')
 for (const path of [publicRoot, privateRoot, activateRoot]) await mkdir(path, { recursive: true })
 for (const name of ['assets', 'fonts', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
+// Public API folder rules: they pass the Authorization header to PHP for admin sessions.
+await mkdir(join(publicRoot, 'api'))
+await cp(join(full.publicRoot, 'api/.htaccess'), join(publicRoot, 'api/.htaccess'))
 
 // Only deployed media: no unused videos or original photo files.
 // hero-desktop.webp stays as the default social-sharing image.
 const heroVideos = ['hero-2026-desktop.mp4', 'hero-2026-desktop-1280.mp4', 'hero-2026-mobile.mp4']
 const media = [
   ...heroVideos, 'hero-2026-desktop-poster.webp', 'hero-2026-mobile-poster.webp', 'hero-center-logo.webp',
-  'hero-desktop.webp', 'contact-logo.webp', 'logo.webp', 'menu-sand-performance.webp',
+  'hero-desktop.webp', 'contact-logo.webp', 'logo.webp', 'menu-swan-mobile.webp',
   'franchise-swan.webp', 'franchise-masterpieces.webp', 'lettering', 'musicians', 'partners',
 ]
 await mkdir(join(publicRoot, 'media'))
@@ -54,7 +57,7 @@ async function files(directory, prefix = '') {
   return result.sort()
 }
 const archives = [
-  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']],
+  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png', 'api/.htaccess']],
   ['02-private-update.zip', privateRoot, ['api/src', 'api/config.example.php', 'api/bootstrap.php', 'api/index.php', 'ssr']],
   ['03-activate-update.zip', activateRoot, ['manifest.json', 'api/seo']],
 ]

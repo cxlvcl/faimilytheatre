@@ -59,7 +59,7 @@ final class PublicController
         $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Moscow')))->format('Y-m-d');
         $statement = $this->app->db()->pdo()->prepare(
             'SELECT e.id, e.event_date, e.event_time, e.venue, e.poster_image, e.ticket_url,
-                    p.slug, p.title, p.is_premiere
+                    p.slug, p.title, p.short_description, p.is_premiere
              FROM events e
              INNER JOIN performances p ON p.id = e.performance_id
              WHERE e.event_date >= :today
@@ -76,6 +76,7 @@ final class PublicController
             'performance' => [
                 'slug' => (string) $row['slug'],
                 'title' => (string) $row['title'],
+                'short_description' => (string) $row['short_description'],
                 'is_premiere' => (bool) $row['is_premiere'],
             ],
         ], $statement->fetchAll());

@@ -46,7 +46,7 @@ final class Seo
         $info = self::ROUTES[$path] ?? null;
         $image = $this->absolute('/media/hero-desktop.webp');
         if ($path === '/repertoire') $data['/public/performances'] = $api->performances();
-        if ($path === '/afisha') $data['/public/events'] = $api->events();
+        if ($path === '/' || $path === '/afisha') $data['/public/events'] = $api->events();
         if ($path === '/faq') $data['/public/faq'] = $api->faq();
         if ($path === '/articles') $data['/public/articles'] = $api->articles();
         if (preg_match('#^/articles/([a-z0-9-]{1,180})$#', $path, $match)) {
@@ -95,7 +95,10 @@ final class Seo
                 'author' => ['@id' => $organization['@id']], 'publisher' => ['@id' => $organization['@id']],
             ];
         }
-        foreach ($data['/public/events'] ?? [] as $event) {
+        $events = $data['/public/events'] ?? [];
+        // The home page shows only the two nearest dates; structured data must match visible content.
+        if ($path === '/') $events = array_slice($events, 0, 2);
+        foreach ($events as $event) {
             if ($show && $event['performance']['slug'] !== $show['slug']) continue;
             $graph[] = [
                 '@type' => 'TheaterEvent', '@id' => $this->absolute('/afisha#event-' . $event['id']),

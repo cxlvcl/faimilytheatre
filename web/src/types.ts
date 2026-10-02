@@ -23,7 +23,7 @@ export interface EventItem {
   venue: string
   poster_image: string
   ticket_url: string
-  performance: Pick<PerformanceSummary, 'slug' | 'title' | 'is_premiere'>
+  performance: Pick<PerformanceSummary, 'slug' | 'title' | 'short_description' | 'is_premiere'>
 }
 
 export interface FaqItem {

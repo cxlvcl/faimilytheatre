@@ -9,11 +9,13 @@ const assets = [
   ['contact-logo.jpg', 'contact-logo.webp', 800],
   ['franchise-swan.png', 'franchise-swan.webp', 1500, 82],
   ['franchise-masterpieces.png', 'franchise-masterpieces.webp', 1664, 82],
+  // Menu background: desktop reuses franchise-swan.webp; phones get a portrait crop centred on the dancer.
+  ['franchise-swan.png', 'menu-swan-mobile.webp', 700, 82, 'crop=700:964:600:0,'],
 ];
 const requested = new Set(process.argv.slice(2));
-for (const [source, destination, width, quality = 91] of assets) {
+for (const [source, destination, width, quality = 91, crop = ''] of assets) {
   if (requested.size && !requested.has(destination)) continue;
-  const pixelFormat = destination === 'franchise-swan.webp' ? ['-pix_fmt', 'yuva420p'] : [];
-  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', `web/public/media/${source}`, '-vf', `scale=${width}:-1:flags=lanczos`, '-c:v', 'libwebp', ...pixelFormat, '-quality', String(quality), '-compression_level', '6', 'web/public/media/' + destination]);
+  const pixelFormat = destination === 'franchise-swan.webp' ? ['-pix_fmt', 'yuva420p'] : destination.startsWith('menu-') ? ['-pix_fmt', 'yuv420p'] : [];
+  execFileSync(ffmpeg, ['-v', 'error', '-y', '-i', `web/public/media/${source}`, '-vf', `${crop}scale=${width}:-1:flags=lanczos`, '-c:v', 'libwebp', ...pixelFormat, '-quality', String(quality), '-compression_level', '6', 'web/public/media/' + destination]);
   console.log(destination);
 }
