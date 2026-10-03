@@ -74,14 +74,15 @@ for (const [name, directory, entries] of archives) {
   checksums.push(`${createHash('sha256').update(await readFile(join(release, name))).digest('hex')}  ${name}`)
 }
 await cp(join(root, 'docs/REG-RU-REFRESH-UPDATE.md'), join(release, 'READ-ME.md'))
-// Run in phpMyAdmin before unpacking: the new API reads the articles table.
-await cp(join(root, 'database/migrations/003_articles.sql'), join(release, '00-database-articles.sql'))
+// Run in phpMyAdmin before unpacking: the API reads these tables. Both statements are safe to repeat.
+const sql = await Promise.all(['003_articles.sql', '004_performance_categories.sql'].map(name => readFile(join(root, 'database/migrations', name), 'utf8')))
+await writeFile(join(release, '00-database.sql'), sql.join('\n'))
 await writeFile(join(release, 'SHA256SUMS.txt'), checksums.join('\n') + '\n')
 await writeFile(join(release, 'build-info.json'), JSON.stringify({
   created: new Date().toISOString(), entry: manifest['index.html'].file,
   sourcePackage: full.release, inventory,
-  installOrder: ['00-database-articles.sql', ...archives.map(([name]) => name)],
+  installOrder: ['00-database.sql', ...archives.map(([name]) => name)],
 }, null, 2) + '\n')
 console.log(release)
 console.log('Install 01 in the domain root; 02 then 03 in www/private, after a server backup.')
-console.log('No database, config.php, uploads, passwords or DNS are changed; api/.htaccess only passes Authorization to PHP.')
+console.log('00-database.sql only creates missing tables; config.php, uploads, passwords and DNS are not changed.')
