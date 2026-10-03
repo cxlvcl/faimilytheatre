@@ -84,8 +84,10 @@ test('Reduced motion and unmount leave no scroll controllers or compositing hint
 test('Covers keep their source quality, decode asynchronously and defer distant images', () => {
   const performances = Array.from({ length: 4 }, (_, id) => ({ id, slug: `show-${id}`, title: `Show ${id}`, short_description: 'Description', cover_image: `/uploads/original-${id}.webp` }))
   const { default: RepertoirePage } = load('web/src/pages/RepertoirePage.tsx', {
-    react: { ...React, useRef: () => ({ current: null }), useLayoutEffect() {} },
+    react: { ...React, useRef: () => ({ current: null }), useLayoutEffect() {}, useMemo: factory => factory() },
+    'react-router-dom': { useSearchParams: () => [new URLSearchParams(), () => {}] },
     '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../components/Breadcrumbs': { Breadcrumbs: () => null }, '../hooks/usePublicResource': { usePublicResource: () => ({ data: performances, status: 'ready' }) }, '../lib/repertoireMotion': {},
+    '../lib/repertoireSections': load('web/src/lib/repertoireSections.ts', {}),
   })
   const collect = node => !React.isValidElement(node) ? [] : [node, ...React.Children.toArray(node.props.children).flatMap(collect)]
   const images = collect(RepertoirePage()).filter(node => node.type === 'img')

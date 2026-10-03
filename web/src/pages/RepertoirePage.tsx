@@ -1,19 +1,25 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { LoadError } from '../components/LoadError'
 import { SmoothLink } from '../components/SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { setupRepertoireMotion } from '../lib/repertoireMotion'
+import { isRepertoireSection, repertoireSections } from '../lib/repertoireSections'
 import type { PerformanceSummary } from '../types'
 
 export default function RepertoirePage() {
   const root = useRef<HTMLDivElement>(null)
   const { data: performances = [], status, retry: load } = usePublicResource<PerformanceSummary[]>('/public/performances')
+  const [params, setParams] = useSearchParams()
+  const requested = params.get('section')
+  const section = isRepertoireSection(requested) ? requested : null
+  const shown = useMemo(() => section ? performances.filter(performance => performance.categories?.includes(section)) : performances, [performances, section])
 
   useLayoutEffect(() => {
-    if (status !== 'ready' || !root.current || performances.length === 0) return
+    if (status !== 'ready' || !root.current || shown.length === 0) return
     return setupRepertoireMotion(root.current)
-  }, [performances, status])
+  }, [shown, status])
 
   if (status === 'error') {
     return (
@@ -36,7 +42,11 @@ export default function RepertoirePage() {
   return (
     <div ref={root} className="repertoire-page">
       <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Репертуар</h1></div>
-      {performances.map((performance, index) => (
+      <nav className="repertoire-sections" aria-label="Разделы репертуара">
+        {[{ id: null, label: 'Все' }, ...repertoireSections].map(item => <button key={item.label} type="button" className={item.id === section ? 'is-current' : ''} aria-pressed={item.id === section} onClick={() => setParams(item.id ? { section: item.id } : {}, { replace: true })}>{item.label}</button>)}
+      </nav>
+      {shown.length === 0 && <p className="repertoire-sections__empty">В этом разделе спектакли скоро появятся.</p>}
+      {shown.map((performance, index) => (
         <article className="repertoire-scene" id={`show-${performance.slug}`} key={performance.id}>
           <img
             className="repertoire-scene__background"

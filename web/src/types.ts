@@ -5,6 +5,7 @@ export interface PerformanceSummary {
   short_description: string
   cover_image: string
   is_premiere: boolean
+  categories?: string[]
 }
 
 export interface Performance extends PerformanceSummary {

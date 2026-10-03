@@ -40,7 +40,7 @@ test('Every public page returns visible content, unique metadata and valid JSON-
     if (path.startsWith('/repertoire/')) {
       const show = await api('/public/performances/' + path.split('/').pop());
       assert.ok(body.includes(escape(show.title)), `${path}: real show title`);
-      assert.ok(body.includes('performance-detail__description'), `${path}: description in server HTML`);
+      assert.ok(body.includes('performance-paper__text'), `${path}: description in server HTML`);
       assert.ok(body.includes('Ближайшие показы'), `${path}: related dates`);
     }
   }

@@ -22,6 +22,27 @@ final class PageHtml
         $text = preg_replace('/\*\*(.+?)\*\*/su', '<strong>$1</strong>', $text);
         return (string) preg_replace('/(?<!\*)\*([^*]+)\*(?!\*)/su', '<em>$1</em>', (string) $text);
     }
+    /** Performance text with the second photo at the «[фото]» line, otherwise mid-text (same rule as paperLayout in the web app). */
+    public static function paperText(string $description, string $photo, string $title = ''): string
+    {
+        $blocks = array_values(array_filter(array_map('trim', preg_split('/\n\s*\n/u', trim($description)) ?: []), static fn ($block) => $block !== ''));
+        $lines = isset($blocks[0]) ? explode("\n", $blocks[0]) : [];
+        if ($title !== '' && $lines && mb_strtolower(trim($lines[0])) === mb_strtolower(trim($title))) {
+            $rest = trim(implode("\n", array_slice($lines, 1)));
+            if ($rest !== '') $blocks[0] = $rest; else array_shift($blocks);
+        }
+        $isMarker = static fn (string $block): bool => preg_match('/^\[фото\]$/iu', $block) === 1;
+        $paragraphs = array_values(array_filter($blocks, static fn ($block) => !$isMarker($block)));
+        $marker = null;
+        foreach ($blocks as $index => $block) { if ($isMarker($block)) { $marker = $index; break; } }
+        $photoAt = $marker !== null ? count(array_filter(array_slice($blocks, 0, $marker), static fn ($block) => !$isMarker($block))) : (int) ceil(count($paragraphs) / 2);
+        $html = '';
+        foreach ($paragraphs as $index => $paragraph) {
+            if ($index === $photoAt) $html .= $photo;
+            $html .= '<p>' . self::inline(str_replace("\n", ' ', $paragraph)) . '</p>';
+        }
+        return $photoAt >= count($paragraphs) ? $html . $photo : $html;
+    }
     /** Article markup: paragraphs, "## "/"### " subheadings and "- " lists. */
     public static function articleMarkdown(string $value): string
     {
@@ -95,8 +116,8 @@ final class PageHtml
             $body .= '</div>';
         } elseif ($show = $page['performance']) {
             $title = self::e($show['title']);
-            $focus = '--focus-desktop:' . (int) $show['hero_focus_desktop_x'] . '% ' . (int) $show['hero_focus_desktop_y'] . '%;--focus-mobile:' . (int) $show['hero_focus_mobile_x'] . '% ' . (int) $show['hero_focus_mobile_y'] . '%';
-            $body = '<article class="performance-detail" style="' . $focus . '"><div class="performance-detail__hero"><img class="performance-detail__hero-image" src="' . self::e($show['hero_image']) . '" alt="Сцена из спектакля «' . $title . '»" width="1600" height="900" fetchpriority="high"><div class="performance-detail__hero-shade"></div></div><div class="performance-detail__body"><img class="performance-detail__cover" src="' . self::e($show['cover_image']) . '" alt="Постер спектакля «' . $title . '»" width="750" height="1000"><div class="performance-detail__copy">' . $crumbs . '<h1>' . $title . '</h1>' . ($show['is_premiere'] ? '<p class="premiere premiere--dark">Премьера</p>' : '') . '<div class="performance-detail__description">' . self::markdown($show['description']) . '</div><section class="performance-detail__events"><h2>Ближайшие показы</h2>';
+            $second = $show['hero_image'] !== '' ? '<figure class="performance-paper__photo performance-paper__photo--second"><img src="' . self::e($show['hero_image']) . '" alt="Сцена из спектакля «' . $title . '»" loading="lazy" decoding="async"></figure>' : '';
+            $body = '<article class="performance-paper"><header class="performance-paper__head">' . $crumbs . '<h1>' . $title . '</h1>' . ($show['is_premiere'] ? '<p class="premiere premiere--dark">Премьера</p>' : '') . '</header><div class="performance-paper__text"><figure class="performance-paper__photo performance-paper__photo--cover"><img src="' . self::e($show['cover_image']) . '" alt="Постер спектакля «' . $title . '»" width="750" height="1000" fetchpriority="high"></figure>' . self::paperText($show['description'], $second, $show['title']) . '</div><section class="performance-paper__events"><h2>Ближайшие показы</h2>';
             $events = array_values(array_filter($data['/public/events'], static fn ($event) => $event['performance']['slug'] === $show['slug']));
             if (!$events) $body .= '<p>Новые даты скоро появятся.</p>';
             else {
@@ -104,7 +125,7 @@ final class PageHtml
                 foreach ($events as $event) $body .= '<li>' . self::date($event) . ' — ' . self::e($event['venue']) . '. <a href="' . self::e($event['ticket_url']) . '" target="_blank" rel="noopener noreferrer">Купить билет</a></li>';
                 $body .= '</ul>';
             }
-            $body .= '</section></div></div></article>';
+            $body .= '</section><a class="performance-paper__back" href="/repertoire">← Назад к списку спектаклей</a></article>';
         } elseif ($path === '/articles') {
             $body = '<section class="articles-page">' . $crumbs . '<h1>Статьи</h1>';
             if (!$data['/public/articles']) $body .= '<p class="articles-page__empty">Скоро здесь появятся первые статьи.</p>';

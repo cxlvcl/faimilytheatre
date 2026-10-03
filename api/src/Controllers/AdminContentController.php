@@ -9,6 +9,7 @@ use PDO;
 use Theatre\Core\App;
 use Theatre\Core\HttpException;
 use Theatre\Core\Markdown;
+use Theatre\Core\PerformanceCategories;
 use Theatre\Core\Request;
 use Theatre\Core\Slugger;
 use Theatre\Core\Validator;
@@ -27,7 +28,8 @@ final class AdminContentController
                     (SELECT COUNT(*) FROM events e WHERE e.performance_id = p.id) AS events_count
              FROM performances p ORDER BY p.sort_order ASC, p.id ASC'
         )->fetchAll();
-        return array_map([$this, 'mapPerformance'], $rows);
+        $categories = PerformanceCategories::load($this->app->db()->pdo());
+        return array_map(fn (array $row): array => $this->mapPerformance($row, $categories[(int) $row['id']] ?? []), $rows);
     }
 
     public function createPerformance(Request $request): array
@@ -78,6 +80,7 @@ final class AdminContentController
                     'UPDATE performances SET cover_image = :cover, hero_image = :hero WHERE id = :id'
                 );
                 $update->execute(['cover' => $cover, 'hero' => $hero, 'id' => $id]);
+                PerformanceCategories::save($pdo, $id, $values['categories'] ?? []);
                 return $id;
             });
         } catch (\Throwable $error) {
@@ -126,6 +129,9 @@ final class AdminContentController
                 'is_premiere' => $values['is_premiere'] ? 1 : 0,
                 'id' => $id,
             ]);
+            if ($values['categories'] !== null) {
+                $this->app->db()->transaction(static fn (PDO $pdo) => PerformanceCategories::save($pdo, $id, $values['categories']));
+            }
         } catch (\Throwable $error) {
             $this->app->upload()->delete($newCover);
             $this->app->upload()->delete($newHero);
@@ -383,6 +389,7 @@ final class AdminContentController
             'hero_focus_mobile_x' => Validator::integer($input, 'hero_focus_mobile_x', 0, 100, $errors),
             'hero_focus_mobile_y' => Validator::integer($input, 'hero_focus_mobile_y', 0, 100, $errors),
             'is_premiere' => Validator::boolean($input, 'is_premiere'),
+            'categories' => PerformanceCategories::parse($input, $errors),
         ];
         Validator::throwIfErrors($errors);
         return $values;
@@ -498,11 +505,12 @@ final class AdminContentController
 
     private function getPerformance(int $id): array
     {
-        return $this->mapPerformance($this->performanceRow($id));
+        return $this->mapPerformance($this->performanceRow($id), PerformanceCategories::load($this->app->db()->pdo(), $id)[$id] ?? []);
     }
 
-    private function mapPerformance(array $row): array
+    private function mapPerformance(array $row, array $categories = []): array
     {
+        $row['categories'] = $categories;
         foreach (['id', 'sort_order', 'hero_focus_desktop_x', 'hero_focus_desktop_y', 'hero_focus_mobile_x', 'hero_focus_mobile_y', 'events_count'] as $field) {
             if (array_key_exists($field, $row)) {
                 $row[$field] = (int) $row[$field];

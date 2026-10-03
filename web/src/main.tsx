@@ -6,6 +6,7 @@ import './styles/responsive.css'
 import './styles/refresh.css'
 import './styles/articles.css'
 import './styles/home-2026.css'
+import './styles/paper.css'
 
 history.scrollRestoration = 'manual'
 createRoot(document.getElementById('root')!).render(<App />)

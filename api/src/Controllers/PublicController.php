@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Theatre\Core\App;
 use Theatre\Core\HttpException;
+use Theatre\Core\PerformanceCategories;
 use Theatre\Core\Request;
 use Theatre\Core\Validator;
 
@@ -22,7 +23,8 @@ final class PublicController
             'SELECT id, slug, title, short_description, cover_image, is_premiere
              FROM performances ORDER BY sort_order ASC, id ASC'
         )->fetchAll();
-        return array_map([$this, 'performanceSummary'], $rows);
+        $categories = PerformanceCategories::load($this->app->db()->pdo());
+        return array_map(fn (array $row): array => $this->performanceSummary($row) + ['categories' => $categories[(int) $row['id']] ?? []], $rows);
     }
 
     public function performance(string $slug): array
