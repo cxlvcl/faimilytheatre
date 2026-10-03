@@ -1,5 +1,6 @@
 import { useLayoutEffect, useState } from 'react'
 import { SmoothLink } from './SmoothLink'
+import { useBack } from '../hooks/useBack'
 
 interface Props {
   isHome: boolean
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
+  const back = useBack()
   const [introActive, setIntroActive] = useState(
     () => {
       if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
@@ -39,6 +41,11 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
         <SmoothLink className="site-header__logo" to="/" aria-label="Театр Музыки и Песка — главная">
           <img src="/media/logo.webp" alt="" width="320" height="320" />
         </SmoothLink>
+      )}
+      {!isHome && (
+        <button className="site-header__back" type="button" onClick={back}>
+          <span aria-hidden="true">←</span> Назад
+        </button>
       )}
     </header>
   )

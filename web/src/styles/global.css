@@ -226,7 +226,7 @@ select:focus-visible {
 
 .menu-overlay__background {
   z-index: 1;
-  background: url('/media/franchise-swan.webp') 62% center / cover no-repeat;
+  background: url('/media/menu-prince.webp') center / cover no-repeat;
 }
 
 .menu-overlay__veil {

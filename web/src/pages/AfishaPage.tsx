@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { LoadError } from '../components/LoadError'
 import { EventDate } from '../components/EventDate'
 import { Breadcrumbs } from '../components/Breadcrumbs'
+import { PosterLightbox } from '../components/PosterLightbox'
 import { SmoothLink } from '../components/SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
 import { publicApi } from '../lib/api'
@@ -10,6 +11,7 @@ import type { EventItem } from '../types'
 
 export default function AfishaPage() {
   const root = useRef<HTMLDivElement>(null)
+  const [opened, setOpened] = useState<EventItem | null>(null)
   const { data: events = [], status, retry } = usePublicResource<EventItem[]>('/public/events')
   useLayoutEffect(() => {
     if (!root.current || !events.length) return
@@ -25,9 +27,9 @@ export default function AfishaPage() {
       <div className="event-scene__shade" />
       <div className="event-scene__content">
         <p className="event-scene__date"><EventDate date={event.event_date} time={event.event_time} /></p>
-        <SmoothLink className="event-scene__poster-link" to={`/repertoire/${event.performance.slug}`} aria-label={`О спектакле «${event.performance.title}»`}>
+        <button type="button" className="event-scene__poster-link" onClick={() => setOpened(event)} aria-label={`Открыть афишу «${event.performance.title}» крупно`}>
           <img className="event-scene__poster" src={event.poster_image} alt={`Афиша спектакля «${event.performance.title}»`} width="750" height="1000" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority={index === 0 ? 'high' : 'auto'} />
-        </SmoothLink>
+        </button>
         <div className="event-scene__copy">
           <h2><SmoothLink to={`/repertoire/${event.performance.slug}`}>{event.performance.title}</SmoothLink></h2>
           {event.performance.is_premiere && <p className="premiere">Премьера</p>}
@@ -36,5 +38,6 @@ export default function AfishaPage() {
         </div>
       </div>
     </article>)}
+    {opened && <PosterLightbox src={opened.poster_image} alt={`Афиша спектакля «${opened.performance.title}»`} onClose={() => setOpened(null)} />}
   </div>
 }

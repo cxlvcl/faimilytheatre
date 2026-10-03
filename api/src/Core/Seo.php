@@ -96,8 +96,8 @@ final class Seo
             ];
         }
         $events = $data['/public/events'] ?? [];
-        // The home page shows only the two nearest dates; structured data must match visible content.
-        if ($path === '/') $events = array_slice($events, 0, 2);
+        // The home page shows only the three nearest dates; structured data must match visible content.
+        if ($path === '/') $events = array_slice($events, 0, 3);
         foreach ($events as $event) {
             if ($show && $event['performance']['slug'] !== $show['slug']) continue;
             $graph[] = [

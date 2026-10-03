@@ -9,6 +9,8 @@ export function useRouteScroll() {
   useLayoutEffect(() => {
     history.scrollRestoration = 'manual'
     const y = scrollDestination(navigation, previous.current.pathname, location.pathname, location.key, previous.current.returnTo)
+    // «Назад» from a directly opened performance lands on the list at that performance.
+    const focus = typeof location.state?.focus === 'string' ? location.state.focus : ''
     previous.current = { pathname: location.pathname, returnTo: location.state?.returnTo }
     let frame = 0
     let stopped = false
@@ -22,9 +24,11 @@ export function useRouteScroll() {
     }
     const restore = () => {
       if (stopped) return
-      window.scrollTo({ top: y, behavior: 'instant' })
+      const target = focus ? document.getElementById(focus) : null
+      const top = target ? Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY)) : y
+      window.scrollTo({ top, behavior: 'instant' })
       const loading = document.querySelector('.page-fallback, .page-wash')
-      if (!loading && document.documentElement.scrollHeight >= y + innerHeight - 2) stop()
+      if (!loading && (!focus || target) && document.documentElement.scrollHeight >= top + innerHeight - 2) stop()
     }
     const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(restore) }
     const observer = new MutationObserver(schedule)

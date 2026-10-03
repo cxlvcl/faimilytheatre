@@ -37,7 +37,7 @@ export default function RepertoirePage() {
     <div ref={root} className="repertoire-page">
       <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Репертуар</h1></div>
       {performances.map((performance, index) => (
-        <article className="repertoire-scene" key={performance.id}>
+        <article className="repertoire-scene" id={`show-${performance.slug}`} key={performance.id}>
           <img
             className="repertoire-scene__background"
             src={performance.cover_image}

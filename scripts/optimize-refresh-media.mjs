@@ -9,8 +9,9 @@ const assets = [
   ['contact-logo.jpg', 'contact-logo.webp', 800],
   ['franchise-swan.png', 'franchise-swan.webp', 1500, 82],
   ['franchise-masterpieces.png', 'franchise-masterpieces.webp', 1664, 82],
-  // Menu background: desktop reuses franchise-swan.webp; phones get a portrait crop centred on the dancer.
-  ['franchise-swan.png', 'menu-swan-mobile.webp', 700, 82, 'crop=700:964:600:0,'],
+  // Menu background (Little Prince); phones get a portrait crop centred on the prince.
+  ['menu-prince.jpg', 'menu-prince.webp', 1920, 82],
+  ['menu-prince.jpg', 'menu-prince-mobile.webp', 760, 82, 'crop=760:1080:120:0,'],
 ];
 const requested = new Set(process.argv.slice(2));
 for (const [source, destination, width, quality = 91, crop = ''] of assets) {

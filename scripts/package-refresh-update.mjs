@@ -30,7 +30,7 @@ await cp(join(full.publicRoot, 'api/.htaccess'), join(publicRoot, 'api/.htaccess
 const heroVideos = ['hero-2026-desktop.mp4', 'hero-2026-desktop-1280.mp4', 'hero-2026-mobile.mp4']
 const media = [
   ...heroVideos, 'hero-2026-desktop-poster.webp', 'hero-2026-mobile-poster.webp', 'hero-center-logo.webp',
-  'hero-desktop.webp', 'contact-logo.webp', 'logo.webp', 'menu-swan-mobile.webp',
+  'hero-desktop.webp', 'contact-logo.webp', 'logo.webp', 'menu-prince.webp', 'menu-prince-mobile.webp',
   'franchise-swan.webp', 'franchise-masterpieces.webp', 'lettering', 'musicians', 'partners',
 ]
 await mkdir(join(publicRoot, 'media'))

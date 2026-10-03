@@ -46,7 +46,8 @@ function Hero() {
     }
     const context = gsap.context(() => {
       if (!playIntro || reduce || !logo) {
-        gsap.set(['.hero__logo', '.hero__visual', '.hero__center-logo'], { autoAlpha: 1 })
+        // The small intro logo is only part of the intro; afterwards the hero shows one logo.
+        gsap.set(['.hero__visual', '.hero__center-logo'], { autoAlpha: 1 })
         finish()
         return
       }
@@ -60,7 +61,8 @@ function Hero() {
         .set(menu, { autoAlpha: 0 })
         .to(logo, { autoAlpha: 1, filter: 'invert(0) blur(0px)', duration: 0.85 }, 0.2)
         .to('.hero__visual', { autoAlpha: 1, duration: 1.1 }, 1.35)
-        .to(logo, { y: 0, scale: 1, duration: 1.1 }, 1.35)
+        // The intro logo dissolves in place while the logo with the lettering appears there.
+        .to(logo, { autoAlpha: 0, scale: 1.8, filter: 'invert(0) blur(10px)', duration: 0.95, ease: 'power2.in' }, 1.55)
         .to('.hero__center-logo', { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1.3, ease: 'power2.out', clearProps: 'filter,transform' }, 2.05)
         .to(menu, { autoAlpha: 1, duration: 0.4 }, 2.8)
     }, element)
