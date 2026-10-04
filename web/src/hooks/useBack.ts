@@ -1,4 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
+import { useSmoothNavigation } from '../components/NavigationContext'
 
 /** Where «Назад» leads when the visitor opened the page directly, without an earlier page of the site. */
 export function parentOf(pathname: string): { path: string; focus?: string } {
@@ -11,14 +12,9 @@ export function parentOf(pathname: string): { path: string; focus?: string } {
 /** Back within the site keeps the previous scroll position (see useRouteScroll); otherwise go to the parent page. */
 export function useBack() {
   const location = useLocation()
-  const navigate = useNavigate()
+  const { goBack } = useSmoothNavigation()
   return () => {
-    const index = (window.history.state as { idx?: number } | null)?.idx ?? 0
-    if (index > 0) {
-      navigate(-1)
-      return
-    }
     const parent = parentOf(location.pathname)
-    navigate(parent.path, parent.focus ? { state: { focus: parent.focus } } : undefined)
+    goBack(parent.path, parent.focus ? { state: { focus: parent.focus } } : undefined)
   }
 }

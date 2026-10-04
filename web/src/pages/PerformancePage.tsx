@@ -1,6 +1,7 @@
 import { Fragment, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
+import { useSmoothNavigation } from '../components/NavigationContext'
 import { LoadError } from '../components/LoadError'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { EventDate } from '../components/EventDate'
@@ -13,7 +14,7 @@ import type { EventItem, Performance } from '../types'
 export default function PerformancePage() {
   const { slug = '' } = useParams()
   const location = useLocation()
-  const navigate = useNavigate()
+  const { goBack } = useSmoothNavigation()
   const root = useRef<HTMLElement>(null)
   const { data: performance, status, retry } = usePublicResource<Performance>(`/public/performances/${encodeURIComponent(slug)}`)
   const { data: events = [], status: eventsStatus, retry: retryEvents } = usePublicResource<EventItem[]>('/public/events')
@@ -31,7 +32,7 @@ export default function PerformancePage() {
   const { paragraphs, photoAt } = paperLayout(performance.description, performance.title)
   const returnTo = location.state?.returnTo as { pathname?: string } | undefined
   // From the list: history back restores the exact position; otherwise open the list at this performance.
-  const backToList = () => returnTo ? navigate(-1) : navigate('/repertoire', { state: { focus: `show-${slug}` } })
+  const backToList = () => goBack('/repertoire', { state: { focus: `show-${slug}` } }, Boolean(returnTo))
   const secondPhoto = performance.hero_image && <figure className="performance-paper__photo performance-paper__photo--second">
     <img src={performance.hero_image} alt={`Сцена из спектакля «${performance.title}»`} loading="lazy" decoding="async" />
   </figure>

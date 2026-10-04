@@ -9,6 +9,7 @@ import './styles/articles.css'
 import './styles/home-2026.css'
 import './styles/paper.css'
 import './styles/mobile-2026.css'
+import './styles/transitions.css'
 
 history.scrollRestoration = 'manual'
 initThemeFavicon()

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import gsap from 'gsap'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { waitForPageReady } from '../lib/pageTransition'
+import { preloadRoute } from '../lib/routePreload'
 
 interface Props {
   open: boolean
@@ -15,15 +17,6 @@ const links = [
   { label: 'FAQ', path: '/faq' },
   { label: 'Франшиза', path: '/franchise' },
 ]
-
-const preloadPage: Record<string, () => Promise<unknown>> = {
-  '/': () => import('../pages/HomePage'),
-  '/repertoire': () => import('../pages/RepertoirePage'),
-  '/afisha': () => import('../pages/AfishaPage'),
-  '/articles': () => import('../pages/ArticlesPage'),
-  '/faq': () => import('../pages/FaqPage'),
-  '/franchise': () => import('../pages/FranchisePage'),
-}
 
 export function FullscreenMenu({ open, onClosed }: Props) {
   const root = useRef<HTMLDivElement>(null)
@@ -80,32 +73,54 @@ export function FullscreenMenu({ open, onClosed }: Props) {
     element.setAttribute('inert', '')
   }, [open])
 
-  const close = useCallback((path?: string) => {
+  const close = useCallback((path?: string, chosen?: HTMLAnchorElement) => {
     const currentTimeline = timeline.current
     if (!currentTimeline || !open || closing.current) return
     closing.current = true
     currentTimeline.pause()
+    let slowTimer: number | undefined
+    if (path && path !== location.pathname) {
+      root.current?.setAttribute('data-leaving', 'true')
+      chosen?.setAttribute('data-chosen', 'true')
+      slowTimer = window.setTimeout(() => root.current?.setAttribute('data-slow', 'true'), 400)
+    }
     const finish = () => {
+      if (slowTimer !== undefined) window.clearTimeout(slowTimer)
+      root.current?.removeAttribute('data-leaving')
+      root.current?.removeAttribute('data-slow')
+      chosen?.removeAttribute('data-chosen')
       document.body.classList.remove('menu-open')
       root.current?.setAttribute('inert', '')
       onClosed()
       if (!path || path === location.pathname) returnFocus.current?.focus({ preventScroll: true })
       else requestAnimationFrame(() => document.getElementById('main-content')?.focus({ preventScroll: true }))
     }
-    const transition = () => {
-      if (path && path !== location.pathname) navigate(path)
-      else if (path) window.scrollTo({ top: 0, behavior: 'instant' })
-      gsap.to(root.current, { autoAlpha: 0, duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 0.2, onComplete: finish })
+    const transition = async () => {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (path && path !== location.pathname) {
+        document.documentElement.dataset.menuTransition = 'cover'
+        navigate(path)
+        await waitForPageReady()
+        document.documentElement.dataset.menuTransition = 'reveal'
+      } else if (path) window.scrollTo({ top: 0, behavior: 'instant' })
+      gsap.to(root.current, {
+        autoAlpha: 0,
+        duration: reduced ? 0 : 0.45,
+        onComplete: finish,
+      })
+      if (path && path !== location.pathname) {
+        window.setTimeout(() => { delete document.documentElement.dataset.menuTransition }, reduced ? 0 : 700)
+      }
     }
     // Load route code while the opaque menu still covers the current page.
-    if (path && preloadPage[path]) void preloadPage[path]().then(transition, transition)
-    else transition()
+    if (path && path !== location.pathname) void preloadRoute(path).then(transition, transition)
+    else void transition()
   }, [open, onClosed, location.pathname, navigate])
 
   const followLink = (event: MouseEvent<HTMLAnchorElement>, path: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
     event.preventDefault()
-    close(path)
+    close(path, event.currentTarget)
   }
 
   useEffect(() => {
@@ -144,8 +159,8 @@ export function FullscreenMenu({ open, onClosed }: Props) {
         <span className="sr-only">Закрыть меню</span>
       </button>
       <Link className="menu-overlay__logo" to="/" aria-label="Театр Музыки и Песка — главная"
-        onPointerEnter={() => { void preloadPage['/']().catch(() => undefined) }}
-        onFocus={() => { void preloadPage['/']().catch(() => undefined) }}
+        onPointerEnter={() => { void preloadRoute('/').catch(() => undefined) }}
+        onFocus={() => { void preloadRoute('/').catch(() => undefined) }}
         onClick={(event) => followLink(event, '/')}
       ><img src="/media/logo.webp" alt="" width="90" height="90" /></Link>
       <nav className="menu-overlay__nav" aria-label="Основная навигация">
@@ -155,8 +170,8 @@ export function FullscreenMenu({ open, onClosed }: Props) {
             className={`menu-overlay__item ${location.pathname === link.path ? 'is-current' : ''}`}
             to={link.path}
             aria-current={location.pathname === link.path ? 'page' : undefined}
-            onPointerEnter={() => { void preloadPage[link.path]?.().catch(() => undefined) }}
-            onFocus={() => { void preloadPage[link.path]?.().catch(() => undefined) }}
+            onPointerEnter={() => { void preloadRoute(link.path).catch(() => undefined) }}
+            onFocus={() => { void preloadRoute(link.path).catch(() => undefined) }}
             onClick={(event) => followLink(event, link.path)}
           >
             {link.label}

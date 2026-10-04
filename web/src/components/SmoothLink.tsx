@@ -1,5 +1,6 @@
-import type { AnchorHTMLAttributes, MouseEvent } from 'react'
-import type { To } from 'react-router-dom'
+import type { AnchorHTMLAttributes, FocusEvent, MouseEvent, PointerEvent, TouchEvent } from 'react'
+import { type To, useLocation } from 'react-router-dom'
+import { preloadRoute } from '../lib/routePreload'
 import { useSmoothNavigation } from './NavigationContext'
 
 interface Props extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
@@ -7,8 +8,28 @@ interface Props extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
   state?: unknown
 }
 
-export function SmoothLink({ to, state, onClick, ...props }: Props) {
+export function SmoothLink({
+  to,
+  state,
+  onClick,
+  onPointerEnter,
+  onFocus,
+  onTouchStart,
+  ...props
+}: Props) {
   const { navigateSmooth } = useSmoothNavigation()
+  const location = useLocation()
+
+  const preload = () => {
+    if (
+      typeof to !== 'string' ||
+      !to.startsWith('/') ||
+      props.target === '_blank' ||
+      props.download !== undefined
+    ) return
+    const path = to.split(/[?#]/)[0] || '/'
+    if (path !== location.pathname) void preloadRoute(path).catch(() => undefined)
+  }
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event)
@@ -28,5 +49,29 @@ export function SmoothLink({ to, state, onClick, ...props }: Props) {
     navigateSmooth(to, { state })
   }
 
-  return <a href={typeof to === 'string' ? to : undefined} onClick={handleClick} {...props} />
+  const handlePointerEnter = (event: PointerEvent<HTMLAnchorElement>) => {
+    onPointerEnter?.(event)
+    preload()
+  }
+
+  const handleFocus = (event: FocusEvent<HTMLAnchorElement>) => {
+    onFocus?.(event)
+    preload()
+  }
+
+  const handleTouchStart = (event: TouchEvent<HTMLAnchorElement>) => {
+    onTouchStart?.(event)
+    preload()
+  }
+
+  return (
+    <a
+      href={typeof to === 'string' ? to : undefined}
+      onClick={handleClick}
+      onPointerEnter={handlePointerEnter}
+      onFocus={handleFocus}
+      onTouchStart={handleTouchStart}
+      {...props}
+    />
+  )
 }

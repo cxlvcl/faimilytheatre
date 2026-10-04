@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, type PropsWithChildren, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { FullscreenMenu } from './components/FullscreenMenu'
 import { NavigationProvider } from './components/NavigationContext'
@@ -6,18 +6,27 @@ import { SiteHeader } from './components/SiteHeader'
 import { PageSeo } from './components/PageSeo'
 import { useRouteScroll } from './hooks/useRouteScroll'
 import { publicApi } from './lib/api'
-const HomePage = lazy(() => import('./pages/HomePage'))
-const RepertoirePage = lazy(() => import('./pages/RepertoirePage'))
-const PerformancePage = lazy(() => import('./pages/PerformancePage'))
-const AfishaPage = lazy(() => import('./pages/AfishaPage'))
-const FaqPage = lazy(() => import('./pages/FaqPage'))
-const ArticlesPage = lazy(() => import('./pages/ArticlesPage'))
-const ArticlePage = lazy(() => import('./pages/ArticlePage'))
-const FranchisePage = lazy(() => import('./pages/FranchisePage'))
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+import { darkRoute, routeImports } from './lib/routePreload'
+const HomePage = lazy(routeImports.home)
+const RepertoirePage = lazy(routeImports.repertoire)
+const PerformancePage = lazy(routeImports.performance)
+const AfishaPage = lazy(routeImports.afisha)
+const FaqPage = lazy(routeImports.faq)
+const ArticlesPage = lazy(routeImports.articles)
+const ArticlePage = lazy(routeImports.article)
+const FranchisePage = lazy(routeImports.franchise)
+const NotFoundPage = lazy(routeImports.notFound)
 
-// Dark pages get a dark placeholder so navigation never flashes white.
-const darkRoute = (path: string) => path === '/' || path === '/franchise' || /^\/(repertoire|afisha)(\/|$)/.test(path)
+/** The short fade is only for browser back/forward; veil and menu transitions animate the page themselves.
+    Decided once per page mount, so the class never changes later and the animation never restarts. */
+function RouteView({ animate, children }: PropsWithChildren<{ animate: boolean }>) {
+  const [enter] = useState(() => {
+    if (!animate || typeof document === 'undefined') return false
+    const { transition, menuTransition } = document.documentElement.dataset
+    return !transition && !menuTransition
+  })
+  return <div className={enter ? 'route-view route-view--enter' : 'route-view'}>{children}</div>
+}
 
 function Shell() {
   const location = useLocation()
@@ -32,7 +41,7 @@ function Shell() {
     <FullscreenMenu open={menuOpen} onClosed={() => setMenuOpen(false)} />
     <main id="main-content" tabIndex={-1} inert={menuOpen}>
       <Suspense fallback={<div className={`page-fallback ${darkRoute(location.pathname) ? 'page-fallback--home' : ''}`} aria-hidden="true" />}>
-        <div key={location.pathname} className={animate ? 'route-view route-view--enter' : 'route-view'}>
+        <RouteView key={location.pathname} animate={animate}>
         <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/repertoire" element={<RepertoirePage />} />
@@ -44,7 +53,7 @@ function Shell() {
           <Route path="/franchise" element={<FranchisePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        </div>
+        </RouteView>
       </Suspense>
     </main>
   </>
