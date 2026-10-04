@@ -82,7 +82,7 @@ final class PageHtml
         $text = $date->format('j') . ' ' . $months[(int) $date->format('n') - 1] . ' ' . $date->format('Y') . ' г.';
         $datetime = $event['event_date'];
         $time = '';
-        if ($event['event_time']) { $time = ' · <span class="event-scene__time">Начало в ' . self::e($event['event_time']) . '</span>'; $datetime .= 'T' . $event['event_time']; }
+        if ($event['event_time']) { $time = '<span class="event-date__separator"> · </span><span class="event-scene__time">Начало в ' . self::e($event['event_time']) . '</span>'; $datetime .= 'T' . $event['event_time']; }
         return '<time datetime="' . self::e($datetime) . '">' . self::e($text) . $time . '</time>';
     }
     public static function render(array $page, string $manifest): string

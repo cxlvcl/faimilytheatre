@@ -62,8 +62,9 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#080808">
-  <link rel="icon" href="/favicon.ico" sizes="48x48">
-  <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+  <link rel="icon" href="/favicon.ico" sizes="48x48" data-light="/favicon.ico" data-dark="/favicon-white-48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-black-96.png" data-light="/favicon-black-96.png" data-dark="/favicon-white-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-black-192.png" data-light="/favicon-black-192.png" data-dark="/favicon-white-192.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <title><?= e($meta['title']) ?></title>
   <meta name="description" content="<?= e($meta['description']) ?>">

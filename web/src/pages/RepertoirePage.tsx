@@ -7,6 +7,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs'
 import { setupRepertoireMotion } from '../lib/repertoireMotion'
 import { isRepertoireSection, repertoireSections } from '../lib/repertoireSections'
 import type { PerformanceSummary } from '../types'
+import { withoutTitleLine } from '../lib/titleLine'
 
 export default function RepertoirePage() {
   const root = useRef<HTMLDivElement>(null)
@@ -70,7 +71,7 @@ export default function RepertoirePage() {
             <div className="repertoire-scene__copy">
               <h2><SmoothLink to={`/repertoire/${performance.slug}`}>{performance.title}</SmoothLink></h2>
               {performance.is_premiere && <p className="premiere">Премьера</p>}
-              <p>{performance.short_description}</p>
+              <p>{withoutTitleLine(performance.short_description, performance.title)}</p>
             </div>
           </div>
         </article>

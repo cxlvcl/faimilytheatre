@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { SmoothLink } from './SmoothLink'
 import { useBack } from '../hooks/useBack'
 
@@ -17,6 +17,27 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
     },
   )
 
+  // Phones: the fixed buttons hide while scrolling down and return on a dark bar while scrolling up,
+  // so they never sit on top of the text.
+  const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    let last = window.scrollY
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const y = Math.max(0, window.scrollY)
+      setScrolled(y > 24)
+      if (Math.abs(y - last) < 8) return
+      setHidden(y > last && y > 140)
+      last = y
+    }
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(frame) }
+  }, [])
+
   useLayoutEffect(() => {
     const complete = () => setIntroActive(false)
     window.addEventListener('theatre:intro-complete', complete)
@@ -25,7 +46,7 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
 
   return (
     <header
-      className={`site-header ${isHome && introActive ? 'is-intro' : ''}`}
+      className={`site-header ${isHome && introActive ? 'is-intro' : ''} ${scrolled ? 'is-scrolled' : ''} ${hidden && !menuOpen ? 'is-hidden' : ''}`}
       aria-hidden={menuOpen}
     >
       <button

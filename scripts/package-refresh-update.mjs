@@ -20,7 +20,7 @@ const publicRoot = join(release, 'public-update')
 const privateRoot = join(release, 'private-update')
 const activateRoot = join(release, 'activate-update')
 for (const path of [publicRoot, privateRoot, activateRoot]) await mkdir(path, { recursive: true })
-for (const name of ['assets', 'fonts', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
+for (const name of ['assets', 'fonts', 'favicon.ico', 'favicon-black-48.png', 'favicon-black-96.png', 'favicon-black-192.png', 'favicon-white-48.png', 'favicon-white-96.png', 'favicon-white-192.png', 'apple-touch-icon.png']) await cp(join(full.publicRoot, name), join(publicRoot, name), { recursive: true })
 // Public API folder rules: they pass the Authorization header to PHP for admin sessions.
 await mkdir(join(publicRoot, 'api'))
 await cp(join(full.publicRoot, 'api/.htaccess'), join(publicRoot, 'api/.htaccess'))
@@ -57,7 +57,7 @@ async function files(directory, prefix = '') {
   return result.sort()
 }
 const archives = [
-  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png', 'api/.htaccess']],
+  ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-black-48.png', 'favicon-black-96.png', 'favicon-black-192.png', 'favicon-white-48.png', 'favicon-white-96.png', 'favicon-white-192.png', 'apple-touch-icon.png', 'api/.htaccess']],
   ['02-private-update.zip', privateRoot, ['api/src', 'api/config.example.php', 'api/bootstrap.php', 'api/index.php', 'ssr']],
   ['03-activate-update.zip', activateRoot, ['manifest.json', 'api/seo']],
 ]

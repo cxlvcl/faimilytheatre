@@ -4,14 +4,8 @@ import { SmoothLink } from './SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
 import { useReveal } from '../hooks/useReveal'
 import { publicApi } from '../lib/api'
+import { withoutTitleLine } from '../lib/titleLine'
 import type { EventItem } from '../types'
-
-/** Short descriptions often start with the title on its own line; the card already shows it as a heading. */
-function description({ title, short_description }: EventItem['performance']) {
-  const lines = short_description.split('\n').map(line => line.trim()).filter(Boolean)
-  if (lines[0]?.toLocaleLowerCase('ru') === title.trim().toLocaleLowerCase('ru')) lines.shift()
-  return lines.join('\n')
-}
 
 /** Slider with the three nearest afisha dates; hidden while loading, on error and when nothing is scheduled. */
 export function UpcomingDates() {
@@ -44,7 +38,7 @@ export function UpcomingDates() {
     </div>
     <div ref={track} className="upcoming__track" onScroll={sync}>{events.map(event => {
       const url = `/repertoire/${event.performance.slug}`
-      const text = description(event.performance)
+      const text = withoutTitleLine(event.performance.short_description, event.performance.title)
       return <article className="upcoming__event" key={event.id}>
         <SmoothLink className="upcoming__poster" to={url} aria-label={`О спектакле «${event.performance.title}»`}>
           <img src={event.poster_image} alt={`Афиша спектакля «${event.performance.title}»`} width="750" height="1000" loading="lazy" decoding="async" />

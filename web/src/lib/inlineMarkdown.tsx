@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { withoutTitleLine } from './titleLine'
 
 /** **bold** and *italic* inside one paragraph of restricted Markdown. */
 export function inlineMarkdown(value: string): ReactNode[] {
@@ -29,14 +30,7 @@ const photoMarker = /^\[фото\]$/iu
  * at the «[фото]» line set in the admin, otherwise in the middle of the text (same rule as PageHtml.php).
  */
 export function paperLayout(value: string, title = ''): { paragraphs: string[]; photoAt: number } {
-  const blocks = value.trim().split(/\n\s*\n/).map(block => block.trim()).filter(Boolean)
-  // Descriptions often repeat the title on the first line; the page already shows it as the heading.
-  const lines = blocks[0]?.split('\n') ?? []
-  if (title && lines[0]?.trim().toLocaleLowerCase('ru') === title.trim().toLocaleLowerCase('ru')) {
-    const rest = lines.slice(1).join('\n').trim()
-    if (rest) blocks[0] = rest
-    else blocks.shift()
-  }
+  const blocks = (title ? withoutTitleLine(value, title) : value).trim().split(/\n\s*\n/).map(block => block.trim()).filter(Boolean)
   const marker = blocks.findIndex(block => photoMarker.test(block))
   const paragraphs = blocks.filter(block => !photoMarker.test(block))
   const photoAt = marker >= 0 ? blocks.slice(0, marker).filter(block => !photoMarker.test(block)).length : Math.ceil(paragraphs.length / 2)

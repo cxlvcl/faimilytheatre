@@ -1,0 +1,41 @@
+/* October 2026: one date per slide, keyboard-only focus rings, phone header bar. */
+
+/* «Ближайшие даты»: exactly one event per slide, nothing peeks in from the edge. */
+.upcoming__event { flex: 0 0 100%; scroll-snap-stop: always; }
+
+/* Programmatic focus (main after navigation, the menu close button) draws no frame for touch/mouse users. */
+#main-content:focus { outline: none; }
+html[data-input='pointer'] :is(button, a, [tabindex]):focus-visible { outline: none; }
+
+/* Phones and portrait tablets: once the page scrolls, the fixed buttons sit on a dark bar,
+   hide while scrolling down and come back when scrolling up. */
+@media (max-width: 900px) {
+  .site-header::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 92px;
+    background: rgba(8, 8, 8, .84);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease, transform 350ms ease;
+  }
+  .site-header.is-scrolled { mix-blend-mode: normal; color: var(--light-text); }
+  .site-header.is-scrolled::before { opacity: 1; pointer-events: auto; }
+  .site-header__menu,
+  .site-header__back { transition: transform 350ms ease, opacity 300ms ease; }
+  .site-header.is-hidden::before,
+  .site-header.is-hidden .site-header__menu,
+  .site-header.is-hidden .site-header__back { transform: translateY(-130%); }
+}
+
+@media (max-width: 680px) {
+  .site-header::before { height: 70px; }
+  /* Date and start time on separate lines instead of a dangling « · ». */
+  .event-date__separator { display: none; }
+  .event-scene__time { display: block; }
+}
