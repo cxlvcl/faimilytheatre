@@ -60,10 +60,8 @@ test('Logo uses a square frame and cannot inherit the intrinsic 900px height', (
   assert.ok(!declarations('.hero__logo', true).width, 'Mobile must resize the frame, not only the image width')
 })
 
-test('About lettering is smaller on desktop, with a readable separate mobile limit', () => {
-  assert.equal(declarations('.about__phrase').width, 'min(78%, 620px)')
-  assert.equal(declarations('.about__phrase', true).width, 'min(92%, 360px)')
+test('About keeps a heading for search and screen readers, without the handwritten lettering', () => {
   const markup = fs.readFileSync('web/src/pages/HomePage.tsx', 'utf8')
-  assert.ok(markup.includes('Театр Музыки и Песка — истории, рассказанные музыкой, словом и песком'))
-  assert.ok(markup.includes('<TheatreLettering variant="about" />'))
+  assert.ok(markup.includes('<h2 className="sr-only">Театр Музыки и Песка — истории, рассказанные музыкой, словом и песком</h2>'))
+  assert.ok(!markup.includes('TheatreLettering'), 'The owner asked to remove the lettering from «О театре» (05.10.2026)')
 })

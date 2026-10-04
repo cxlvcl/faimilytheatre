@@ -21,6 +21,15 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => window.setTimeout(resolve, ms))
 }
 
+// The new page's effects and observers run while it is still hidden, not during the reveal.
+function idle(timeout: number): Promise<void> {
+  return new Promise(resolve => {
+    // Safari has no requestIdleCallback.
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(() => resolve(), { timeout })
+    else setTimeout(resolve, 0)
+  })
+}
+
 async function twoFrames(deadline: number): Promise<void> {
   await nextFrame(Math.max(0, deadline - performance.now()))
   await nextFrame(Math.max(0, deadline - performance.now()))
@@ -39,7 +48,7 @@ export async function waitForPageReady(): Promise<void> {
         if (image && !image.complete) {
           const highPriorityImage = image
           await new Promise<void>(resolve => {
-            const timeout = window.setTimeout(finish, Math.min(700, Math.max(0, deadline - performance.now())))
+            const timeout = window.setTimeout(finish, Math.min(250, Math.max(0, deadline - performance.now())))
             function finish() {
               window.clearTimeout(timeout)
               highPriorityImage.removeEventListener('load', finish)
@@ -50,6 +59,7 @@ export async function waitForPageReady(): Promise<void> {
             highPriorityImage.addEventListener('error', finish)
           })
         }
+        await idle(Math.min(150, Math.max(0, deadline - performance.now())))
         return
       }
     }
@@ -81,16 +91,16 @@ export async function runTransition(
     if (html.dataset.transition === 'out' || html.dataset.transition === 'cover') {
       html.dataset.transitionSlow = ''
     }
-  }, 400)
+  }, 900)
   try {
     html.dataset.transition = 'out'
-    await Promise.allSettled([delay(350), preload ?? Promise.resolve()])
+    await Promise.allSettled([delay(300), preload ?? Promise.resolve()])
     html.dataset.transition = 'cover'
     change()
     await waitForPageReady()
     delete html.dataset.transitionSlow
     html.dataset.transition = 'reveal'
-    await delay(700)
+    await delay(560)
   } finally {
     window.clearTimeout(slowTimer)
     delete html.dataset.transitionSlow

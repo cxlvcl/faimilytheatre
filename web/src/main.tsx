@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { warmRoutes } from './lib/routePreload'
 import { initThemeFavicon } from './lib/themeFavicon'
 import './styles/global.css'
 import './styles/pages.css'
@@ -18,3 +19,4 @@ const html = document.documentElement
 window.addEventListener('pointerdown', () => { html.dataset.input = 'pointer' }, true)
 window.addEventListener('keydown', event => { if (!event.metaKey && !event.ctrlKey && !event.altKey) html.dataset.input = 'keyboard' }, true)
 createRoot(document.getElementById('root')!).render(<App />)
+warmRoutes()

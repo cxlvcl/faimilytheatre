@@ -1,5 +1,13 @@
 /* October 2026: video hero, centred glowing logo, "Меню" label, text-only about. */
 html.intro-pending .hero__center-logo { visibility: hidden; }
+/* Intro: the whole screen stays black. The sections below the hero neither peek out under it
+   (phone toolbars, tall windows) nor scroll into view until the logo animation ends. */
+html.intro-pending,
+html:has(body.intro-active) { overflow: hidden; background: #000; }
+html.intro-pending body,
+body.intro-active { background: #000; }
+html.intro-pending .hero ~ *,
+body.intro-active .hero ~ * { visibility: hidden !important; opacity: 0 !important; }
 .hero[data-intro='true'] .hero__center-logo { opacity: 0; visibility: hidden; }
 .hero__overlay { background: radial-gradient(ellipse at center, rgba(0,0,0,.28) 0%, rgba(0,0,0,.12) 45%, rgba(0,0,0,.5) 100%); }
 .hero__poster { transition: opacity .6s ease; }
@@ -22,11 +30,12 @@ html.intro-pending .hero__center-logo { visibility: hidden; }
 }
 
 .site-header__menu {
+  top: 28px;
   width: auto;
   height: auto;
-  padding: 6px 0;
+  padding: 8px 0;
   color: inherit;
-  font: 400 21px/1 'Cormorant Garamond', Georgia, serif;
+  font: 400 28px/1 'Cormorant Garamond', Georgia, serif;
   letter-spacing: .16em;
   text-transform: uppercase;
 }
@@ -70,13 +79,15 @@ html.intro-pending .hero__center-logo { visibility: hidden; }
 }
 
 @media (max-width: 680px) {
-  .site-header__menu { font-size: 18px; letter-spacing: .14em; }
+  .site-header__menu { top: 16px; padding: 10px 0; font-size: 23px; letter-spacing: .14em; }
   .hero__center-logo { height: min(50svh, 460px); }
   .about--text .about__phrase { width: min(92%, 360px); }
   .about__text { font-size: 20px; line-height: 1.5; }
 }
-/* Reset the former two-line burger span styles. */
-.site-header__menu .site-header__menu-label { position: static; width: auto; height: auto; background: none; transition: none; }
+/* Reset the former two-line burger span styles (`span:last-child` set a 22–26px width,
+   so the button was narrower than the word). */
+.site-header__menu span.site-header__menu-label,
+.site-header__menu:hover span.site-header__menu-label { position: static; width: auto; height: auto; background: none; transition: none; }
 /* The video is dark, so the small top logo stays white (no inversion). */
 .hero .hero__logo { filter: none; }
 /* The small logo exists only for the intro (GSAP shows and dissolves it). */
@@ -207,13 +218,13 @@ html.intro-pending .hero__center-logo { visibility: hidden; }
 /* «Назад» on every page except the home page, mirroring «Меню». */
 .site-header__back {
   position: fixed;
-  top: 34px;
+  top: 28px;
   right: var(--side);
-  padding: 6px 0;
+  padding: 8px 0;
   border: 0;
   background: transparent;
   color: inherit;
-  font: 400 21px/1 'Cormorant Garamond', Georgia, serif;
+  font: 400 28px/1 'Cormorant Garamond', Georgia, serif;
   letter-spacing: .16em;
   text-transform: uppercase;
   cursor: pointer;
@@ -223,7 +234,7 @@ html.intro-pending .hero__center-logo { visibility: hidden; }
 }
 .site-header__back:hover,
 .site-header__back:focus-visible { opacity: 1; }
-@media (max-width: 680px) { .site-header__back { top: 23px; font-size: 18px; letter-spacing: .14em; } }
+@media (max-width: 680px) { .site-header__back { top: 16px; padding: 10px 0; font-size: 23px; letter-spacing: .14em; } }
 @media (min-width: 1700px) { .site-header__back { right: 112px; } }
 
 /* Afisha: a tap on the poster opens it large. */

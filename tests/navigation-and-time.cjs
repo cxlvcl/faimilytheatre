@@ -25,15 +25,16 @@ function menu(pathname, reduce = false) {
   const classes = new Set(), attributes = new Set(['inert']), listeners = new Map()
   let closed = 0
   const timeline = { set() { return this }, fromTo() { return this }, pause() {}, kill() {}, eventCallback() { return this }, timeScale() { return this }, play() { return this } }
-  const root = { setAttribute: name => attributes.add(name), removeAttribute: name => attributes.delete(name) }
+  const root = { setAttribute: name => attributes.add(name), removeAttribute: name => attributes.delete(name), style: { setProperty() {}, removeProperty() {} } }
   const { FullscreenMenu } = load('web/src/components/FullscreenMenu.tsx', {
     react: { ...React, useRef: value => { const ref = { current: value }; refs.push(ref); return ref }, useEffect: callback => effects.push(callback), useLayoutEffect: callback => layouts.push(callback), useCallback: callback => callback },
     gsap: { timeline: () => timeline, set() {}, to: (_element, options) => options.onComplete() },
     'react-router-dom': { Link: 'a', useLocation: () => ({ pathname }), useNavigate: () => target => navigations.push(target) },
     '../pages/HomePage': {}, '../pages/RepertoirePage': {}, '../pages/AfishaPage': {}, '../pages/FaqPage': {}, '../pages/FranchisePage': {},
+    '../lib/pageTransition': { waitForPageReady: async () => {} }, '../lib/routePreload': { preloadRoute: () => Promise.resolve() },
   }, {
-    document: { activeElement: { focus() {} }, body: { classList: { add: value => classes.add(value), remove: value => classes.delete(value) } }, addEventListener: (name, callback) => listeners.set(name, callback), removeEventListener: name => listeners.delete(name), getElementById: () => ({ focus() {} }) },
-    window: { matchMedia: () => ({ matches: reduce }), setTimeout: () => 1, clearTimeout() {}, scrollTo: options => scrolls.push(options) },
+    document: { documentElement: { dataset: {} }, activeElement: { focus() {} }, body: { classList: { add: value => classes.add(value), remove: value => classes.delete(value) } }, addEventListener: (name, callback) => listeners.set(name, callback), removeEventListener: name => listeners.delete(name), getElementById: () => ({ focus() {} }) },
+    window: { matchMedia: () => ({ matches: reduce }), setTimeout: callback => { callback(); return 1 }, clearTimeout() {}, scrollTo: options => scrolls.push(options) },
     requestAnimationFrame: callback => callback(),
   })
   const tree = FullscreenMenu({ open: true, onClosed: () => { closed++ } })

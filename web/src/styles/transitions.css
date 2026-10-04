@@ -64,7 +64,7 @@ html[data-transition="cover"] .route-veil {
 }
 
 html[data-transition="out"] .route-veil {
-  transition: opacity .35s ease;
+  transition: opacity .3s ease;
 }
 
 html[data-transition="cover"] .route-view,
@@ -78,17 +78,23 @@ html[data-menu-transition] .route-view--enter {
   animation: none;
 }
 
+/* The page gets its own layer while hidden, so the reveal does not stall on the first frame. */
+html[data-transition] .route-view,
+html[data-menu-transition] .route-view {
+  will-change: opacity, transform;
+}
+
 html[data-transition="reveal"] .route-veil {
   opacity: 0;
   pointer-events: auto;
-  transition: opacity .55s ease;
+  transition: opacity .45s ease;
 }
 
 html[data-transition="reveal"] .route-view,
 html[data-menu-transition="reveal"] .route-view {
   opacity: 1;
   transform: none;
-  transition: opacity .6s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+  transition: opacity .45s ease, transform .55s cubic-bezier(.2, .7, .2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {

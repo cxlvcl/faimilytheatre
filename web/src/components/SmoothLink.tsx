@@ -1,6 +1,6 @@
-import type { AnchorHTMLAttributes, FocusEvent, MouseEvent, PointerEvent, TouchEvent } from 'react'
+import { type AnchorHTMLAttributes, type FocusEvent, type MouseEvent, type PointerEvent, type TouchEvent, useEffect, useRef } from 'react'
 import { type To, useLocation } from 'react-router-dom'
-import { preloadRoute } from '../lib/routePreload'
+import { preloadRoute, watchLink } from '../lib/routePreload'
 import { useSmoothNavigation } from './NavigationContext'
 
 interface Props extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
@@ -19,6 +19,8 @@ export function SmoothLink({
 }: Props) {
   const { navigateSmooth } = useSmoothNavigation()
   const location = useLocation()
+  const link = useRef<HTMLAnchorElement>(null)
+  useEffect(() => (typeof to === 'string' && link.current ? watchLink(link.current, to.split(/[?#]/)[0]) : undefined), [to])
 
   const preload = () => {
     if (
@@ -66,6 +68,7 @@ export function SmoothLink({
 
   return (
     <a
+      ref={link}
       href={typeof to === 'string' ? to : undefined}
       onClick={handleClick}
       onPointerEnter={handlePointerEnter}

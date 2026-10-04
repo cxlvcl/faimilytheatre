@@ -35,19 +35,30 @@ const apiBase = (import.meta.env.VITE_API_BASE ?? '/api').replace(/\/$/, '')
 declare global {
   interface Window { __THEATRE_DATA__?: Record<string, unknown> }
 }
-const publicCache = new Map<string, { value: unknown; expires: number }>(Object.entries(typeof window === 'undefined' ? {} : window.__THEATRE_DATA__ ?? {}).map(([path, value]) => [path, { value, expires: Date.now() + 60000 }]))
+// Data younger than a minute is used as is. Older data (up to 30 minutes) is shown at once
+// and refreshed in the background: the hosting API answers in 0.4–1.5 s, and a page change
+// must not wait for it again.
+const freshFor = 60000
+const staleFor = 30 * 60000
+const publicCache = new Map<string, { value: unknown; saved: number }>(Object.entries(typeof window === 'undefined' ? {} : window.__THEATRE_DATA__ ?? {}).map(([path, value]) => [path, { value, saved: Date.now() }]))
 const pending = new Map<string, Promise<unknown>>()
 export function cachedPublic<T>(path: string): T | undefined {
   const cached = publicCache.get(path)
-  return cached && cached.expires > Date.now() ? cached.value as T : undefined
+  return cached && Date.now() - cached.saved < staleFor ? cached.value as T : undefined
 }
 export function publicRequest<T>(path: string, refresh = false): Promise<T> {
   if (refresh) publicCache.delete(path)
   const cached = cachedPublic<T>(path)
-  if (cached !== undefined) return Promise.resolve(cached)
+  if (cached !== undefined) {
+    if (Date.now() - (publicCache.get(path)?.saved ?? 0) >= freshFor) void loadPublic(path).catch(() => undefined)
+    return Promise.resolve(cached)
+  }
+  return loadPublic<T>(path)
+}
+function loadPublic<T>(path: string): Promise<T> {
   if (pending.has(path)) return pending.get(path) as Promise<T>
   const result = request<T>(path).then(value => {
-    publicCache.set(path, { value, expires: Date.now() + 60000 })
+    publicCache.set(path, { value, saved: Date.now() })
     return value
   }).finally(() => pending.delete(path))
   pending.set(path, result)

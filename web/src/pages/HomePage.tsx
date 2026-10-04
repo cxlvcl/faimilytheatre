@@ -4,7 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Footer } from '../components/Footer'
 import { MusiciansStrip } from '../components/MusiciansStrip'
 import { useReveal } from '../hooks/useReveal'
-import { TheatreLettering } from '../components/TheatreLettering'
 import { UpcomingDates } from '../components/UpcomingDates'
 import { createHeroVideoPlayback, heroMobileQuery, heroVideoSources, pickHeroVideo } from '../lib/heroVideo'
 
@@ -86,12 +85,9 @@ function Hero() {
 
 function About() {
   const root = useRef<HTMLElement>(null)
-  useReveal(root, '.about__phrase, .about__text p')
+  useReveal(root, '.about__text p')
   return <section ref={root} id="about" className="about about--text">
-    <h2 className="about__phrase">
-      <span className="sr-only">Театр Музыки и Песка — истории, рассказанные музыкой, словом и песком</span>
-      <TheatreLettering variant="about" />
-    </h2>
+    <h2 className="sr-only">Театр Музыки и Песка — истории, рассказанные музыкой, словом и песком</h2>
     <div className="about__text">
       <p>Театр Музыки и Песка — единственный в Нижегородской области проект, где живая музыка соединяется с кинематографичной песочной анимацией. На большом экране разворачивается детализированная история из цветного песка, а вживую звучит струнный квартет и голос чтеца — никакой фонограммы.</p>
       <p>Мы ставим классику — Пушкина, Андерсена, Гоголя, Сент-Экзюпери, Бажова — так, чтобы дети её поняли, а взрослые вспомнили. В репертуаре более 27 спектаклей: для малышей, которые идут в театр впервые, для школьников с классом, для семей на выходных и для взрослых, которые ищут не развлечение, а настоящее переживание.</p>

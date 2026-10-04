@@ -82,7 +82,7 @@ export function FullscreenMenu({ open, onClosed }: Props) {
     if (path && path !== location.pathname) {
       root.current?.setAttribute('data-leaving', 'true')
       chosen?.setAttribute('data-chosen', 'true')
-      slowTimer = window.setTimeout(() => root.current?.setAttribute('data-slow', 'true'), 400)
+      slowTimer = window.setTimeout(() => root.current?.setAttribute('data-slow', 'true'), 900)
     }
     const finish = () => {
       if (slowTimer !== undefined) window.clearTimeout(slowTimer)
@@ -103,13 +103,20 @@ export function FullscreenMenu({ open, onClosed }: Props) {
         await waitForPageReady()
         document.documentElement.dataset.menuTransition = 'reveal'
       } else if (path) window.scrollTo({ top: 0, behavior: 'instant' })
-      gsap.to(root.current, {
-        autoAlpha: 0,
-        duration: reduced ? 0 : 0.45,
-        onComplete: finish,
-      })
+      // A CSS transition runs on the compositor: the fade stays smooth while the new page mounts.
+      const element = root.current
+      const duration = reduced ? 0 : 450
+      if (element) {
+        element.style.transition = `opacity ${duration}ms ease`
+        element.style.opacity = '0'
+      }
+      window.setTimeout(() => {
+        element?.style.setProperty('visibility', 'hidden')
+        element?.style.removeProperty('transition')
+        finish()
+      }, duration)
       if (path && path !== location.pathname) {
-        window.setTimeout(() => { delete document.documentElement.dataset.menuTransition }, reduced ? 0 : 700)
+        window.setTimeout(() => { delete document.documentElement.dataset.menuTransition }, reduced ? 0 : 560)
       }
     }
     // Load route code while the opaque menu still covers the current page.

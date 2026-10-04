@@ -88,6 +88,7 @@ test('Covers keep their source quality, decode asynchronously and defer distant 
     'react-router-dom': { useSearchParams: () => [new URLSearchParams(), () => {}] },
     '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../components/Breadcrumbs': { Breadcrumbs: () => null }, '../hooks/usePublicResource': { usePublicResource: () => ({ data: performances, status: 'ready' }) }, '../lib/repertoireMotion': {},
     '../lib/repertoireSections': load('web/src/lib/repertoireSections.ts', {}),
+    '../lib/titleLine': load('web/src/lib/titleLine.ts', {}),
   })
   const collect = node => !React.isValidElement(node) ? [] : [node, ...React.Children.toArray(node.props.children).flatMap(collect)]
   const images = collect(RepertoirePage()).filter(node => node.type === 'img')
