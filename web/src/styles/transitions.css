@@ -4,8 +4,13 @@
   z-index: 90;
   background: var(--veil-color, #080808);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
+
+/* Hidden completely between transitions: iPhone Safari tints its status and address bars
+   from full-screen fixed layers, and a left-over light veil painted them white. */
+html[data-transition] .route-veil { visibility: visible; }
 
 .route-veil__mark {
   position: absolute;

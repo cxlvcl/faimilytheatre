@@ -20,6 +20,8 @@ body.intro-active .hero ~ * { visibility: hidden !important; opacity: 0 !importa
   /* The artwork sits 1.4% low inside its canvas: centre the visible logo, not the file. */
   transform: translate(-50%, -51.4%);
   pointer-events: none;
+  /* A thin warm glowing line along the logo's contour. */
+  filter: drop-shadow(0 0 1.5px rgba(255, 240, 210, .95)) drop-shadow(0 0 12px rgba(255, 196, 120, .5));
 }
 .hero__center-logo {
   display: block;
@@ -79,7 +81,7 @@ body.intro-active .hero ~ * { visibility: hidden !important; opacity: 0 !importa
 }
 
 @media (max-width: 680px) {
-  .site-header__menu { top: 16px; padding: 10px 0; font-size: 23px; letter-spacing: .14em; }
+  .site-header__menu { top: 16px; padding: 12px 0; font-size: 19px; letter-spacing: .1em; }
   .hero__center-logo { height: min(50svh, 460px); }
   .about--text .about__phrase { width: min(92%, 360px); }
   .about__text { font-size: 20px; line-height: 1.5; }
@@ -234,7 +236,7 @@ body.intro-active .hero ~ * { visibility: hidden !important; opacity: 0 !importa
 }
 .site-header__back:hover,
 .site-header__back:focus-visible { opacity: 1; }
-@media (max-width: 680px) { .site-header__back { top: 16px; padding: 10px 0; font-size: 23px; letter-spacing: .14em; } }
+@media (max-width: 680px) { .site-header__back { top: 16px; padding: 12px 0; font-size: 19px; letter-spacing: .1em; } }
 @media (min-width: 1700px) { .site-header__back { right: 112px; } }
 
 /* Afisha: a tap on the poster opens it large. */
