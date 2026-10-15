@@ -23,6 +23,45 @@ final class Seo
         if (preg_match('#^https?://#i', $url)) return $url;
         return rtrim((string) $this->app->config['base_url'], '/') . '/' . ltrim($url, '/');
     }
+    /** The address people see and share: «театрмузыкиипеска.рф» instead of its xn-- form. */
+    public static function readableUrl(string $url): string
+    {
+        return preg_replace_callback('#^(https?://)([^/?\#]+)#i', fn ($match) => $match[1] . implode('.', array_map(
+            fn ($label) => str_starts_with(strtolower($label), 'xn--') ? (self::punycodeDecode(substr($label, 4)) ?? $label) : $label,
+            explode('.', $match[2]),
+        )), $url) ?? $url;
+    }
+    /** RFC 3492 decoding without the intl extension, which shared hosting may lack. */
+    private static function punycodeDecode(string $input): ?string
+    {
+        $input = strtolower($input);
+        $split = strrpos($input, '-');
+        $output = $split === false ? [] : array_map('ord', str_split(substr($input, 0, $split)));
+        $n = 128; $i = 0; $bias = 72; $first = true;
+        for ($position = $split === false ? 0 : $split + 1, $length = strlen($input); $position < $length;) {
+            $old = $i;
+            for ($weight = 1, $k = 36; ; $k += 36) {
+                if ($position >= $length) return null;
+                $char = ord($input[$position++]);
+                $digit = $char >= 97 && $char <= 122 ? $char - 97 : ($char >= 48 && $char <= 57 ? $char - 22 : -1);
+                if ($digit < 0) return null;
+                $i += $digit * $weight;
+                $t = $k <= $bias ? 1 : ($k >= $bias + 26 ? 26 : $k - $bias);
+                if ($digit < $t) break;
+                $weight *= 36 - $t;
+            }
+            $count = count($output) + 1;
+            $delta = intdiv($i - $old, $first ? 700 : 2);
+            $first = false;
+            $delta += intdiv($delta, $count);
+            for ($bias = 0; $delta > 455; $bias += 36) $delta = intdiv($delta, 35);
+            $bias += intdiv(36 * $delta, $delta + 38);
+            $n += intdiv($i, $count);
+            $i %= $count;
+            array_splice($output, $i++, 0, [$n]);
+        }
+        return implode('', array_map('mb_chr', $output));
+    }
     private function description(array $show): string
     {
         $text = trim(preg_replace('/\s+/u', ' ', str_replace('*', '', strip_tags((string) $show['short_description']))) ?? '');
@@ -68,7 +107,8 @@ final class Seo
             } catch (HttpException $error) { if ($error->status !== 404) throw $error; }
         }
         if ($info === null) { $status = 404; $info = ['Страница не найдена — Театр Музыки и Песка', 'Эта страница не существует. Перейдите на главную страницу, в репертуар или афишу театра.', 'Страница не найдена']; }
-        $canonical = $this->absolute($path);
+        // Phones share the canonical address; redirects keep using the ASCII form.
+        $canonical = self::readableUrl($this->absolute($path));
         $organization = [
             '@type' => 'TheaterGroup', '@id' => $this->absolute('/#theatre'),
             'name' => 'Театр Музыки и Песка', 'url' => $this->absolute('/'),

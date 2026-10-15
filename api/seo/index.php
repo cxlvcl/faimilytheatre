@@ -27,7 +27,7 @@ $trustedProxies = $app->config['seo']['trusted_proxies'] ?? [];
 if (in_array($_SERVER['REMOTE_ADDR'] ?? '', $trustedProxies, true)) $https = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 $wrongOrigin = $production && ($host !== $expectedHost || (str_starts_with($base, 'https://') && !$https));
 if ($meta['status'] === 200 && ($rawPath !== $path || $wrongOrigin)) {
-    header('Location: ' . ($production ? $meta['canonical'] : $path), true, 301);
+    header('Location: ' . ($production ? $seo->absolute($path) : $path), true, 301);
     exit;
 }
 http_response_code($meta['status']);

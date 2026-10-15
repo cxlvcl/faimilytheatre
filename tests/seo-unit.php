@@ -13,6 +13,9 @@ foreach (['api/src', 'api/seo'] as $directory) {
 foreach (['api/index.php', 'api/config.example.php'] as $file) { token_get_all(file_get_contents(dirname(__DIR__) . '/' . $file), TOKEN_PARSE); $checks++; }
 verify(Seo::path('/REPERTOIRE/Test/?utm_source=x') === '/repertoire/test', 'Normalize path, strip tracking query');
 verify(Seo::path('/') === '/', 'Keep homepage');
+verify(Seo::readableUrl('https://xn--80aanbjgaodo1bgudcs1l.xn--p1ai/repertoire/x') === 'https://театрмузыкиипеска.рф/repertoire/x', 'Readable Cyrillic address');
+verify(Seo::readableUrl('https://xn--mnchen-3ya.de/') === 'https://münchen.de/', 'Decode mixed labels');
+verify(Seo::readableUrl('https://example.ru/a') === 'https://example.ru/a', 'Leave ASCII hosts alone');
 verify(!str_contains(PageHtml::markdown('<script>alert(1)</script>'), '<script>'), 'Escape HTML');
 verify(str_contains(PageHtml::markdown('**Музыка** и *песок*'), '<strong>Музыка</strong> и <em>песок</em>'), 'Restricted markdown');
 verify(str_contains(PageHtml::date(['event_date' => '2099-01-01', 'event_time' => '18:30']), '18:30'), 'Real start time');
