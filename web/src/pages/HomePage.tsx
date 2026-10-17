@@ -101,12 +101,20 @@ function Musicians() {
   return <section className="musicians" aria-labelledby="musicians-title"><h2 id="musicians-title">Люди, которые создают волшебство</h2><MusiciansStrip /></section>
 }
 
+// Files are cropped to the visible mark, so CSS sizes each logo by its optical weight.
+const partners = [
+  { file: 'dobrohot', name: 'Доброхот', width: 634, height: 1074 },
+  { file: 'mayakovka', name: 'Арт-клуб «Маяковка, 10»', width: 846, height: 130 },
+  { file: 'qtickets', name: 'Qtickets', width: 864, height: 578 },
+  { file: 'kassir', name: 'KASSIR.RU', width: 842, height: 214 },
+]
+
 function Partners() {
   const root = useRef<HTMLElement>(null)
   useReveal(root, '.partners__logo')
   return <section ref={root} className="partners" aria-labelledby="partners-title">
     <h2 id="partners-title">Партнёры театра</h2>
-    <div className="partners__grid">{[1, 2, 3, 4].map(logo => <div className="partners__logo" key={logo}><img src={`/media/partners/${logo}.webp`} alt="" width="300" height="180" loading="lazy" decoding="async" /></div>)}</div>
+    <div className="partners__grid">{partners.map(logo => <div className={`partners__logo partners__logo--${logo.file}`} key={logo.file}><img src={`/media/partners/${logo.file}.webp`} alt={logo.name} width={logo.width} height={logo.height} loading="lazy" decoding="async" /></div>)}</div>
   </section>
 }
 

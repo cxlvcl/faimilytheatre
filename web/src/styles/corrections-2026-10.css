@@ -81,3 +81,31 @@
   .site-header__menu,
   .site-header__back { font-size: 22px; letter-spacing: .08em; }
 }
+
+/* ---------- A2. Partners: larger logos sized by optical weight (files are cropped to the mark) ---------- */
+.partners__grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  gap: clamp(40px, 5vw, 80px) 24px;
+}
+.partners__logo {
+  display: block;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+.partners__logo img { display: block; width: 100%; height: auto; max-height: none; }
+.partners__logo--dobrohot { width: clamp(100px, 8.8vw, 134px); }
+.partners__logo--mayakovka { width: clamp(230px, 21vw, 320px); }
+.partners__logo--qtickets { width: clamp(200px, 18.5vw, 280px); }
+.partners__logo--kassir { width: clamp(210px, 19vw, 290px); }
+
+/* Tablets and phones: two rows of two; the narrow mark shares a row with the wide script. */
+@media (max-width: 1024px) {
+  .partners__grid { justify-content: space-evenly; gap: 48px 0; }
+  .partners__logo--dobrohot { width: min(33%, 150px); }
+  .partners__logo--mayakovka { width: min(57%, 380px); }
+  .partners__logo--qtickets { width: min(43%, 290px); }
+  .partners__logo--kassir { width: min(46%, 310px); }
+}
