@@ -148,7 +148,7 @@ final class Seo
         $production = ($this->app->config['environment'] ?? 'development') === 'production';
         $robots = $status === 404 || !$production || $saved['noindex'] ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
-        $home = $this->absolute('/');
+        $home = self::readableUrl($this->absolute('/'));
         $phones = array_values(array_filter(explode("\n", $settings['org_phones']), 'strlen'));
         $organization = array_filter([
             '@type' => 'TheaterGroup', '@id' => $this->absolute('/#theatre'),
@@ -242,7 +242,7 @@ final class Seo
             'typicalAgeRange' => $details['age_rating'] ? rtrim($details['age_rating'], '+') . '-' : null,
             'location' => array_filter(['@type' => 'Place', 'name' => $event['venue'], 'address' => $address]),
             'offers' => $offers,
-            'organizer' => ['@type' => 'Organization', 'name' => $settings['org_name'], 'url' => $this->absolute('/')],
+            'organizer' => ['@type' => 'Organization', 'name' => $settings['org_name'], 'url' => self::readableUrl($this->absolute('/'))],
             'workPerformed' => array_filter([
                 '@type' => 'CreativeWork',
                 'name' => $details['work_title'] !== '' ? $details['work_title'] : $name,
