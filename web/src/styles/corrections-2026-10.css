@@ -153,3 +153,11 @@
 @media (max-width: 680px) {
   .afisha-page .event-scene:first-of-type { padding-top: 142px; }
 }
+
+/* ---------- A9. Micro-lag pass ---------- */
+/* No horizontal jump when the menu or the poster lightbox locks scrolling (classic scrollbars). */
+html { scrollbar-gutter: stable; }
+/* iOS Safari: the small viewport height does not change when the toolbar collapses. */
+body { min-height: 100svh; }
+.performance-paper { min-height: 100svh; }
+.performance-detail__body { min-height: 100svh; }

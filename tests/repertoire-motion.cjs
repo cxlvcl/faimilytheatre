@@ -34,7 +34,7 @@ function motion(reduce = false, kind = 'repertoire') {
   return { timelines, contexts, contents, preference, listeners, cleanup }
 }
 
-test('Each scene has one controller and limits blur to 4px on content, not the background', () => {
+test('Each scene has one controller and scrolls only opacity and transform, never a filter', () => {
   const state = motion()
   assert.equal(state.timelines.length, 4)
   state.timelines.forEach((timeline, index) => {
@@ -43,11 +43,10 @@ test('Each scene has one controller and limits blur to 4px on content, not the b
     assert.equal(timeline.steps[1].position, 0.78, 'Keep the content clear in the middle of the scene')
     for (const step of timeline.steps) {
       assert.equal(step.target, state.contents[index])
-      for (const key of [...Object.keys(step.from ?? {}), ...Object.keys(step.to)]) assert.ok(['opacity', 'y', 'filter', 'duration'].includes(key), `Unexpected scroll property: ${key}`)
-      for (const properties of [step.from, step.to].filter(Boolean)) assert.ok(['blur(0px)', 'blur(4px)'].includes(properties.filter))
+      for (const key of [...Object.keys(step.from ?? {}), ...Object.keys(step.to)]) assert.ok(['opacity', 'y', 'duration'].includes(key), `Unexpected scroll property: ${key}`)
     }
     timeline.options.scrollTrigger.onToggle({ isActive: true })
-    assert.equal(state.contents[index].style.willChange, 'transform, opacity, filter')
+    assert.equal(state.contents[index].style.willChange, 'transform, opacity')
     timeline.options.scrollTrigger.onToggle({ isActive: false })
     assert.equal(state.contents[index].style.willChange, undefined)
   })
@@ -56,13 +55,11 @@ test('Each scene has one controller and limits blur to 4px on content, not the b
   assert.equal(state.listeners.size, 0)
 })
 
-test('Afisha uses the same bounded blur/fade and keeps the first and last content readable', () => {
+test('Afisha uses the same fade and keeps the first and last content readable', () => {
   const state = motion(false, 'event')
   assert.equal(state.timelines.length, 4)
   assert.equal(state.timelines[0].steps[0].from.opacity, 1)
-  assert.equal(state.timelines[0].steps[0].from.filter, 'blur(0px)')
   assert.equal(state.timelines[3].steps[1].to.opacity, 1)
-  assert.equal(state.timelines[3].steps[1].to.filter, 'blur(0px)')
   state.cleanup()
 })
 

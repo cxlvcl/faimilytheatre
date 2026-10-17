@@ -21,7 +21,7 @@ export default function PerformancePage() {
   useLayoutEffect(() => {
     if (!root.current || status !== 'ready' || matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const context = gsap.context(() => {
-      gsap.fromTo('.performance-paper__photo', { opacity: 0, filter: 'blur(5px)' }, { opacity: 1, filter: 'blur(0px)', duration: .75, stagger: .15, clearProps: 'opacity,filter' })
+      gsap.fromTo('.performance-paper__photo', { opacity: 0 }, { opacity: 1, duration: .75, stagger: .15, clearProps: 'opacity' })
     }, root)
     return () => context.revert()
   }, [status])

@@ -56,7 +56,8 @@ export default function RepertoirePage() {
             aria-hidden="true"
             loading={index < 2 ? 'eager' : 'lazy'}
             decoding="async"
-            fetchPriority="low"
+            // The first background is the largest paint (LCP) and the same file as its cover.
+            fetchPriority={index === 0 ? 'auto' : 'low'}
           />
           <div className="repertoire-scene__shade" />
           <div className="repertoire-scene__content">

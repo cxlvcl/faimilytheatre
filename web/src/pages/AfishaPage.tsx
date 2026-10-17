@@ -23,7 +23,7 @@ export default function AfishaPage() {
   return <div ref={root} className="afisha-page">
     <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Афиша</h1></div>
     {events.map((event, index) => <article className="event-scene" id={`event-${event.id}`} key={event.id}>
-      <img className="event-scene__background" src={event.poster_image} alt="" aria-hidden="true" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority="low" />
+      <img className="event-scene__background" src={event.poster_image} alt="" aria-hidden="true" loading={index < 2 ? 'eager' : 'lazy'} decoding="async" fetchPriority={index === 0 ? 'auto' : 'low'} />
       <div className="event-scene__shade" />
       <div className="event-scene__content">
         <p className="event-scene__date"><EventDate date={event.event_date} time={event.event_time} /></p>

@@ -23,11 +23,11 @@ export function setupRepertoireMotion(root: HTMLElement, kind: 'repertoire' | 'e
         const content = scene.querySelector<HTMLElement>(`.${kind}-scene__content`)
         if (!content) return
         const updateLayer = (trigger: ScrollTrigger) => {
-          if (trigger.isActive) content.style.willChange = 'transform, opacity, filter'
+          if (trigger.isActive) content.style.willChange = 'transform, opacity'
           else content.style.removeProperty('will-change')
         }
-        // A single timeline owns the entrance and exit. The background blur is
-        // static in CSS; never repaint a full-screen blur on every scroll frame.
+        // A single timeline owns the entrance and exit: opacity and transform only, so
+        // scrolling never repaints a filter (the background blur is static in CSS).
         gsap.timeline({
           defaults: { ease: 'none' },
           scrollTrigger: {
@@ -39,8 +39,8 @@ export function setupRepertoireMotion(root: HTMLElement, kind: 'repertoire' | 'e
             onRefresh: updateLayer,
           },
         })
-          .fromTo(content, { opacity: index === 0 ? 1 : 0.28, y: index === 0 ? 0 : 18, filter: index === 0 ? 'blur(0px)' : 'blur(4px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.22 })
-          .to(content, { opacity: index === scenes.length - 1 ? 1 : 0.28, y: index === scenes.length - 1 ? 0 : -18, filter: index === scenes.length - 1 ? 'blur(0px)' : 'blur(4px)', duration: 0.22 }, 0.78)
+          .fromTo(content, { opacity: index === 0 ? 1 : 0.28, y: index === 0 ? 0 : 18 }, { opacity: 1, y: 0, duration: 0.22 })
+          .to(content, { opacity: index === scenes.length - 1 ? 1 : 0.28, y: index === scenes.length - 1 ? 0 : -18, duration: 0.22 }, 0.78)
       })
     }, root)
   }

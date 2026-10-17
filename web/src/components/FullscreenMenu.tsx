@@ -40,15 +40,16 @@ export function FullscreenMenu({ open, onClosed }: Props) {
       .fromTo('.menu-overlay__wash', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.28 })
       .fromTo(
         '.menu-overlay__background',
-        { autoAlpha: 0, filter: 'blur(18px)' },
-        { autoAlpha: 1, filter: 'blur(0px)', duration: 0.75, ease: 'power2.out' },
+        // Opacity and scale only: a full-screen blur cannot be animated smoothly on phones.
+        { autoAlpha: 0, scale: 1.04 },
+        { autoAlpha: 1, scale: 1, duration: 0.75, ease: 'power2.out' },
         '-=0.08',
       )
       .fromTo('.menu-overlay__logo', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.38 })
       .fromTo(
         '.menu-overlay__item',
-        { autoAlpha: 0, y: 22, filter: 'blur(9px)' },
-        { autoAlpha: 1, y: 0, filter: 'blur(0px)', stagger: 0.08, duration: 0.55 },
+        { autoAlpha: 0, y: 22 },
+        { autoAlpha: 1, y: 0, stagger: 0.08, duration: 0.55 },
         '-=0.2',
       )
       .fromTo(['.menu-overlay__meta', '.menu-overlay__social'], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35 })

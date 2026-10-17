@@ -59,8 +59,8 @@ export default function FranchisePage() {
       )
       gsap.fromTo(
         '.franchise-hero__content > *',
-        { autoAlpha: 0, y: 16, filter: 'blur(4px)' },
-        { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.75, stagger: 0.1, clearProps: 'opacity,visibility,filter,transform' },
+        { autoAlpha: 0, y: 16 },
+        { autoAlpha: 1, y: 0, duration: 0.75, stagger: 0.1, clearProps: 'opacity,visibility,transform' },
       )
       if (!reduce) {
         gsap.fromTo(

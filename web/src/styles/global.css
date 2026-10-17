@@ -398,34 +398,6 @@ select:focus-visible {
   text-decoration: none;
 }
 
-.route-is-leaving main {
-  opacity: 0.2;
-  filter: blur(12px);
-  transition: opacity 220ms ease, filter 220ms ease;
-}
-
-::view-transition-old(root) {
-  animation: theatre-out 420ms ease both;
-}
-
-::view-transition-new(root) {
-  animation: theatre-in 680ms ease both;
-}
-
-@keyframes theatre-out {
-  to {
-    opacity: 0;
-    filter: blur(14px);
-  }
-}
-
-@keyframes theatre-in {
-  from {
-    opacity: 0.12;
-    filter: blur(14px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

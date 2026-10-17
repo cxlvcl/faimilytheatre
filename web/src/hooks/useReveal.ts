@@ -16,7 +16,8 @@ export function useReveal<T extends HTMLElement>(
     if (!element || !ready) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const targets = gsap.utils.toArray<HTMLElement>(selector, element)
-    gsap.set(targets, { autoAlpha: 0, y: 16, filter: 'blur(5px)' })
+    // Opacity and transform only: a blur would repaint every revealed block each frame.
+    gsap.set(targets, { autoAlpha: 0, y: 16 })
     let batch = 0
     let frame = 0
     const observer = new IntersectionObserver(entries => {
@@ -24,7 +25,7 @@ export function useReveal<T extends HTMLElement>(
         if (!entry.isIntersecting) continue
         observer.unobserve(entry.target)
         gsap.to(entry.target, {
-          autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power2.out',
+          autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out',
           delay: Math.min(batch++ * 0.06, 0.3),
           clearProps: 'opacity,visibility,filter,transform',
         })
