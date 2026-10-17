@@ -34,10 +34,9 @@ function Hero() {
     const source = pickHeroVideo()
     element.setAttribute('src', source)
     const playback = createHeroVideoPlayback(element, visual.current, root.current, source === heroVideoSources.mobile ? source : heroVideoSources.standard)
-    const reveal = () => playback.setVisible(true)
-    if (!document.body.classList.contains('intro-active')) reveal()
-    window.addEventListener('theatre:intro-complete', reveal)
-    return () => { window.removeEventListener('theatre:intro-complete', reveal); playback.dispose() }
+    // Play at once, under the intro: the first frames are ready when the hero fades in.
+    playback.setVisible(true)
+    return () => playback.dispose()
   }, [])
   useLayoutEffect(() => {
     const element = root.current
@@ -113,7 +112,7 @@ function Hero() {
 
   return <section ref={root} className="hero" data-intro={playIntro} aria-label="Театр Музыки и Песка">
     <div ref={visual} className="hero__visual" data-video-playing="false">
-      <video ref={video} className="hero__media hero__video" muted playsInline loop preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture />
+      <video ref={video} className="hero__media hero__video" autoPlay muted playsInline loop preload="auto" aria-hidden="true" tabIndex={-1} disablePictureInPicture />
       <picture>
         <source media={heroMobileQuery} srcSet={heroVideoSources.mobilePoster} width="720" height="1280" />
         <img className="hero__media hero__poster" src={heroVideoSources.desktopPoster} alt="" width="1920" height="1080" fetchPriority="high" />
