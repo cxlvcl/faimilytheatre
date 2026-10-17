@@ -109,3 +109,9 @@
   .partners__logo--qtickets { width: min(43%, 290px); }
   .partners__logo--kassir { width: min(46%, 310px); }
 }
+
+/* ---------- A3. Footer logo ×1.5 ---------- */
+.site-footer__logo { width: clamp(255px, 33vw, 450px); }
+@media (max-width: 680px) {
+  .site-footer__logo { width: min(86vw, 390px); }
+}
