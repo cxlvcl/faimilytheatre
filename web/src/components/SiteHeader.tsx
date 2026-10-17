@@ -4,11 +4,13 @@ import { useBack } from '../hooks/useBack'
 
 interface Props {
   isHome: boolean
+  /** White pages (FAQ, articles, a performance) get dark buttons; the rest sit on dark backgrounds. */
+  light: boolean
   menuOpen: boolean
   openMenu: () => void
 }
 
-export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
+export function SiteHeader({ isHome, light, menuOpen, openMenu }: Props) {
   const back = useBack()
   const [introActive, setIntroActive] = useState(
     () => {
@@ -25,7 +27,7 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
 
   return (
     <header
-      className={`site-header ${isHome && introActive ? 'is-intro' : ''}`}
+      className={`site-header ${light ? 'site-header--light' : ''} ${isHome && introActive ? 'is-intro' : ''}`}
       aria-hidden={menuOpen}
     >
       <button
@@ -35,7 +37,7 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
         aria-label="Открыть меню"
         aria-expanded={menuOpen}
       >
-        <span className="site-header__menu-label">Меню</span>
+        <span className="site-header__menu-label" data-text="Меню">Меню</span>
       </button>
       {!isHome && (
         <SmoothLink className="site-header__logo" to="/" aria-label="Театр Музыки и Песка — главная">

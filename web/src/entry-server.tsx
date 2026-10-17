@@ -5,5 +5,5 @@ import { SiteHeader } from './components/SiteHeader'
 import HomePage from './pages/HomePage'
 import FranchisePage from './pages/FranchisePage'
 export function render(path: '/' | '/franchise') {
-  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}><NavigationProvider><SiteHeader isHome={path === '/'} menuOpen={false} openMenu={() => {}} /><main id="main-content">{path === '/' ? <HomePage /> : <FranchisePage />}</main></NavigationProvider></MemoryRouter>)
+  return renderToStaticMarkup(<MemoryRouter initialEntries={[path]}><NavigationProvider><SiteHeader isHome={path === '/'} light={false} menuOpen={false} openMenu={() => {}} /><main id="main-content">{path === '/' ? <HomePage /> : <FranchisePage />}</main></NavigationProvider></MemoryRouter>)
 }

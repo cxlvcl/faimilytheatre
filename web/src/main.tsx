@@ -11,6 +11,7 @@ import './styles/home-2026.css'
 import './styles/paper.css'
 import './styles/mobile-2026.css'
 import './styles/transitions.css'
+import './styles/corrections-2026-10.css'
 
 history.scrollRestoration = 'manual'
 initThemeFavicon()

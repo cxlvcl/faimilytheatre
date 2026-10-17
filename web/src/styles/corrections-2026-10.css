@@ -1,0 +1,83 @@
+/* Owner's corrections, October 2026 (batch 1). Loaded last: overrides the earlier layers. */
+
+/* ---------- A1. «Меню»: larger, readable on any video frame, a light wave across the letters ---------- */
+
+/* No blend mode: «difference» turned white text grey over mid-tone video frames.
+   The tone now comes from the page: white buttons on dark pages, dark ones on white pages. */
+.site-header {
+  mix-blend-mode: normal;
+  --header-ink: #fff;
+  --header-base: rgba(255, 255, 255, .72);
+  --header-halo: rgba(0, 0, 0, .5);
+  --header-shine: #fff;
+  --header-glow: rgba(255, 240, 200, 1);
+}
+.site-header--light {
+  --header-ink: #111;
+  --header-base: #111;
+  --header-halo: rgba(255, 255, 255, .75);
+  --header-shine: #b58a3c;
+  --header-glow: rgba(214, 170, 92, .55);
+}
+.site-header--light .site-header__logo img { filter: invert(1); }
+
+.site-header__menu,
+.site-header__back {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--header-base);
+  font-size: 36px;
+  letter-spacing: .14em;
+  text-shadow: 0 0 1px var(--header-halo), 0 1px 14px var(--header-halo);
+}
+.site-header__menu { top: 22px; }
+.site-header__back { top: 22px; opacity: 1; transition: color 250ms ease; }
+.site-header__back:hover,
+.site-header__back:focus-visible { color: var(--header-ink); }
+
+/* `span.` beats the old burger reset; top/left undo the burger lines' offsets. */
+.site-header__menu span.site-header__menu-label {
+  position: relative;
+  top: auto;
+  left: auto;
+  animation: none;
+  opacity: 1;
+}
+/* The wave: a bright band clipped to the letters slides left → right every few seconds.
+   Only background-position changes; the glow is a static drop-shadow of that band. */
+.site-header__menu .site-header__menu-label::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background: linear-gradient(100deg, transparent 0 36%, var(--header-shine) 46% 54%, transparent 64% 100%) 100% 0 / 300% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 4px var(--header-glow)) drop-shadow(0 0 10px var(--header-glow));
+  text-shadow: none;
+  pointer-events: none;
+  animation: menu-wave 4.2s cubic-bezier(.45, 0, .3, 1) 1s infinite;
+}
+.site-header__menu:hover .site-header__menu-label,
+.site-header__menu:focus-visible .site-header__menu-label { color: var(--header-ink); }
+@keyframes menu-wave {
+  0% { background-position: 100% 0; }
+  45%, 100% { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header__menu .site-header__menu-label::after { display: none; }
+  .site-header__menu .site-header__menu-label {
+    color: var(--header-ink);
+    text-shadow: 0 0 1px var(--header-halo), 0 1px 14px var(--header-halo), 0 0 18px var(--header-glow);
+  }
+}
+
+@media (max-width: 680px) {
+  .site-header__menu,
+  .site-header__back { top: 12px; padding: 11px 0; font-size: 25px; letter-spacing: .1em; }
+}
+@media (max-width: 359px) {
+  .site-header__menu,
+  .site-header__back { font-size: 22px; letter-spacing: .08em; }
+}

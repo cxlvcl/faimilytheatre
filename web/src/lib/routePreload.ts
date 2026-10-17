@@ -17,6 +17,11 @@ export function darkRoute(path: string): boolean {
   return path === '/' || path === '/franchise' || path === '/repertoire' || path === '/afisha'
 }
 
+/** Pages on a white background: FAQ, articles and a performance's «newspaper» page. */
+export function lightRoute(path: string): boolean {
+  return /^\/(faq|articles)(\/|$)|^\/repertoire\/[^/]+/.test(path)
+}
+
 export function preloadRoute(path: string): Promise<unknown> {
   const pathname = path.split(/[?#]/)[0] || '/'
   let load = routeImports.notFound

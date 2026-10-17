@@ -6,7 +6,7 @@ import { SiteHeader } from './components/SiteHeader'
 import { PageSeo } from './components/PageSeo'
 import { useRouteScroll } from './hooks/useRouteScroll'
 import { publicApi } from './lib/api'
-import { darkRoute, routeImports } from './lib/routePreload'
+import { darkRoute, lightRoute, routeImports } from './lib/routePreload'
 const HomePage = lazy(routeImports.home)
 const RepertoirePage = lazy(routeImports.repertoire)
 const PerformancePage = lazy(routeImports.performance)
@@ -37,7 +37,7 @@ function Shell() {
   useEffect(() => { publicApi.pageView(location.pathname) }, [location.pathname])
   return <>
     <PageSeo />
-    <SiteHeader isHome={location.pathname === '/'} menuOpen={menuOpen} openMenu={() => setMenuOpen(true)} />
+    <SiteHeader isHome={location.pathname === '/'} light={lightRoute(location.pathname)} menuOpen={menuOpen} openMenu={() => setMenuOpen(true)} />
     <FullscreenMenu open={menuOpen} onClosed={() => setMenuOpen(false)} />
     <main id="main-content" tabIndex={-1} inert={menuOpen}>
       <Suspense fallback={<div className={`page-fallback ${darkRoute(location.pathname) ? 'page-fallback--home' : ''}`} aria-hidden="true" />}>

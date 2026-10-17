@@ -145,7 +145,9 @@ final class PageHtml
             foreach ($data['/public/faq'] as $faq) $body .= '<details class="faq-item"><summary>' . self::e($faq['question']) . '</summary><div class="faq-item__answer">' . self::markdown($faq['answer']) . '</div></details>';
             $body .= '</div></section>';
         }
-        $header = '<header class="site-header"><a class="site-header__logo" href="/" aria-label="На главную"><img src="/media/logo.webp" alt="Театр Музыки и Песка" width="900" height="900"></a></header>';
+        // Same tones as the React header: dark logo on the white pages (FAQ, articles, a performance).
+        $light = preg_match('#^/(faq|articles)(/|$)|^/repertoire/[^/]+#', $path) === 1;
+        $header = '<header class="site-header' . ($light ? ' site-header--light' : '') . '"><a class="site-header__logo" href="/" aria-label="На главную"><img src="/media/logo.webp" alt="Театр Музыки и Песка" width="900" height="900"></a></header>';
         return $header . '<main id="main-content">' . $body . '</main>';
     }
 }
