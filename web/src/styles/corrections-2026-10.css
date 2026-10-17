@@ -115,3 +115,33 @@
 @media (max-width: 680px) {
   .site-footer__logo { width: min(86vw, 390px); }
 }
+
+/* ---------- A4. Menu: VK and Telegram in the logo row, on the right ---------- */
+.menu-overlay__social {
+  position: absolute;
+  z-index: 3;
+  top: 22px;
+  right: var(--side);
+  display: flex;
+  gap: 6px;
+}
+.menu-overlay__social a {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--light-text);
+  opacity: .82;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.menu-overlay__social a:hover,
+.menu-overlay__social a:focus-visible { opacity: 1; transform: scale(1.08); }
+.menu-overlay__social a:active { transform: scale(.94); }
+.menu-overlay__social svg { display: block; width: 28px; height: 28px; }
+/* Desktop: phone and e-mail move left of the icons. */
+@media (min-width: 901px) {
+  .menu-overlay__meta { right: calc(var(--side) + 110px); }
+}
+@media (max-width: 900px) {
+  .menu-overlay__social { top: 22px; right: 14px; gap: 2px; }
+}

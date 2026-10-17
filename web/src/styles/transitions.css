@@ -44,7 +44,8 @@ html[data-transition-slow] .route-veil__mark {
 }
 
 .menu-overlay[data-leaving] .menu-overlay__item:not([data-chosen]),
-.menu-overlay[data-leaving] .menu-overlay__meta {
+.menu-overlay[data-leaving] .menu-overlay__meta,
+.menu-overlay[data-leaving] .menu-overlay__social {
   filter: opacity(.2) !important;
   transition: filter .3s ease;
 }
