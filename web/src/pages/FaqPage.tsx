@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { LoadError } from '../components/LoadError'
 import { RestrictedMarkdown } from '../components/RestrictedMarkdown'
 import { usePublicResource } from '../hooks/usePublicResource'
+import { usePageH1 } from '../hooks/usePageH1'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { useReveal } from '../hooks/useReveal'
 import type { FaqItem } from '../types'
@@ -9,6 +10,7 @@ import type { FaqItem } from '../types'
 export default function FaqPage() {
   const root = useRef<HTMLElement>(null)
   const { data: items = [], status, retry: load } = usePublicResource<FaqItem[]>('/public/faq')
+  const h1 = usePageH1('FAQ')
   const [openId, setOpenId] = useState<number | null>(null)
   useReveal(root, '.faq-item', status === 'ready')
 
@@ -24,7 +26,7 @@ export default function FaqPage() {
   return (
     <section ref={root} className="faq-page">
       <Breadcrumbs items={[{ name: 'Главная', path: '/' }, { name: 'FAQ' }]} />
-      <h1>FAQ</h1>
+      <h1>{h1}</h1>
       <div className="faq-list">
         {items.map((item) => {
           const expanded = openId === item.id

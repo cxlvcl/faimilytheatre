@@ -7,6 +7,7 @@ import { PageSeo } from './components/PageSeo'
 import { useRouteScroll } from './hooks/useRouteScroll'
 import { publicApi } from './lib/api'
 import { darkRoute, lightRoute, routeImports } from './lib/routePreload'
+import { trackPageView } from './lib/counters'
 const HomePage = lazy(routeImports.home)
 const RepertoirePage = lazy(routeImports.repertoire)
 const PerformancePage = lazy(routeImports.performance)
@@ -34,7 +35,7 @@ function Shell() {
   // The first history entry is "default"; every in-app navigation gets a new key.
   const animate = location.key !== 'default'
   useRouteScroll()
-  useEffect(() => { publicApi.pageView(location.pathname) }, [location.pathname])
+  useEffect(() => { publicApi.pageView(location.pathname); trackPageView() }, [location.pathname])
   return <>
     <PageSeo />
     <SiteHeader isHome={location.pathname === '/'} light={lightRoute(location.pathname)} menuOpen={menuOpen} openMenu={() => setMenuOpen(true)} />

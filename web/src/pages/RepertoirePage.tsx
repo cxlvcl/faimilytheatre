@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { LoadError } from '../components/LoadError'
 import { SmoothLink } from '../components/SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
+import { usePageH1 } from '../hooks/usePageH1'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { setupRepertoireMotion } from '../lib/repertoireMotion'
 import { isRepertoireSection, repertoireSections } from '../lib/repertoireSections'
@@ -12,6 +13,7 @@ import { withoutTitleLine } from '../lib/titleLine'
 export default function RepertoirePage() {
   const root = useRef<HTMLDivElement>(null)
   const { data: performances = [], status, retry: load } = usePublicResource<PerformanceSummary[]>('/public/performances')
+  const h1 = usePageH1('Репертуар')
   const [params, setParams] = useSearchParams()
   const requested = params.get('section')
   const section = isRepertoireSection(requested) ? requested : null
@@ -35,14 +37,14 @@ export default function RepertoirePage() {
   if (performances.length === 0) {
     return (
       <section className="simple-page simple-page--dark">
-        <h1>Репертуар</h1>
+        <h1>{h1}</h1>
       </section>
     )
   }
 
   return (
     <div ref={root} className="repertoire-page">
-      <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>Репертуар</h1></div>
+      <div className="listing-heading"><Breadcrumbs items={[{ name: 'Главная', path: '/' }]} /><h1>{h1}</h1></div>
       <nav className="repertoire-sections" aria-label="Разделы репертуара">
         {[{ id: null, label: 'Все' }, ...repertoireSections].map(item => <button key={item.label} type="button" className={item.id === section ? 'is-current' : ''} aria-pressed={item.id === section} onClick={() => setParams(item.id ? { section: item.id } : {}, { replace: true })}>{item.label}</button>)}
       </nav>

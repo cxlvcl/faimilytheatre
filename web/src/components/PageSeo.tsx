@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { cachedPublic, publicRequest } from '../lib/api'
-interface Metadata { status: number; title: string; description: string; canonical: string; image: string; robots: string; schema: unknown }
+import type { PageMeta as Metadata } from '../types'
 function setMeta(key: string, value: string, property = false) {
   const attribute = property ? 'property' : 'name'
   let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)
@@ -10,8 +10,15 @@ function setMeta(key: string, value: string, property = false) {
 }
 function apply(meta: Metadata) {
   document.title = meta.title
-  for (const [key, value] of Object.entries({ description: meta.description, robots: meta.robots, 'twitter:card': 'summary_large_image', 'twitter:title': meta.title, 'twitter:description': meta.description, 'twitter:image': meta.image })) setMeta(key, value)
-  for (const [key, value] of Object.entries({ 'og:title': meta.title, 'og:description': meta.description, 'og:url': meta.canonical, 'og:image': meta.image, 'og:type': 'website', 'og:site_name': 'Театр Музыки и Песка', 'og:locale': 'ru_RU' })) setMeta(key, value, true)
+  const ogTitle = meta.og_title || meta.title
+  const ogDescription = meta.og_description || meta.description
+  for (const [key, value] of Object.entries({ description: meta.description, robots: meta.robots, 'twitter:card': 'summary_large_image', 'twitter:title': ogTitle, 'twitter:description': ogDescription, 'twitter:image': meta.image })) setMeta(key, value)
+  for (const [key, value] of Object.entries({ 'og:title': ogTitle, 'og:description': ogDescription, 'og:url': meta.canonical, 'og:image': meta.image, 'og:type': meta.og_type || 'website', 'og:site_name': 'Театр Музыки и Песка', 'og:locale': 'ru_RU' })) setMeta(key, value, true)
+  for (const key of ['og:image:width', 'og:image:height'] as const) {
+    const value = key === 'og:image:width' ? meta.image_width : meta.image_height
+    if (value) setMeta(key, String(value), true)
+    else document.head.querySelector(`meta[property="${key}"]`)?.remove()
+  }
   let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
   if (meta.status === 200) {
     if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.append(canonical) }

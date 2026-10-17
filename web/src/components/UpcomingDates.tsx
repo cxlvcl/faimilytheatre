@@ -3,7 +3,7 @@ import { EventDate } from './EventDate'
 import { SmoothLink } from './SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
 import { useReveal } from '../hooks/useReveal'
-import { publicApi } from '../lib/api'
+import { BuyLink } from './BuyLink'
 import { withoutTitleLine } from '../lib/titleLine'
 import type { EventItem } from '../types'
 
@@ -41,7 +41,7 @@ export function UpcomingDates() {
       const text = withoutTitleLine(event.performance.short_description, event.performance.title)
       return <article className="upcoming__event" key={event.id}>
         <SmoothLink className="upcoming__poster" to={url} aria-label={`О спектакле «${event.performance.title}»`}>
-          <img src={event.poster_image} alt={`Афиша спектакля «${event.performance.title}»`} width="750" height="1000" loading="lazy" decoding="async" />
+          <img src={event.poster_image} alt={event.poster_alt} width="750" height="1000" loading="lazy" decoding="async" />
         </SmoothLink>
         <div className="upcoming__copy">
           <p className="upcoming__date"><EventDate date={event.event_date} time={event.event_time} /></p>
@@ -49,7 +49,7 @@ export function UpcomingDates() {
           {event.performance.is_premiere && <p className="premiere">Премьера</p>}
           {text && <p className="upcoming__description">{text}</p>}
           <p className="upcoming__venue">{event.venue}</p>
-          <a className="upcoming__buy" href={event.ticket_url} target="_blank" rel="noopener noreferrer" onClick={() => publicApi.ticketClick(event.id)}>Купить билет</a>
+          <BuyLink className="upcoming__buy" event={event} title={event.performance.title} />
         </div>
       </article>
     })}</div>

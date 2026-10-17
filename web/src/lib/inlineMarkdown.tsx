@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { withoutTitleLine } from './titleLine'
 
-/** **bold** and *italic* inside one paragraph of restricted Markdown. */
-export function inlineMarkdown(value: string): ReactNode[] {
+function emphasis(value: string, prefix: string): ReactNode[] {
   const result: ReactNode[] = []
   const pattern = /(\*\*[^*]+\*\*|\*[^*]+\*)/g
   let cursor = 0
@@ -12,15 +11,26 @@ export function inlineMarkdown(value: string): ReactNode[] {
     if (match.index > cursor) result.push(value.slice(cursor, match.index))
     const token = match[0]
     if (token.startsWith('**')) {
-      result.push(<strong key={`${match.index}-strong`}>{token.slice(2, -2)}</strong>)
+      result.push(<strong key={`${prefix}${match.index}-strong`}>{token.slice(2, -2)}</strong>)
     } else {
-      result.push(<em key={`${match.index}-em`}>{token.slice(1, -1)}</em>)
+      result.push(<em key={`${prefix}${match.index}-em`}>{token.slice(1, -1)}</em>)
     }
     cursor = match.index + token.length
   }
 
   if (cursor < value.length) result.push(value.slice(cursor))
   return result
+}
+
+/** **bold**, *italic* and [links](https://… or /path) inside one paragraph (mirrors PageHtml::inline). */
+export function inlineMarkdown(value: string): ReactNode[] {
+  const parts = value.split(/(\[[^[\]\n]{1,300}\]\((?:https?:\/\/|\/)[^\s()<>"]{0,500}\))/u)
+  return parts.flatMap((part, index): ReactNode[] => {
+    const link = index % 2 === 1 ? /^\[([^\]]+)\]\(([^)]+)\)$/u.exec(part) : null
+    if (!link) return emphasis(part, `${index}-`)
+    const external = !link[2].startsWith('/')
+    return [<a key={`${index}-link`} href={link[2]} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{emphasis(link[1], `${index}-a-`)}</a>]
+  })
 }
 
 const photoMarker = /^\[фото\]$/iu

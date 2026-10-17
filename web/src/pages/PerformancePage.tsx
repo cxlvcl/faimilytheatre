@@ -5,8 +5,10 @@ import { useSmoothNavigation } from '../components/NavigationContext'
 import { LoadError } from '../components/LoadError'
 import { Breadcrumbs } from '../components/Breadcrumbs'
 import { EventDate } from '../components/EventDate'
+import { BuyLink } from '../components/BuyLink'
+import { ContentFaq, detailsLine } from '../components/ContentFaq'
+import { SmoothLink } from '../components/SmoothLink'
 import { usePublicResource } from '../hooks/usePublicResource'
-import { publicApi } from '../lib/api'
 import { inlineMarkdown, paperLayout } from '../lib/inlineMarkdown'
 import type { EventItem, Performance } from '../types'
 
@@ -30,21 +32,23 @@ export default function PerformancePage() {
   if (!performance || status === 'loading') return <div className="page-wash" aria-hidden="true" />
   const upcoming = events.filter(event => event.performance.slug === slug)
   const { paragraphs, photoAt } = paperLayout(performance.description, performance.title)
+  const facts = detailsLine(performance.details)
   const returnTo = location.state?.returnTo as { pathname?: string } | undefined
   // From the list: history back restores the exact position; otherwise open the list at this performance.
   const backToList = () => goBack('/repertoire', { state: { focus: `show-${slug}` } }, Boolean(returnTo))
   const secondPhoto = performance.hero_image && <figure className="performance-paper__photo performance-paper__photo--second">
-    <img src={performance.hero_image} alt={`Сцена из спектакля «${performance.title}»`} loading="lazy" decoding="async" />
+    <img src={performance.hero_image} alt={performance.hero_alt} loading="lazy" decoding="async" />
   </figure>
   return <article ref={root} className="performance-paper">
     <header className="performance-paper__head">
       <Breadcrumbs items={[{ name: 'Главная', path: '/' }, { name: 'Репертуар', path: '/repertoire' }, { name: performance.title }]} />
-      <h1>{performance.title}</h1>
+      <h1>{performance.h1 || performance.title}</h1>
       {performance.is_premiere && <p className="premiere premiere--dark">Премьера</p>}
+      {facts && <p className="performance-paper__facts">{facts}</p>}
     </header>
     <div className="performance-paper__text">
       <figure className="performance-paper__photo performance-paper__photo--cover">
-        <img src={performance.cover_image} alt={`Постер спектакля «${performance.title}»`} width="750" height="1000" fetchPriority="high" decoding="async" />
+        <img src={performance.cover_image} alt={performance.cover_alt} width="750" height="1000" fetchPriority="high" decoding="async" />
       </figure>
       {paragraphs.map((paragraph, index) => <Fragment key={`${index}-${paragraph.slice(0, 16)}`}>
         {index === photoAt && secondPhoto}
@@ -52,10 +56,15 @@ export default function PerformancePage() {
       </Fragment>)}
       {photoAt >= paragraphs.length && secondPhoto}
     </div>
+    <ContentFaq items={performance.faq ?? []} />
     <section className="performance-paper__events" aria-labelledby="performance-events">
       <h2 id="performance-events">Ближайшие показы</h2>
-      {eventsStatus === 'error' ? <LoadError retry={retryEvents} /> : eventsStatus === 'loading' ? <p>Загружаем афишу…</p> : upcoming.length ? <ul>{upcoming.map(event => <li key={event.id}><EventDate date={event.event_date} time={event.event_time} /> — {event.venue}. <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" onClick={() => publicApi.ticketClick(event.id)}>Купить билет</a></li>)}</ul> : <p>Новые даты скоро появятся.</p>}
+      {eventsStatus === 'error' ? <LoadError retry={retryEvents} /> : eventsStatus === 'loading' ? <p>Загружаем афишу…</p> : upcoming.length ? <ul>{upcoming.map(event => <li key={event.id}><EventDate date={event.event_date} time={event.event_time} /> — {event.venue}. <BuyLink event={event} title={performance.title} /></li>)}</ul> : <p>Новые даты скоро появятся.</p>}
     </section>
+    {performance.articles?.length > 0 && <section className="related-articles" aria-labelledby="related-articles">
+      <h2 id="related-articles">Статьи об этом спектакле</h2>
+      <ul>{performance.articles.map(article => <li key={article.id}><SmoothLink to={`/articles/${article.slug}`}>{article.title}</SmoothLink></li>)}</ul>
+    </section>}
     <button type="button" className="performance-paper__back" onClick={backToList}>
       {returnTo?.pathname === '/afisha' ? 'Назад к афише' : 'Назад к списку спектаклей'}
     </button>
