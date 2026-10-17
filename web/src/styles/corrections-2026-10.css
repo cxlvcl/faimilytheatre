@@ -145,3 +145,11 @@
 @media (max-width: 900px) {
   .menu-overlay__social { top: 22px; right: 14px; gap: 2px; }
 }
+
+/* ---------- A6. Afisha: the breadcrumbs never touch the first date ---------- */
+/* The heading is absolute over the first scene; reserve its height plus a gap. */
+.afisha-page .event-scene:first-of-type { padding-top: 172px; }
+.event-scene__date { line-height: 1.15; }
+@media (max-width: 680px) {
+  .afisha-page .event-scene:first-of-type { padding-top: 142px; }
+}
