@@ -120,7 +120,7 @@ test('Articles list and article pages render on the server with Article schema',
   assert.equal((await get('/articles/no-such-article')).response.status, 404);
 });
 
-test('Event schemas contain only real dates/venues and no invented prices or status', async () => {
+test('Event schemas follow the owner spec and never invent a price or an address', async () => {
   const events = await api('/public/events');
   const meta = await api('/public/seo?path=%2Fafisha');
   const schemas = meta.schema['@graph'].filter(item => item['@type'] === 'TheaterEvent');
@@ -128,9 +128,14 @@ test('Event schemas contain only real dates/venues and no invented prices or sta
   for (const event of events) {
     const item = schemas.find(schema => schema['@id'].endsWith('#event-' + event.id));
     assert.ok(item);
-    assert.equal(item.name, event.performance.title);
+    assert.equal(item.name, event.performance.title.replace(/^[«"]+|[»"]+$/g, ''));
     assert.equal(item.location.name, event.venue);
     assert.equal(item.startDate, event.event_date + (event.event_time ? 'T' + event.event_time + ':00+03:00' : ''));
-    assert.ok(!item.offers && !item.eventStatus);
+    assert.equal(item.eventStatus, event.is_cancelled ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled');
+    assert.equal(item.offers.url, event.ticket_url);
+    // Price only from «Цена от»; no price field -> no price in the markup.
+    const price = event.performance.details?.price_from;
+    assert.equal(item.offers.price, price == null ? undefined : String(price));
+    assert.ok(item.url.includes('/repertoire/' + event.performance.slug));
   }
 });

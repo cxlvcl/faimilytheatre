@@ -4,6 +4,7 @@ declare(strict_types=1);
 use Theatre\Controllers\AdminArticlesController;
 use Theatre\Controllers\AdminAuthController;
 use Theatre\Controllers\AdminContentController;
+use Theatre\Controllers\AdminSeoController;
 use Theatre\Controllers\AdminStatsController;
 use Theatre\Controllers\PublicController;
 use Theatre\Core\HttpException;
@@ -35,6 +36,7 @@ $auth = new AdminAuthController($app);
 $content = new AdminContentController($app);
 $stats = new AdminStatsController($app);
 $articles = new AdminArticlesController($app);
+$seoAdmin = new AdminSeoController($app);
 $router = new Router();
 
 $router->get('/public/performances', static fn (): array => $public->performances());
@@ -77,9 +79,28 @@ $router->put('/admin/faq/{id}', static fn (Request $request, string $id): array 
 $router->delete('/admin/faq/{id}', static fn (Request $request, string $id): array => $content->deleteFaq($request, (int) $id));
 
 $router->get('/admin/articles', static fn (Request $request): array => $articles->list($request));
+$router->post('/admin/articles/images', static fn (Request $request): array => $articles->uploadImage($request));
 $router->post('/admin/articles', static fn (Request $request): array => $articles->create($request));
 $router->put('/admin/articles/{id}', static fn (Request $request, string $id): array => $articles->update($request, (int) $id));
 $router->delete('/admin/articles/{id}', static fn (Request $request, string $id): array => $articles->delete($request, (int) $id));
+
+$router->get('/admin/seo/settings', static fn (Request $request): array => $seoAdmin->settings($request));
+$router->put('/admin/seo/settings', static fn (Request $request): array => $seoAdmin->saveSettings($request));
+$router->get('/admin/seo/pages', static fn (Request $request): array => $seoAdmin->pages($request));
+$router->put('/admin/seo/pages', static fn (Request $request): array => $seoAdmin->savePage($request));
+$router->get('/admin/venues', static fn (Request $request): array => $seoAdmin->venues($request));
+$router->post('/admin/venues', static fn (Request $request): array => $seoAdmin->saveVenue($request));
+$router->put('/admin/venues/{id}', static fn (Request $request, string $id): array => $seoAdmin->saveVenue($request, (int) $id));
+$router->delete('/admin/venues/{id}', static fn (Request $request, string $id): array => $seoAdmin->deleteVenue($request, (int) $id));
+$router->get('/admin/authors', static fn (Request $request): array => $seoAdmin->authors($request));
+$router->post('/admin/authors', static fn (Request $request): array => $seoAdmin->saveAuthor($request));
+$router->put('/admin/authors/{id}', static fn (Request $request, string $id): array => $seoAdmin->saveAuthor($request, (int) $id));
+$router->delete('/admin/authors/{id}', static fn (Request $request, string $id): array => $seoAdmin->deleteAuthor($request, (int) $id));
+$router->get('/admin/rubrics', static fn (Request $request): array => $seoAdmin->rubrics($request));
+$router->get('/admin/redirects', static fn (Request $request): array => $seoAdmin->redirects($request));
+$router->post('/admin/redirects', static fn (Request $request): array => $seoAdmin->saveRedirect($request));
+$router->put('/admin/redirects/{id}', static fn (Request $request, string $id): array => $seoAdmin->saveRedirect($request, (int) $id));
+$router->delete('/admin/redirects/{id}', static fn (Request $request, string $id): array => $seoAdmin->deleteRedirect($request, (int) $id));
 
 $router->get('/admin/statistics', static fn (Request $request): array => $stats->statistics($request));
 $router->get('/admin/franchise/statistics', static fn (Request $request): array => $stats->franchiseStatistics($request));

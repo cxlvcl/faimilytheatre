@@ -75,7 +75,7 @@ for (const [name, directory, entries] of archives) {
 }
 await cp(join(root, 'docs/REG-RU-REFRESH-UPDATE.md'), join(release, 'READ-ME.md'))
 // Run in phpMyAdmin before unpacking: the API reads these tables. Both statements are safe to repeat.
-const sql = await Promise.all(['003_articles.sql', '004_performance_categories.sql'].map(name => readFile(join(root, 'database/migrations', name), 'utf8')))
+const sql = await Promise.all(['003_articles.sql', '004_performance_categories.sql', '005_seo.sql'].map(name => readFile(join(root, 'database/migrations', name), 'utf8')))
 await writeFile(join(release, '00-database.sql'), sql.join('\n'))
 await writeFile(join(release, 'SHA256SUMS.txt'), checksums.join('\n') + '\n')
 await writeFile(join(release, 'build-info.json'), JSON.stringify({

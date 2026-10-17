@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 use Theatre\Core\Seo;
 use Theatre\Core\PageHtml;
+use Theatre\Core\SeoInput;
+use Theatre\Core\SeoStore;
 
 $bootstrap = getenv('THEATRE_API_BOOTSTRAP') ?: dirname(__DIR__) . '/bootstrap.php';
 $app = require $bootstrap;
@@ -10,7 +12,13 @@ $seo = new Seo($app);
 $uri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
 $rawPath = (string) (parse_url($uri, PHP_URL_PATH) ?: '/');
 $path = Seo::path($rawPath);
-// Optional explicit old-slug map. No guessed or blanket redirects.
+$store = new SeoStore($app->db()->pdo());
+// Redirect table from the admin app (old Tilda addresses, changed slugs), then the optional config map.
+$rule = $store->redirect($path);
+if ($rule !== null) {
+    header('Location: ' . $seo->absolute($rule['to_path']), true, $rule['status_code'] === 302 ? 302 : 301);
+    exit;
+}
 $redirects = $app->config['seo']['redirects'] ?? [];
 if (isset($redirects[$path]) && is_string($redirects[$path]) && str_starts_with($redirects[$path], '/') && !str_starts_with($redirects[$path], '//')) {
     header('Location: ' . $seo->absolute($redirects[$path]), true, 301);
@@ -51,8 +59,12 @@ $styles = array_unique($styles);
 $body = PageHtml::render($page, $manifestPath);
 $data = $page['data'];
 $data['/public/seo?path=' . rawurlencode($path)] = $meta;
-$google = (string) ($app->config['seo']['google_verification'] ?? getenv('THEATRE_GOOGLE_VERIFICATION') ?: '');
-$yandex = (string) ($app->config['seo']['yandex_verification'] ?? getenv('THEATRE_YANDEX_VERIFICATION') ?: '');
+$settings = $store->settings();
+$google = $settings['verification_google'] !== '' ? $settings['verification_google'] : (string) ($app->config['seo']['google_verification'] ?? getenv('THEATRE_GOOGLE_VERIFICATION') ?: '');
+$yandex = $settings['verification_yandex'] !== '' ? $settings['verification_yandex'] : (string) ($app->config['seo']['yandex_verification'] ?? getenv('THEATRE_YANDEX_VERIFICATION') ?: '');
+$vkTag = $settings['verification_vk'] !== '' ? SeoInput::metaTag($settings['verification_vk']) : null;
+// Counter ids only (digits): the site writes the standard code itself.
+$counters = array_filter(['ym' => $settings['metrika_id'], 'vk' => $settings['vk_pixel_id']], static fn ($id) => preg_match('/^\d{1,20}$/', $id) === 1);
 function e(string $value): string { return PageHtml::e($value); }
 function jsonForHtml(mixed $value): string { return (string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); }
 ?>
@@ -72,19 +84,29 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
 <?php if ($meta['status'] === 200): ?>
   <link rel="canonical" href="<?= e($meta['canonical']) ?>">
 <?php endif; ?>
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="<?= e($meta['og_type']) ?>">
   <meta property="og:site_name" content="Театр Музыки и Песка">
   <meta property="og:locale" content="ru_RU">
-  <meta property="og:title" content="<?= e($meta['title']) ?>">
-  <meta property="og:description" content="<?= e($meta['description']) ?>">
+  <meta property="og:title" content="<?= e($meta['og_title']) ?>">
+  <meta property="og:description" content="<?= e($meta['og_description']) ?>">
   <meta property="og:url" content="<?= e($meta['canonical']) ?>">
   <meta property="og:image" content="<?= e($meta['image']) ?>">
+<?php if ($meta['image_width'] && $meta['image_height']): ?>
+  <meta property="og:image:width" content="<?= (int) $meta['image_width'] ?>">
+  <meta property="og:image:height" content="<?= (int) $meta['image_height'] ?>">
+<?php endif; ?>
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="<?= e($meta['title']) ?>">
-  <meta name="twitter:description" content="<?= e($meta['description']) ?>">
+  <meta name="twitter:title" content="<?= e($meta['og_title']) ?>">
+  <meta name="twitter:description" content="<?= e($meta['og_description']) ?>">
   <meta name="twitter:image" content="<?= e($meta['image']) ?>">
-<?php if ($google !== ''): ?><meta name="google-site-verification" content="<?= e($google) ?>"><?php endif; ?>
-<?php if ($yandex !== ''): ?><meta name="yandex-verification" content="<?= e($yandex) ?>"><?php endif; ?>
+<?php if ($path === '/'): ?>
+<?php if ($google !== ''): ?>  <meta name="google-site-verification" content="<?= e($google) ?>">
+<?php endif; ?>
+<?php if ($yandex !== ''): ?>  <meta name="yandex-verification" content="<?= e($yandex) ?>">
+<?php endif; ?>
+<?php if ($vkTag !== null): ?>  <meta name="<?= e($vkTag['name']) ?>" content="<?= e($vkTag['content']) ?>">
+<?php endif; ?>
+<?php endif; ?>
   <script type="application/ld+json" id="page-schema"><?= jsonForHtml($meta['schema']) ?></script>
 <?php foreach ($styles as $style): ?>
   <link rel="stylesheet" href="<?= e($assetBase . '/' . $style) ?>">
@@ -96,6 +118,13 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
   <link rel="preload" as="image" href="/media/hero-2026-desktop-poster.webp" media="(min-width: 681px) and (orientation: landscape), (min-width: 1025px)" fetchpriority="high">
   <link rel="preload" as="image" href="/media/logo.webp?v=2525ae2f" fetchpriority="high">
   <link rel="preload" as="image" href="/media/hero-center-logo.webp" fetchpriority="high">
+<?php endif; ?>
+<?php if ($counters): ?>
+  <script>window.__THEATRE_COUNTERS__ = <?= jsonForHtml($counters) ?>;</script>
+<?php endif; ?>
+<?php if ($settings['head_code'] !== ''): ?>
+<?= $settings['head_code'] /* Site-wide code from «Настройки SEO»; only the administrator can edit it. */ ?>
+
 <?php endif; ?>
 </head>
 <body>

@@ -15,4 +15,5 @@ function migrateTheatreDatabase(PDO $pdo): void
     }
     $pdo->exec(file_get_contents(__DIR__ . '/migrations/003_articles.sql'));
     $pdo->exec(file_get_contents(__DIR__ . '/migrations/004_performance_categories.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/migrations/005_seo.sql'));
 }

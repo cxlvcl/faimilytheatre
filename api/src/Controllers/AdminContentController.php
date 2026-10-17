@@ -11,6 +11,7 @@ use Theatre\Core\HttpException;
 use Theatre\Core\Markdown;
 use Theatre\Core\PerformanceCategories;
 use Theatre\Core\Request;
+use Theatre\Core\SeoFields;
 use Theatre\Core\Slugger;
 use Theatre\Core\Validator;
 
@@ -29,7 +30,8 @@ final class AdminContentController
              FROM performances p ORDER BY p.sort_order ASC, p.id ASC'
         )->fetchAll();
         $categories = PerformanceCategories::load($this->app->db()->pdo());
-        return array_map(fn (array $row): array => $this->mapPerformance($row, $categories[(int) $row['id']] ?? []), $rows);
+        $extra = $this->seo()->forAdminMany('performance', array_map(static fn (array $row): int => (int) $row['id'], $rows));
+        return array_map(fn (array $row): array => $this->mapPerformance($row, $categories[(int) $row['id']] ?? []) + $extra[(int) $row['id']], $rows);
     }
 
     public function createPerformance(Request $request): array
@@ -37,6 +39,9 @@ final class AdminContentController
         $this->guard($request);
         $input = $request->body();
         $values = $this->performanceValues($input);
+        $errors = [];
+        $bundle = $this->seo()->parse('performance', null, $input, $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         if (!$this->hasFile($files, 'cover_image') || !$this->hasFile($files, 'hero_image')) {
             throw new HttpException(422, 'validation_failed', 'Обложка и Hero обязательны', [
@@ -89,6 +94,7 @@ final class AdminContentController
             }
             throw $error;
         }
+        $this->seo()->apply('performance', $id, $bundle, $files);
         return $this->getPerformance($id);
     }
 
@@ -97,6 +103,9 @@ final class AdminContentController
         $this->guard($request);
         $current = $this->performanceRow($id);
         $values = $this->performanceValues($request->body());
+        $errors = [];
+        $bundle = $this->seo()->parse('performance', $id, $request->body(), $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         $newCover = null;
         $newHero = null;
@@ -143,6 +152,7 @@ final class AdminContentController
         if ($newHero !== null) {
             $this->app->upload()->delete((string) $current['hero_image']);
         }
+        $this->seo()->apply('performance', $id, $bundle, $files);
         return $this->getPerformance($id);
     }
 
@@ -181,6 +191,7 @@ final class AdminContentController
         if ((int) $linked->fetchColumn() > 0) {
             throw new HttpException(409, 'performance_has_events', 'Сначала удалите связанные события');
         }
+        $this->seo()->delete('performance', $id);
         $delete = $this->app->db()->pdo()->prepare('DELETE FROM performances WHERE id = :id');
         $delete->execute(['id' => $id]);
         $this->app->upload()->delete((string) $current['cover_image']);
@@ -209,13 +220,17 @@ final class AdminContentController
              FROM events e INNER JOIN performances p ON p.id = e.performance_id
              ORDER BY e.event_date ASC, e.event_time IS NULL ASC, e.event_time ASC, e.id ASC'
         )->fetchAll();
-        return array_map([$this, 'mapEvent'], $rows);
+        $extra = $this->seo()->forAdminMany('event', array_map(static fn (array $row): int => (int) $row['id'], $rows));
+        return array_map(fn (array $row): array => $this->mapEvent($row) + $extra[(int) $row['id']], $rows);
     }
 
     public function createEvent(Request $request): array
     {
         $this->guard($request);
         $values = $this->eventValues($request->body(), true);
+        $errors = [];
+        $bundle = $this->seo()->parse('event', null, $request->body(), $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         if (!$this->hasFile($files, 'poster_image')) {
             throw new HttpException(422, 'validation_failed', 'Постер обязателен', ['poster_image' => 'Постер обязателен']);
@@ -239,6 +254,7 @@ final class AdminContentController
             $this->app->upload()->delete($created);
             throw $error;
         }
+        $this->seo()->apply('event', $id, $bundle, $files);
         return $this->getEvent($id);
     }
 
@@ -250,6 +266,9 @@ final class AdminContentController
         $values = $this->eventValues(array_merge([
             'event_time' => $current['event_time'] === null ? null : substr((string) $current['event_time'], 0, 5),
         ], $request->body()), false);
+        $errors = [];
+        $bundle = $this->seo()->parse('event', $id, $request->body(), $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         $newPoster = null;
         try {
@@ -272,6 +291,7 @@ final class AdminContentController
         if ($newPoster !== null) {
             $this->app->upload()->delete((string) $current['poster_image']);
         }
+        $this->seo()->apply('event', $id, $bundle, $files);
         return $this->getEvent($id);
     }
 
@@ -301,6 +321,7 @@ final class AdminContentController
     {
         $this->guard($request);
         $current = $this->eventRow($id);
+        $this->seo()->delete('event', $id);
         $delete = $this->app->db()->pdo()->prepare('DELETE FROM events WHERE id = :id');
         $delete->execute(['id' => $id]);
         $this->app->upload()->delete((string) $current['poster_image']);
@@ -505,7 +526,13 @@ final class AdminContentController
 
     private function getPerformance(int $id): array
     {
-        return $this->mapPerformance($this->performanceRow($id), PerformanceCategories::load($this->app->db()->pdo(), $id)[$id] ?? []);
+        return $this->mapPerformance($this->performanceRow($id), PerformanceCategories::load($this->app->db()->pdo(), $id)[$id] ?? [])
+            + $this->seo()->forAdmin('performance', $id);
+    }
+
+    private function seo(): SeoFields
+    {
+        return new SeoFields($this->app);
     }
 
     private function mapPerformance(array $row, array $categories = []): array
@@ -542,7 +569,7 @@ final class AdminContentController
         if (!is_array($row)) {
             throw new HttpException(404, 'not_found', 'Событие не найдено');
         }
-        return $this->mapEvent($row);
+        return $this->mapEvent($row) + $this->seo()->forAdmin('event', $id);
     }
 
     private function mapEvent(array $row): array

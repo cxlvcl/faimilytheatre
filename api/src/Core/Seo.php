@@ -62,28 +62,41 @@ final class Seo
         }
         return implode('', array_map('mb_chr', $output));
     }
-    private function description(array $show): string
+    /** Text cut to $limit characters at a word boundary (spec: description up to 160). */
+    public static function cut(string $value, int $limit = 160): string
     {
-        $text = trim(preg_replace('/\s+/u', ' ', str_replace('*', '', strip_tags((string) $show['short_description']))) ?? '');
-        if ($text !== '' && mb_strlen($text) <= 240) return $text;
-        if ($text !== '' && preg_match('/^(.{40,220}?[.!?])(?:\s|$)/u', $text, $match)) return $match[1];
-        return '«' . $show['title'] . '» — спектакль Театра Музыки и Песка. Описание постановки, фотографии и ближайшие показы.';
+        $text = trim(preg_replace('/\s+/u', ' ', str_replace('*', '', strip_tags($value))) ?? '');
+        if (mb_strlen($text) <= $limit) return $text;
+        $cut = mb_substr($text, 0, $limit - 1);
+        $space = mb_strrpos($cut, ' ');
+        return rtrim($space !== false && $space > $limit / 2 ? mb_substr($cut, 0, $space) : $cut, " ,;:—-") . '…';
     }
-    private function excerpt(string $value): string
+    /** Default robots.txt body; «Sitemap:» is always appended by robots.php. */
+    public static function defaultRobots(): string
     {
-        $text = trim(preg_replace('/\s+/u', ' ', $value) ?? '');
-        return mb_strlen($text) <= 240 ? $text : rtrim(mb_substr($text, 0, 237)) . '…';
+        $lines = ['User-agent: *', 'Allow: /'];
+        foreach (['/admin', '/auth', '/login', '/api/', '/preview', '/debug', '/.'] as $path) $lines[] = "Disallow: {$path}";
+        return implode("\n", $lines);
+    }
+    private static function unquoted(string $title): string
+    {
+        return trim($title, " «»\"“”");
     }
     public function page(string $rawPath): array
     {
         $path = self::path($rawPath);
         $api = new PublicController($this->app);
+        $store = new SeoStore($this->app->db()->pdo());
+        $settings = $store->settings();
         $data = [];
         $show = null;
         $article = null;
         $status = 200;
-        $info = self::ROUTES[$path] ?? null;
-        $image = $this->absolute('/media/hero-desktop.webp');
+        $route = self::ROUTES[$path] ?? null;
+        // [title, description, breadcrumb name, h1]
+        $info = $route ? [$route[0], $route[1], $route[2], $route[2]] : null;
+        $metaKey = $route ? ['page', $path] : null;
+        $cover = '';
         if ($path === '/repertoire') $data['/public/performances'] = $api->performances();
         if ($path === '/' || $path === '/afisha') $data['/public/events'] = $api->events();
         if ($path === '/faq') $data['/public/faq'] = $api->faq();
@@ -92,8 +105,9 @@ final class Seo
             try {
                 $article = $api->article($match[1]);
                 $data['/public/articles/' . $match[1]] = $article;
-                $info = [$article['title'] . ' | Театр Музыки и Песка', $this->excerpt($article['excerpt']), $article['title']];
-                if ($article['cover_image'] !== '') $image = $this->absolute($article['cover_image']);
+                $info = [$article['title'] . ' | Театр Музыки и Песка', self::cut($article['excerpt']), $article['title'], $article['h1']];
+                $metaKey = ['article', (string) $article['id']];
+                $cover = $article['cover_image'];
             } catch (HttpException $error) { if ($error->status !== 404) throw $error; }
         }
         if (preg_match('#^/repertoire/([a-z0-9-]{1,180})$#', $path, $match)) {
@@ -101,59 +115,139 @@ final class Seo
                 $show = $api->performance($match[1]);
                 $data['/public/performances/' . $match[1]] = $show;
                 $data['/public/events'] = $api->events();
-                $info = [$show['title'] . ' — спектакль | Театр Музыки и Песка', $this->description($show), $show['title']];
-                if ($show['cover_image'] !== '') $image = $this->absolute($show['cover_image']);
-                elseif ($show['hero_image'] !== '') $image = $this->absolute($show['hero_image']);
+                $info = [$show['title'] . ' — спектакль в Нижнем Новгороде | Театр Музыки и Песка', self::cut($show['short_description']), $show['title'], $show['h1']];
+                $metaKey = ['performance', (string) $show['id']];
+                $cover = $show['cover_image'] !== '' ? $show['cover_image'] : $show['hero_image'];
             } catch (HttpException $error) { if ($error->status !== 404) throw $error; }
         }
-        if ($info === null) { $status = 404; $info = ['Страница не найдена — Театр Музыки и Песка', 'Эта страница не существует. Перейдите на главную страницу, в репертуар или афишу театра.', 'Страница не найдена']; }
+        if ($info === null) { $status = 404; $info = ['Страница не найдена — Театр Музыки и Песка', 'Эта страница не существует. Перейдите на главную страницу, в репертуар или афишу театра.', 'Страница не найдена', 'Страница не найдена']; }
+
+        // Editor fields win; every empty field keeps the default above.
+        $saved = $metaKey ? ($store->meta($metaKey[0], $metaKey[1]) ?? SeoStore::emptyMeta()) : SeoStore::emptyMeta();
+        $title = $saved['title'] !== '' ? $saved['title'] : $info[0];
+        $description = $saved['description'] !== '' ? $saved['description'] : $info[1];
+        $h1 = $saved['h1'] !== '' ? $saved['h1'] : $info[3];
         // Phones share the canonical address; redirects keep using the ASCII form.
-        $canonical = self::readableUrl($this->absolute($path));
-        $organization = [
+        $canonical = self::readableUrl($this->absolute($saved['canonical'] !== '' ? $saved['canonical'] : $path));
+        $self = self::readableUrl($this->absolute($path));
+        if ($saved['og_image'] !== '') {
+            $image = $saved['og_image'];
+            $size = [$saved['og_image_width'], $saved['og_image_height']];
+        } elseif ($cover !== '' && ($preview = $this->app->upload()->previewJpeg($cover)) !== null) {
+            // The main photo as a 1200×630 JPEG: VK and Telegram show it in every client.
+            $image = $preview;
+            $size = [1200, 630];
+        } elseif ($cover !== '') {
+            $image = $cover;
+            $size = $this->app->upload()->dimensions($cover) ?? [null, null];
+        } else {
+            $image = '/media/hero-desktop.webp';
+            $size = [1920, 1080];
+        }
+        $image = $this->absolute($image);
+        $production = ($this->app->config['environment'] ?? 'development') === 'production';
+        $robots = $status === 404 || !$production || $saved['noindex'] ? 'noindex, follow' : 'index, follow, max-image-preview:large';
+
+        $home = $this->absolute('/');
+        $phones = array_values(array_filter(explode("\n", $settings['org_phones']), 'strlen'));
+        $organization = array_filter([
             '@type' => 'TheaterGroup', '@id' => $this->absolute('/#theatre'),
-            'name' => 'Театр Музыки и Песка', 'url' => $this->absolute('/'),
+            'name' => $settings['org_name'], 'url' => $home,
             'logo' => $this->absolute('/media/contact-logo.webp'), 'image' => $this->absolute('/media/hero-desktop.webp'),
-            'description' => 'Живая музыка, художественное слово и песочная анимация.',
-            'contactPoint' => ['@type' => 'ContactPoint', 'telephone' => '+7-831-423-58-04', 'email' => 'info@teatrmip-nn.ru', 'contactType' => 'Информация о спектаклях', 'availableLanguage' => 'ru'],
-            'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Нижний Новгород', 'addressCountry' => 'RU'],
-        ];
+            'description' => $settings['org_description'],
+            'telephone' => $phones[0] ?? null,
+            'email' => $settings['org_email'] ?: null,
+            'contactPoint' => $phones || $settings['org_email'] ? array_filter(['@type' => 'ContactPoint', 'telephone' => $phones[0] ?? null, 'email' => $settings['org_email'] ?: null, 'contactType' => 'Информация о спектаклях', 'availableLanguage' => 'ru']) : null,
+            'address' => $settings['org_city'] !== '' ? ['@type' => 'PostalAddress', 'addressLocality' => $settings['org_city'], 'addressCountry' => 'RU'] : null,
+            'sameAs' => array_values(array_filter([$settings['org_vk'], $settings['org_telegram'], $settings['org_yandex_maps']])) ?: null,
+        ], static fn ($value) => $value !== null && $value !== '');
         $graph = $status === 200 ? [$organization] : [];
+
         $breadcrumbs = [];
         if ($path !== '/' && $status === 200) {
             $breadcrumbs = [['name' => 'Главная', 'path' => '/']];
             if ($show) $breadcrumbs[] = ['name' => 'Репертуар', 'path' => '/repertoire'];
-            if ($article) $breadcrumbs[] = ['name' => 'Статьи', 'path' => '/articles'];
+            if ($article) {
+                $breadcrumbs[] = ['name' => 'Статьи', 'path' => '/articles'];
+                if ($article['rubric']) $breadcrumbs[] = ['name' => $article['rubric']['name'], 'path' => '/articles?rubric=' . $article['rubric']['slug']];
+            }
             $breadcrumbs[] = ['name' => $info[2], 'path' => $path];
-            $graph[] = ['@type' => 'BreadcrumbList', 'itemListElement' => array_map(fn ($item, $position) => ['@type' => 'ListItem', 'position' => $position + 1, 'name' => $item['name'], 'item' => $this->absolute($item['path'])], $breadcrumbs, array_keys($breadcrumbs))];
+            $graph[] = ['@type' => 'BreadcrumbList', 'itemListElement' => array_map(fn ($item, $position) => ['@type' => 'ListItem', 'position' => $position + 1, 'name' => $item['name'], 'item' => self::readableUrl($this->absolute($item['path']))], $breadcrumbs, array_keys($breadcrumbs))];
         }
         if ($article) {
+            $author = $article['author']
+                ? array_filter(['@type' => 'Person', 'name' => $article['author']['name'], 'jobTitle' => $article['author']['position'] ?: null, 'image' => $article['author']['photo'] ? $this->absolute($article['author']['photo']) : null])
+                : ['@type' => 'Organization', 'name' => $settings['org_name'], 'url' => $home];
             $graph[] = [
-                '@type' => 'Article', '@id' => $canonical . '#article', 'headline' => $article['title'],
-                'description' => $info[1], 'image' => $image, 'mainEntityOfPage' => $canonical,
+                '@type' => 'Article', '@id' => $self . '#article', 'headline' => $h1,
+                'description' => $description, 'image' => $image, 'mainEntityOfPage' => $self,
                 'datePublished' => $article['published_on'],
-                'dateModified' => (new \DateTimeImmutable($article['updated_at'], new \DateTimeZone('UTC')))->format(DATE_ATOM),
-                'author' => ['@id' => $organization['@id']], 'publisher' => ['@id' => $organization['@id']],
+                'dateModified' => $article['updated_on'] ?? $article['published_on'],
+                'author' => $author,
+                'publisher' => ['@type' => 'Organization', 'name' => $settings['org_name'], 'url' => $home, 'logo' => ['@type' => 'ImageObject', 'url' => $this->absolute('/media/contact-logo.webp')]],
             ];
         }
         $events = $data['/public/events'] ?? [];
         // The home page shows only the three nearest dates; structured data must match visible content.
         if ($path === '/') $events = array_slice($events, 0, 3);
+        $venues = $events ? $store->venueByName() : [];
         foreach ($events as $event) {
             if ($show && $event['performance']['slug'] !== $show['slug']) continue;
-            $graph[] = [
-                '@type' => 'TheaterEvent', '@id' => $this->absolute('/afisha#event-' . $event['id']),
-                'url' => $this->absolute('/afisha#event-' . $event['id']), 'name' => $event['performance']['title'],
-                'image' => $this->absolute($event['poster_image']),
-                'startDate' => $event['event_date'] . ($event['event_time'] ? 'T' . $event['event_time'] . ':00+03:00' : ''),
-                'location' => ['@type' => 'Place', 'name' => $event['venue']],
-                'organizer' => ['@id' => $organization['@id']],
-                'workPerformed' => ['@type' => 'CreativeWork', 'name' => $event['performance']['title'], 'url' => $this->absolute('/repertoire/' . $event['performance']['slug'])],
-                // There is no price/status/address field: do not invent these.
-            ];
+            $graph[] = $this->theaterEvent($event, $show, $venues[SeoStore::venueKey($event['venue'])] ?? null, $settings);
         }
-        $meta = ['path' => $path, 'status' => $status, 'title' => $info[0], 'description' => $info[1], 'canonical' => $canonical, 'image' => $image,
-            'robots' => $status === 404 || ($this->app->config['environment'] ?? 'development') !== 'production' ? 'noindex, follow' : 'index, follow, max-image-preview:large',
+        $faq = $show['faq'] ?? $article['faq'] ?? [];
+        if ($faq) {
+            $graph[] = ['@type' => 'FAQPage', '@id' => $self . '#faq', 'mainEntity' => array_map(static fn (array $pair): array => [
+                '@type' => 'Question', 'name' => $pair['question'], 'acceptedAnswer' => ['@type' => 'Answer', 'text' => PageHtml::plainText($pair['answer'])],
+            ], $faq)];
+        }
+        $meta = ['path' => $path, 'status' => $status, 'title' => $title, 'description' => $description, 'h1' => $h1, 'canonical' => $canonical, 'image' => $image,
+            'image_width' => $size[0], 'image_height' => $size[1],
+            'og_title' => $saved['og_title'] !== '' ? $saved['og_title'] : $title,
+            'og_description' => $saved['og_description'] !== '' ? $saved['og_description'] : $description,
+            'og_type' => $article ? 'article' : 'website',
+            'robots' => $robots,
             'schema' => ['@context' => 'https://schema.org', '@graph' => $graph], 'breadcrumbs' => $breadcrumbs];
         return ['meta' => $meta, 'data' => $data, 'performance' => $show, 'article' => $article];
+    }
+
+    /** One TheaterEvent per future date (owner's spec, section 3); empty fields are left out. */
+    private function theaterEvent(array $event, ?array $show, ?array $venue, array $settings): array
+    {
+        $performance = $event['performance'];
+        $details = $show['details'] ?? $performance['details'] ?? SeoStore::emptyDetails();
+        $url = self::readableUrl($this->absolute('/repertoire/' . $performance['slug']));
+        $name = self::unquoted($performance['title']);
+        $address = $venue ? array_filter(['@type' => 'PostalAddress', 'addressLocality' => $venue['city'] ?: null, 'streetAddress' => $venue['street_address'] ?: null, 'postalCode' => $venue['postal_code'] ?: null, 'addressCountry' => 'RU']) : null;
+        $duration = $details['duration_max'] ?? $details['duration_min'];
+        $offers = array_filter([
+            '@type' => 'Offer', 'url' => $event['ticket_url'],
+            'price' => $details['price_from'] !== null ? (string) $details['price_from'] : null,
+            'priceCurrency' => $details['price_from'] !== null ? 'RUB' : null,
+            'availability' => $event['is_cancelled'] ? null : 'https://schema.org/InStock',
+        ], static fn ($value) => $value !== null);
+        $image = $show ? ($show['cover_image'] ?: $event['poster_image']) : $event['poster_image'];
+        return array_filter([
+            '@type' => 'TheaterEvent', '@id' => $url . '#event-' . $event['id'],
+            'name' => $name,
+            'alternateName' => $details['alternate_names'] ?: null,
+            'description' => self::cut($performance['short_description'], 300) ?: null,
+            'image' => $image !== '' ? $this->absolute($image) : null,
+            'url' => $url,
+            'startDate' => $event['event_date'] . ($event['event_time'] ? 'T' . $event['event_time'] . ':00+03:00' : ''),
+            'duration' => $duration ? 'PT' . $duration . 'M' : null,
+            'eventStatus' => $event['is_cancelled'] ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+            'inLanguage' => 'ru',
+            'typicalAgeRange' => $details['age_rating'] ? rtrim($details['age_rating'], '+') . '-' : null,
+            'location' => array_filter(['@type' => 'Place', 'name' => $event['venue'], 'address' => $address]),
+            'offers' => $offers,
+            'organizer' => ['@type' => 'Organization', 'name' => $settings['org_name'], 'url' => $this->absolute('/')],
+            'workPerformed' => array_filter([
+                '@type' => 'CreativeWork',
+                'name' => $details['work_title'] !== '' ? $details['work_title'] : $name,
+                'author' => $details['work_author'] !== '' ? ['@type' => 'Person', 'name' => $details['work_author']] : null,
+            ]),
+        ], static fn ($value) => $value !== null && $value !== []);
     }
 }

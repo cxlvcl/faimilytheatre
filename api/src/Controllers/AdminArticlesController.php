@@ -10,6 +10,7 @@ use Theatre\Core\App;
 use Theatre\Core\HttpException;
 use Theatre\Core\Markdown;
 use Theatre\Core\Request;
+use Theatre\Core\SeoFields;
 use Theatre\Core\Slugger;
 use Theatre\Core\Validator;
 
@@ -25,13 +26,26 @@ final class AdminArticlesController
         $rows = $this->app->db()->pdo()->query(
             'SELECT * FROM articles ORDER BY published_on DESC, id DESC'
         )->fetchAll();
-        return array_map([$this, 'map'], $rows);
+        $extra = $this->seo()->forAdminMany('article', array_map(static fn (array $row): int => (int) $row['id'], $rows));
+        return array_map(fn (array $row): array => $this->map($row) + $extra[(int) $row['id']], $rows);
+    }
+
+    /** A photo for the article text; the editor inserts ![подпись](url) at the cursor. */
+    public function uploadImage(Request $request): array
+    {
+        $this->guard($request);
+        $files = $request->files();
+        if (!$this->hasFile($files, 'image')) throw new HttpException(422, 'validation_failed', 'Выберите фото', ['image' => 'Выберите фото']);
+        return ['url' => $this->app->upload()->store($files['image'], 'articles/text', 1800)];
     }
 
     public function create(Request $request): array
     {
         $this->guard($request);
         $values = $this->values($request->body());
+        $errors = [];
+        $bundle = $this->seo()->parse('article', null, $request->body(), $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         if (!$this->hasFile($files, 'cover_image')) {
             throw new HttpException(422, 'validation_failed', 'Обложка обязательна', ['cover_image' => 'Обложка обязательна']);
@@ -53,7 +67,8 @@ final class AdminArticlesController
             $this->app->upload()->delete($created);
             throw $error;
         }
-        return $this->map($this->row($id));
+        $this->seo()->apply('article', $id, $bundle, $files);
+        return $this->get($id);
     }
 
     public function update(Request $request, int $id): array
@@ -61,13 +76,16 @@ final class AdminArticlesController
         $this->guard($request);
         $current = $this->row($id);
         $values = $this->values($request->body());
+        $errors = [];
+        $bundle = $this->seo()->parse('article', $id, $request->body(), $errors);
+        Validator::throwIfErrors($errors);
         $files = $request->files();
         $newCover = null;
         try {
             if ($this->hasFile($files, 'cover_image')) {
                 $newCover = $this->app->upload()->store($files['cover_image'], 'articles/' . $id, 2400);
             }
-            // The slug stays stable after publication so shared links keep working.
+            // The slug changes only from the SEO field; the old address then answers 301.
             $statement = $this->app->db()->pdo()->prepare(
                 'UPDATE articles SET title = :title, excerpt = :excerpt, body = :body, cover_image = :cover_image,
                     published_on = :published_on, is_published = :is_published, updated_at = UTC_TIMESTAMP()
@@ -81,13 +99,15 @@ final class AdminArticlesController
         if ($newCover !== null) {
             $this->app->upload()->delete((string) $current['cover_image']);
         }
-        return $this->map($this->row($id));
+        $this->seo()->apply('article', $id, $bundle, $files);
+        return $this->get($id);
     }
 
     public function delete(Request $request, int $id): array
     {
         $this->guard($request);
         $current = $this->row($id);
+        $this->seo()->delete('article', $id);
         $this->app->db()->pdo()->prepare('DELETE FROM articles WHERE id = :id')->execute(['id' => $id]);
         $this->app->upload()->delete((string) $current['cover_image']);
         return ['deleted' => true];
@@ -147,6 +167,16 @@ final class AdminArticlesController
             throw new HttpException(404, 'not_found', 'Статья не найдена');
         }
         return $row;
+    }
+
+    private function get(int $id): array
+    {
+        return $this->map($this->row($id)) + $this->seo()->forAdmin('article', $id);
+    }
+
+    private function seo(): SeoFields
+    {
+        return new SeoFields($this->app);
     }
 
     private function map(array $row): array

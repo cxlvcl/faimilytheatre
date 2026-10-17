@@ -9,6 +9,7 @@ use Theatre\Core\App;
 use Theatre\Core\HttpException;
 use Theatre\Core\PerformanceCategories;
 use Theatre\Core\Request;
+use Theatre\Core\SeoStore;
 use Theatre\Core\Validator;
 
 final class PublicController
@@ -40,10 +41,23 @@ final class PublicController
         if (!is_array($row)) {
             throw new HttpException(404, 'not_found', 'Спектакль не найден');
         }
+        $id = (int) $row['id'];
+        $title = (string) $row['title'];
+        $store = $this->store();
+        $alts = $store->alts('performance', $id);
+        $meta = $store->meta('performance', (string) $id);
+        $articleIds = $store->links()[$id] ?? [];
         return [
-            'id' => (int) $row['id'],
+            'id' => $id,
             'slug' => (string) $row['slug'],
-            'title' => (string) $row['title'],
+            'title' => $title,
+            'h1' => ($meta['h1'] ?? '') !== '' ? $meta['h1'] : $title,
+            'cover_alt' => $alts['cover_image'] ?? $this->photoAlt($title, 1),
+            'hero_alt' => $alts['hero_image'] ?? $this->photoAlt($title, 2),
+            'details' => $store->performanceDetails($id),
+            'faq' => $store->publicFaq('performance', $id),
+            // «Статьи об этом спектакле»: up to three, newest first.
+            'articles' => array_slice(array_values(array_filter($this->articles(), static fn (array $article): bool => in_array($article['id'], $articleIds, true))), 0, 3),
             'short_description' => (string) $row['short_description'],
             'description' => (string) $row['description'],
             'cover_image' => (string) $row['cover_image'],
@@ -61,27 +75,36 @@ final class PublicController
         $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Moscow')))->format('Y-m-d');
         $statement = $this->app->db()->pdo()->prepare(
             'SELECT e.id, e.event_date, e.event_time, e.venue, e.poster_image, e.ticket_url,
-                    p.slug, p.title, p.short_description, p.is_premiere
+                    p.id AS performance_id, p.slug, p.title, p.short_description, p.is_premiere
              FROM events e
              INNER JOIN performances p ON p.id = e.performance_id
              WHERE e.event_date >= :today
              ORDER BY e.event_date ASC, e.event_time IS NULL ASC, e.event_time ASC, e.id ASC'
         );
         $statement->execute(['today' => $today]);
+        $rows = $statement->fetchAll();
+        $store = $this->store();
+        $cancelled = $store->cancelledMap();
+        $alts = $store->altsMap('event', array_map(static fn (array $row): int => (int) $row['id'], $rows));
+        $details = $store->performanceDetailsMap(array_values(array_unique(array_map(static fn (array $row): int => (int) $row['performance_id'], $rows))));
         return array_map(static fn (array $row): array => [
             'id' => (int) $row['id'],
             'event_date' => (string) $row['event_date'],
             'event_time' => $row['event_time'] === null ? null : substr((string) $row['event_time'], 0, 5),
             'venue' => (string) $row['venue'],
             'poster_image' => (string) $row['poster_image'],
+            'poster_alt' => $alts[(int) $row['id']]['poster_image'] ?? 'Афиша спектакля ' . $row['title'],
             'ticket_url' => (string) $row['ticket_url'],
+            'is_cancelled' => $cancelled[(int) $row['id']] ?? false,
             'performance' => [
+                'id' => (int) $row['performance_id'],
                 'slug' => (string) $row['slug'],
                 'title' => (string) $row['title'],
                 'short_description' => (string) $row['short_description'],
                 'is_premiere' => (bool) $row['is_premiere'],
+                'details' => $details[(int) $row['performance_id']] ?? SeoStore::emptyDetails(),
             ],
-        ], $statement->fetchAll());
+        ], $rows);
     }
 
     public function faq(): array
@@ -104,7 +127,19 @@ final class PublicController
              ORDER BY published_on DESC, id DESC'
         );
         $statement->execute(['today' => $this->moscowToday()]);
-        return array_map([$this, 'articleSummary'], $statement->fetchAll());
+        $rows = $statement->fetchAll();
+        $store = $this->store();
+        $details = $store->articleDetailsMap();
+        $rubrics = array_column($store->rubrics(), null, 'id');
+        $alts = $store->altsMap('article', array_map(static fn (array $row): int => (int) $row['id'], $rows));
+        return array_map(function (array $row) use ($details, $rubrics, $alts): array {
+            $id = (int) $row['id'];
+            $rubric = $rubrics[$details[$id]['rubric_id'] ?? 0] ?? null;
+            return $this->articleSummary($row) + [
+                'cover_alt' => $alts[$id]['cover_image'] ?? (string) $row['title'],
+                'rubric' => $rubric ? ['slug' => $rubric['slug'], 'name' => $rubric['name']] : null,
+            ];
+        }, $rows);
     }
 
     public function article(string $slug): array
@@ -118,7 +153,39 @@ final class PublicController
         if (!is_array($row)) {
             throw new HttpException(404, 'not_found', 'Статья не найдена');
         }
-        return $this->articleSummary($row) + ['body' => (string) $row['body'], 'updated_at' => (string) $row['updated_at']];
+        $id = (int) $row['id'];
+        $store = $this->store();
+        $details = $store->articleDetailsMap()[$id] ?? ['author_id' => null, 'rubric_id' => null, 'updated_on' => null];
+        $author = null;
+        foreach ($store->authors() as $candidate) if ($candidate['id'] === $details['author_id']) $author = ['name' => $candidate['name'], 'position' => $candidate['position'], 'photo' => $candidate['photo']];
+        $rubric = null;
+        foreach ($store->rubrics() as $candidate) if ($candidate['id'] === $details['rubric_id']) $rubric = ['slug' => $candidate['slug'], 'name' => $candidate['name']];
+        $meta = $store->meta('article', (string) $id);
+        $alts = $store->alts('article', $id);
+        // «Связанные спектакли»: cards with the nearest date and its ticket link.
+        $linked = $store->links(true)[$id] ?? [];
+        $shows = [];
+        if ($linked !== []) {
+            $events = $this->events();
+            $list = $this->app->db()->pdo()->prepare('SELECT id, slug, title, short_description, cover_image, is_premiere FROM performances WHERE id IN (' . implode(',', array_fill(0, count($linked), '?')) . ') ORDER BY sort_order, id');
+            $list->execute($linked);
+            foreach ($list->fetchAll() as $show) {
+                $next = null;
+                foreach ($events as $event) if ($event['performance']['id'] === (int) $show['id'] && !$event['is_cancelled']) { $next = ['id' => $event['id'], 'event_date' => $event['event_date'], 'event_time' => $event['event_time'], 'venue' => $event['venue'], 'ticket_url' => $event['ticket_url']]; break; }
+                $shows[] = $this->performanceSummary($show) + ['next_event' => $next];
+            }
+        }
+        return $this->articleSummary($row) + [
+            'h1' => ($meta['h1'] ?? '') !== '' ? $meta['h1'] : (string) $row['title'],
+            'cover_alt' => $alts['cover_image'] ?? (string) $row['title'],
+            'body' => (string) $row['body'],
+            'updated_at' => (string) $row['updated_at'],
+            'updated_on' => $details['updated_on'],
+            'author' => $author,
+            'rubric' => $rubric,
+            'faq' => $store->publicFaq('article', $id),
+            'performances' => $shows,
+        ];
     }
 
     public function franchise(Request $request): array
@@ -242,6 +309,17 @@ final class PublicController
             'cover_image' => (string) $row['cover_image'],
             'published_on' => (string) $row['published_on'],
         ];
+    }
+
+    private function store(): SeoStore
+    {
+        return new SeoStore($this->app->db()->pdo());
+    }
+
+    /** Default alt of a performance photo: «Название — фото N». */
+    private function photoAlt(string $title, int $number): string
+    {
+        return trim($title) . ' — фото ' . $number;
     }
 
     private function moscowToday(): string
