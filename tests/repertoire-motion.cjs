@@ -83,7 +83,7 @@ test('Covers keep their source quality, decode asynchronously and defer distant 
   const { default: RepertoirePage } = load('web/src/pages/RepertoirePage.tsx', {
     react: { ...React, useRef: () => ({ current: null }), useLayoutEffect() {}, useMemo: factory => factory() },
     'react-router-dom': { useSearchParams: () => [new URLSearchParams(), () => {}] },
-    '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../components/Breadcrumbs': { Breadcrumbs: () => null }, '../hooks/usePublicResource': { usePublicResource: () => ({ data: performances, status: 'ready' }) }, '../lib/repertoireMotion': {},
+    '../components/LoadError': {}, '../components/SmoothLink': { SmoothLink: 'a' }, '../components/Breadcrumbs': { Breadcrumbs: () => null }, '../hooks/usePublicResource': { usePublicResource: () => ({ data: performances, status: 'ready' }) }, '../hooks/usePageH1': { usePageH1: fallback => fallback }, '../lib/repertoireMotion': {},
     '../lib/repertoireSections': load('web/src/lib/repertoireSections.ts', {}),
     '../lib/titleLine': load('web/src/lib/titleLine.ts', {}),
   })
