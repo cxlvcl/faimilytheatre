@@ -94,6 +94,7 @@ function jsonForHtml(mixed $value): string { return (string) json_encode($value,
   <script>try { if (sessionStorage.getItem('theatre_intro_seen') !== '1' && !matchMedia('(prefers-reduced-motion: reduce)').matches) { document.documentElement.classList.add('intro-pending'); setTimeout(function () { document.documentElement.classList.remove('intro-pending'); }, 6000); } } catch (_) {}</script>
   <link rel="preload" as="image" href="/media/hero-2026-mobile-poster.webp" media="(max-width: 680px), (orientation: portrait) and (max-width: 1024px)" fetchpriority="high">
   <link rel="preload" as="image" href="/media/hero-2026-desktop-poster.webp" media="(min-width: 681px) and (orientation: landscape), (min-width: 1025px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/media/logo.webp?v=2525ae2f" fetchpriority="high">
   <link rel="preload" as="image" href="/media/hero-center-logo.webp" fetchpriority="high">
 <?php endif; ?>
 </head>

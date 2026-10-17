@@ -1,13 +1,24 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Footer } from '../components/Footer'
 import { MusiciansStrip } from '../components/MusiciansStrip'
 import { useReveal } from '../hooks/useReveal'
 import { UpcomingDates } from '../components/UpcomingDates'
 import { createHeroVideoPlayback, heroMobileQuery, heroVideoSources, pickHeroVideo } from '../lib/heroVideo'
 
-gsap.registerPlugin(ScrollTrigger)
+// power2 curves from the former GSAP timeline, as CSS easings for the Web Animations API.
+const easeInOut = 'cubic-bezier(.45, 0, .55, 1)'
+const easeIn = 'cubic-bezier(.55, .085, .68, .53)'
+const easeOut = 'cubic-bezier(.25, .46, .45, .94)'
+
+/** Waits until the image can be painted without a decode pause, at most `limit` ms. */
+function decoded(image: HTMLImageElement | null, limit: number): Promise<void> {
+  if (!image) return Promise.resolve()
+  const ready = image.complete && image.naturalWidth > 0 ? image.decode() : new Promise<void>(resolve => {
+    image.addEventListener('load', () => { image.decode().then(resolve, resolve) }, { once: true })
+    image.addEventListener('error', () => resolve(), { once: true })
+  })
+  return Promise.race([ready.catch(() => undefined), new Promise<void>(resolve => setTimeout(resolve, limit))])
+}
 
 function Hero() {
   const root = useRef<HTMLElement>(null)
@@ -31,42 +42,73 @@ function Hero() {
   useLayoutEffect(() => {
     const element = root.current
     if (!element) return
-    const logo = element.querySelector<HTMLElement>('.hero__logo')
+    const logo = element.querySelector<HTMLImageElement>('.hero__logo')
+    const center = element.querySelector<HTMLElement>('.hero__center')
+    const centerLogo = element.querySelector<HTMLImageElement>('.hero__center-logo')
+    const hero = visual.current
     const menu = document.querySelector<HTMLElement>('.site-header__menu')
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+    const shown = [hero, centerLogo]
+    let animations: Animation[] = []
+    let done = false
     const finish = () => {
+      if (done) return
+      done = true
+      // End state inline (the data-intro CSS hides these), then release the animation layers.
+      for (const node of shown) if (node) { node.style.opacity = '1'; node.style.visibility = 'visible' }
+      logo?.style.removeProperty('visibility')
       document.documentElement.classList.remove('intro-pending')
       document.body.classList.remove('intro-active')
       window.dispatchEvent(new Event('theatre:intro-complete'))
-      if (menu) gsap.set(menu, { clearProps: 'opacity,visibility' })
+      // The header drops its intro class in the next render; only then hand «Меню» back to CSS.
+      const finished = animations
+      animations = []
+      requestAnimationFrame(() => {
+        for (const animation of finished) animation.cancel()
+        menu?.style.removeProperty('visibility')
+      })
     }
     if (playIntro) {
       try { sessionStorage.setItem('theatre_intro_seen', '1') } catch { /* session-only animation */ }
     }
-    const context = gsap.context(() => {
-      if (!playIntro || reduce || !logo) {
-        // The small intro logo is only part of the intro; afterwards the hero shows one logo.
-        gsap.set(['.hero__visual', '.hero__center-logo'], { autoAlpha: 1 })
-        finish()
-        return
-      }
-      const logoPosition = logo.parentElement
-      const travel = element.clientHeight / 2 - logo.offsetHeight / 2 - (logoPosition?.offsetTop ?? 20)
-      document.body.classList.add('intro-active')
-      gsap.timeline({ defaults: { ease: 'power2.inOut' }, onComplete: finish })
-        .set(logo, { autoAlpha: 0, y: travel, scale: 1.65, filter: 'invert(0) blur(6px)' })
-        .set('.hero__visual', { autoAlpha: 0 })
-        .set('.hero__center-logo', { autoAlpha: 0, scale: .94, filter: 'blur(14px)' })
-        .set(menu, { autoAlpha: 0 })
-        .to(logo, { autoAlpha: 1, filter: 'invert(0) blur(0px)', duration: 0.85 }, 0.2)
-        .to('.hero__visual', { autoAlpha: 1, duration: 1.1 }, 1.35)
-        // The intro logo dissolves in place while the logo with the lettering appears there.
-        .to(logo, { autoAlpha: 0, scale: 1.8, filter: 'invert(0) blur(10px)', duration: 0.95, ease: 'power2.in' }, 1.55)
-        .to('.hero__center-logo', { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1.3, ease: 'power2.out', clearProps: 'filter,transform' }, 2.05)
-        .to(menu, { autoAlpha: 1, duration: 0.4 }, 2.8)
-    }, element)
     document.documentElement.classList.remove('intro-pending')
-    return () => { context.revert(); finish() }
+    if (!playIntro || reduce || !logo || !center || !hero || typeof logo.animate !== 'function') {
+      // The small intro logo is only part of the intro; afterwards the hero shows one logo.
+      finish()
+      return
+    }
+    document.body.classList.add('intro-active')
+    const travel = element.clientHeight / 2 - logo.offsetHeight / 2 - (logo.parentElement?.offsetTop ?? 20)
+    const lift = (scale: number) => `translateY(${travel}px) scale(${scale})`
+    const centered = (scale: number) => `translate(-50%, -51.4%) scale(${scale})`
+    for (const node of [logo, hero, centerLogo, menu]) if (node) node.style.visibility = 'visible'
+    if (centerLogo) centerLogo.style.opacity = '1'
+    // Opacity and transform only: the compositor runs them even while the page is still busy.
+    const run = (node: HTMLElement | null, keyframes: Keyframe[], delay: number, duration: number, easing = 'linear') => {
+      if (!node) return
+      const animation = node.animate(keyframes, { delay, duration, easing, fill: 'both' })
+      animation.pause()
+      animations.push(animation)
+    }
+    // The intro logo fades in, holds, then dissolves in place (one animation: no fill overlap).
+    run(logo, [
+      { offset: 0, opacity: 0, transform: lift(1.65) },
+      { offset: .08, opacity: 0, transform: lift(1.65), easing: easeInOut },
+      { offset: .42, opacity: 1, transform: lift(1.65) },
+      { offset: .62, opacity: 1, transform: lift(1.65), easing: easeIn },
+      { offset: 1, opacity: 0, transform: lift(1.8) },
+    ], 0, 2500)
+    run(hero, [{ opacity: 0 }, { opacity: 1 }], 1350, 1100, easeInOut)
+    // The glowing logo's wrapper carries the drop-shadow: animating it keeps the glow rasterised once.
+    run(center, [{ opacity: 0, transform: centered(.94) }, { opacity: 1, transform: centered(1) }], 2050, 1300, easeOut)
+    run(menu, [{ opacity: 0 }, { opacity: 1 }], 2800, 400, easeInOut)
+    // Start only when both logos are decoded: no pause in the middle of the fade.
+    void Promise.all([decoded(logo, 1500), decoded(centerLogo, 1500)]).then(() => {
+      if (done) return
+      for (const animation of animations) animation.play()
+      Promise.all(animations.map(animation => animation.finished)).then(finish, () => undefined)
+    })
+    return finish
   }, [playIntro])
 
   return <section ref={root} className="hero" data-intro={playIntro} aria-label="Театр Музыки и Песка">

@@ -83,10 +83,17 @@ function warmLater(path: string): void {
 /** After the first page settles, loads the code and lists of the main pages in the background. */
 export function warmRoutes(): void {
   if (typeof window === 'undefined' || !canWarm()) return
-  const start = () => window.setTimeout(() => {
+  const warm = () => {
     for (const path of ['/repertoire', '/afisha', '/', '/articles', '/faq']) warmLater(path)
     queue = queue.then(whenIdle).then(() => Promise.all([routeImports.performance(), routeImports.article(), routeImports.franchise()])).catch(() => undefined)
-  }, 2500)
+  }
+  // Parsing page code competes with the intro animation: wait for it to end.
+  const afterIntro = () => {
+    if (document.documentElement.classList.contains('intro-pending') || document.body.classList.contains('intro-active')) {
+      window.addEventListener('theatre:intro-complete', warm, { once: true })
+    } else warm()
+  }
+  const start = () => window.setTimeout(afterIntro, 2500)
   if (document.readyState === 'complete') start()
   else window.addEventListener('load', start, { once: true })
 }
