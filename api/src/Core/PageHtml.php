@@ -125,7 +125,7 @@ final class PageHtml
                 foreach ($events as $event) $body .= '<li>' . self::date($event) . ' — ' . self::e($event['venue']) . '. <a href="' . self::e($event['ticket_url']) . '" target="_blank" rel="noopener noreferrer">Купить билет</a></li>';
                 $body .= '</ul>';
             }
-            $body .= '</section><a class="performance-paper__back" href="/repertoire">← Назад к списку спектаклей</a></article>';
+            $body .= '</section><a class="performance-paper__back" href="/repertoire">Назад к списку спектаклей</a></article>';
         } elseif ($path === '/articles') {
             $body = '<section class="articles-page">' . $crumbs . '<h1>Статьи</h1>';
             if (!$data['/public/articles']) $body .= '<p class="articles-page__empty">Скоро здесь появятся первые статьи.</p>';

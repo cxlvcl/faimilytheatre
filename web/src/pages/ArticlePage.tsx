@@ -22,6 +22,6 @@ export default function ArticlePage() {
     </header>
     <img className="article-detail__cover" src={article.cover_image} alt="" width="1600" height="900" fetchPriority="high" />
     <ArticleMarkdown value={article.body} className="article-detail__body" />
-    <footer className="article-detail__footer"><SmoothLink to="/articles">← Все статьи</SmoothLink></footer>
+    <footer className="article-detail__footer"><SmoothLink to="/articles">Все статьи</SmoothLink></footer>
   </article>
 }

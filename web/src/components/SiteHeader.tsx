@@ -44,7 +44,7 @@ export function SiteHeader({ isHome, menuOpen, openMenu }: Props) {
       )}
       {!isHome && (
         <button className="site-header__back" type="button" onClick={back}>
-          <span aria-hidden="true">←</span> Назад
+          Назад
         </button>
       )}
     </header>

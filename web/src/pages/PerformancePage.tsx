@@ -57,7 +57,7 @@ export default function PerformancePage() {
       {eventsStatus === 'error' ? <LoadError retry={retryEvents} /> : eventsStatus === 'loading' ? <p>Загружаем афишу…</p> : upcoming.length ? <ul>{upcoming.map(event => <li key={event.id}><EventDate date={event.event_date} time={event.event_time} /> — {event.venue}. <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" onClick={() => publicApi.ticketClick(event.id)}>Купить билет</a></li>)}</ul> : <p>Новые даты скоро появятся.</p>}
     </section>
     <button type="button" className="performance-paper__back" onClick={backToList}>
-      <span aria-hidden="true">←</span> {returnTo?.pathname === '/afisha' ? 'Назад к афише' : 'Назад к списку спектаклей'}
+      {returnTo?.pathname === '/afisha' ? 'Назад к афише' : 'Назад к списку спектаклей'}
     </button>
   </article>
 }
