@@ -101,9 +101,10 @@ function Hero() {
     ], 0, 2500)
     run(hero, [{ opacity: 0 }, { opacity: 1 }], 1350, 1100, easeInOut)
     // The glowing logo's wrapper carries the drop-shadow: animating it keeps the glow rasterised once.
-    // It starts at 1% (invisible on black), not 0: Chrome then counts the logo as painted from the
-    // first frame (LCP) instead of only after a compositor-only fade has ended.
-    run(center, [{ opacity: .01, transform: centered(.94) }, { opacity: 1, transform: centered(1) }], 2300, 1200, easeOut)
+    // It starts at 0.1%, not 0: Chrome then counts the logo as painted from the first frame (LCP)
+    // instead of only after a compositor-only fade has ended. 1% was visible on bright Mac screens
+    // (pixels up to 3/255 on black); 0.1% rounds to pure black.
+    run(center, [{ opacity: .001, transform: centered(.94) }, { opacity: 1, transform: centered(1) }], 2300, 1200, easeOut)
     run(menu, [{ opacity: 0 }, { opacity: 1 }], 2800, 400, easeInOut)
     // Start only when both logos are decoded: no pause in the middle of the fade.
     void Promise.all([decoded(logo, 1500), decoded(centerLogo, 1500)]).then(() => {
