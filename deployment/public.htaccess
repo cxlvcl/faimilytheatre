@@ -1,4 +1,6 @@
 Options -Indexes -MultiViews
+# Frame models of /canvas.
+AddType model/gltf-binary .glb
 DirectoryIndex index.php
 RewriteEngine On
 # Allow only ACME validation tokens; other hidden paths remain forbidden.
@@ -14,7 +16,7 @@ RewriteRule ^ index.php [QSA,L]
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
-  <FilesMatch "\.(?:webp|woff2|otf|mp4)$">
+  <FilesMatch "\.(?:webp|woff2|otf|mp4|glb)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
 </IfModule>

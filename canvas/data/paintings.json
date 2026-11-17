@@ -1,0 +1,386 @@
+{
+  "_comment": "Programme of the concert «Ожившие шедевры» for /canvas. Texts are from tmip.tilda.ws/canvas. Edit texts here; after changing images or sources run `npm run media -w canvas` (it fills aspect and placeholder).",
+  "title": "Ожившие шедевры",
+  "intro": "Здесь вы можете почитать о картинах из нашего спектакля",
+  "description": "«Ожившие шедевры» — картины Боттичелли, Мунка, Климта оживают под живую музыку и песочную анимацию. Театр Музыки и Песка, Нижний Новгород. Билеты 6+.",
+  "performanceSlug": "ozhivshie-shedevry",
+  "frames": {
+    "florentine": {
+      "width": 0.15,
+      "tone": "gold",
+      "note": "Флорентийская кассетта: позолота, фриз с чеканкой"
+    },
+    "salon": {
+      "width": 0.15,
+      "tone": "gold",
+      "note": "Салонная рама XIX века: бусы, аканф, золото"
+    },
+    "dutch": {
+      "width": 0.12,
+      "tone": "dark",
+      "note": "Голландская чёрная рама с волнистым профилем"
+    },
+    "rossetti": {
+      "width": 0.13,
+      "tone": "gold",
+      "note": "Плоская золочёная рама Россетти с розетками в углах"
+    },
+    "russian": {
+      "width": 0.11,
+      "tone": "dark",
+      "note": "Тёмное дерево с золочёным внутренним кантом"
+    },
+    "plain": {
+      "width": 0.07,
+      "tone": "gold",
+      "note": "Простая золочёная рама"
+    },
+    "modern": {
+      "width": 0.045,
+      "tone": "dark",
+      "note": "Узкая чёрная рама"
+    },
+    "klimt": {
+      "width": 0.09,
+      "tone": "gold",
+      "note": "Плоское золото с гравировкой"
+    },
+    "oak": {
+      "width": 0.08,
+      "tone": "wood",
+      "note": "Светлое дерево"
+    },
+    "none": {
+      "width": 0,
+      "tone": "none",
+      "note": "Без рамы"
+    }
+  },
+  "paintings": [
+    {
+      "slug": "rozhdenie-venery",
+      "number": "01",
+      "title": "Рождение Венеры",
+      "artist": "Сандро Боттичелли",
+      "year": "ок. 1484–1486",
+      "frame": "florentine",
+      "image": "01-rozhdenie-venery",
+      "aspect": 1.592,
+      "placeholder": "data:image/webp;base64,UklGRvAAAABXRUJQVlA4IOQAAABwBQCdASogABQAPu1kqU2ppaQiMAgBMB2JZACxHtplxhblILfjnZJGhKa4cqnDwrIyUnzAAPz2uAVcu6FaGaWppq7iMqna9A2zcObUcoLk65vOORl+Req7Bh5pvOhf++fH7pouoBGCzvniBHEgscgKiL7ZJ1n4U+atUWOja53e/GWeFGvkkUmzsNIcKyo/dJvYtT1Ig4mM3W3nrJWzv1zcFkupdiPpgFwXtK+d7RMMoqCfcq0x64ZV0KhsiFsnnICjIdcH6s0fFbDltrwgsZJ44hv/J6vLCuVAGqGqbEDXWG04AAA=",
+      "source": {
+        "commons": "Sandro Botticelli - La nascita di Venere - Google Art Project - edited.jpg"
+      },
+      "text": [
+        "Сегодня это одна из самых узнаваемых картин мира, но до середины XIX века «Рождение Венеры» почти никто не замечал. Боттичелли на два века выпал из истории искусства: картину не выставляли, о ней не писали. Более того, в 1497 году, во время знаменитых «костров тщеславия» Савонаролы, часть работ художника едва не сгорела — сам Боттичелли, по легенде, был так потрясён проповедями монаха, что чуть не сжёг собственные картины. Полотно уцелело случайно и пролежало в тени столетия, пока прерафаэлиты заново не открыли его миру во второй половине XIX века.",
+        "Каждый образ рождается и исчезает, как сон — так и Венера Боттичелли однажды почти исчезла из памяти человечества, чтобы родиться заново спустя века. В нашем концерте она проступает из темноты под музыку Вивальди — ровно так, как когда-то заново проступила из забвения."
+      ]
+    },
+    {
+      "slug": "sotvorenie-adama",
+      "number": "02",
+      "title": "Сотворение Адама",
+      "artist": "Микеланджело",
+      "year": "1508–1512",
+      "frame": "florentine",
+      "image": "02-sotvorenie-adama",
+      "aspect": 2.2039,
+      "placeholder": "data:image/webp;base64,UklGRtAAAABXRUJQVlA4IMQAAACwBACdASogAA4APu1iqU2ppaOiMAgBMB2JYgCdAywTniLfFfD7LqNf9Zt/WtgAAP7z7sPd0xl3RLYs1L/7Wss8JSJTVd/Z0E2wxLv6DcTS/HzcfmiFmkiuHCIcqjw46zx6u2SZ7Q1gfYfo5pslwixTnkj5BXMvGwCHIbdrYtGfXBh3ZnqBPzX5N7A+VyeCs8M6MzTQ2uWUhvqOKzM96ZafvAmU59SUhqpsSuElXwJe1QvzEdd2RZr0aqnROobzPApAAAAA",
+      "source": {
+        "commons": "Michelangelo - Creation of Adam (cropped).jpg"
+      },
+      "text": [
+        "В 1990 году американский врач Фрэнк Мешбергер опубликовал в медицинском журнале статью, где доказывал: очертания плаща и фигур вокруг Бога на фреске Микеланджело в точности повторяют анатомический разрез человеческого мозга — включая борозды, ствол и даже зрительный бугор. Совпадение это или осознанный замысел — спорят до сих пор, но известно точно: Микеланджело тайно вскрывал трупы во флорентийском монастыре Санто-Спирито, изучая анатомию задолго до того, как это стало общепринятой практикой среди художников.",
+        "Искусство, которое видят не только глазами, но и сердцем — эти слова о Микеланджело можно сказать буквально: он видел в человеческом теле не только форму, но и скрытый смысл. На нашем экране этот жест — палец, почти касающийся пальца, — оживает под звуки живой музыки."
+      ]
+    },
+    {
+      "slug": "devushka-s-zhemchuzhnoy-serezhkoy",
+      "number": "03",
+      "title": "Девушка с жемчужной серёжкой",
+      "artist": "Ян Вермеер",
+      "year": "ок. 1665",
+      "frame": "dutch",
+      "image": "03-devushka-s-zhemchuzhnoy-serezhkoy",
+      "aspect": 0.8541,
+      "placeholder": "data:image/webp;base64,UklGRuQAAABXRUJQVlA4INgAAACwBQCdASobACAAPu1qqVAppiOiqA1RMB2JQBgfic//DyXd+/zM4POr1Xb1TgMqQt9a+38PKoAA/v0B+Vs8opk5QTFByfQwqa7h4K921tSW4AigwBLM2u7BFlmL+IVX4CVW6T8RBO1QoDB1UAQcAluGHFHJh/oFtYksl2mibO4pLTnKDqDJ6/w49p8lEo8QqXFy7PJPl93zXsL+5/bEnUXk6pXbHoeqNL9a1bhLXGG8D8K+0L8KvSjdKPujUECWXdEscboepBlDGSwjqUGMmf/GJ+PMblYCAAA=",
+      "source": {
+        "commons": "Meisje met de parel.jpg"
+      },
+      "text": [
+        "У этой картины долго не было даже официального названия — оно закрепилось только в 1995 году, после реставрации и выставки в Гааге. До этого полотно чаще называли просто «Девушка в тюрбане». Загадочна и сама серьга: исследования показывают, что вряд ли это настоящий жемчуг — скорее полированное олово или стекло, а сияющий блик Вермеер создал парой смелых мазков белил. И это не портрет конкретного человека — искусствоведы называют жанр «tronie», условный образ лица, а не чей-то заказной портрет.",
+        "Вечность — это не когда образ не меняется, а когда он рождается заново в глазах каждого нового зрителя, здесь и сейчас. Девушка без имени вот уже четыре века смотрит на нас так, будто видит впервые — и в этом её главная тайна."
+      ]
+    },
+    {
+      "slug": "spasitel-mira",
+      "number": "04",
+      "title": "Спаситель мира",
+      "artist": "Леонардо да Винчи",
+      "year": "ок. 1500",
+      "frame": "florentine",
+      "image": "04-spasitel-mira",
+      "aspect": 0.6796,
+      "placeholder": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAABwBACdASoWACAAPu1iqk2ppaQiMBgMATAdiUAToAaN/qPvoFwEH0pltyzGAAD+9CNA+7q7nmlMmRnO6p4/rBRC2n55xocoffs3vr0gdtYX22+Gp1XcwM9viwQpQiwlcNSNNRGJkjSCftGLzs7mGy+xbXi8ApufrtRWl0SjxVFmzNJoO8Mo1HK0URkcqtW0JMnDCrdDFPCaDPVNz4OIAA==",
+      "source": {
+        "commons": "Leonardo da Vinci, Salvator Mundi, c.1500, oil on walnut, 45.4 × 65.6 cm.jpg"
+      },
+      "text": [
+        "Больше двухсот лет эта картина считалась утраченной или копией ученика — пока в 2011 году эксперты не признали её подлинным да Винчи. В 2017 году полотно ушло с молотка за 450,3 миллиона долларов — это самая дорогая когда-либо проданная картина в истории. А затем произошло странное: новый владелец её больше не показывал публично, она не попала даже на масштабную выставку Леонардо в Лувре в 2019 году и с тех пор считается местонахождением неизвестным.",
+        "Материал, из которого мы создаём образы — песок, — устроен иначе: он не прячется в хранилищах, а рождается и рассыпается на глазах у зрителя, здесь и сейчас. Может быть, поэтому у песочного образа не бывает владельца — только зритель, которому повезло его увидеть."
+      ]
+    },
+    {
+      "slug": "italyanskiy-polden",
+      "number": "05",
+      "title": "Итальянский полдень",
+      "artist": "Карл Брюллов",
+      "year": "1827",
+      "frame": "salon",
+      "image": "05-italyanskiy-polden",
+      "aspect": 0.8494,
+      "placeholder": "data:image/webp;base64,UklGRgYBAABXRUJQVlA4IPoAAAAwBgCdASobACAAPu1sqk8ppiOiMBgIATAdiWQAuy/AgOfTAvkzZMUU0vY+zGrGfvQ0L1Np4acHB86YAP7ZOyAH1vhwLo4qG2dAgH2fq+ysr37l7uVAvLnvB5/o4eUALlteHRhW1iNexI88OKDrC44eg/VkiZKcCvWuohMv23gNe/SsahGz0Ef8owxnCYU837iw1bHoAiVuY+ZgUVb6G8UD3nTdFgaWEK7tU+iwUn1myXMCBVZjkTUAYMW3O43Do/hgxjIoEUo32Id7qJm2jIT+o8KmYEN+VFxI9MkS2Bve6GvMep+q0o8iro1UHeVMbTqTeHBxLhMAAAAA",
+      "source": {
+        "commons": "Brjullov Italianskij Poldenj.jpg"
+      },
+      "text": [
+        "Картину заказало Общество поощрения художников — но, увидев результат, критики устроили Брюллову разнос: пропорции модели, писали они, «недостаточно классические» для итальянки, слишком естественные, живые. Брюллов не стал оправдываться — он ответил письмом, где прямо заявил, что предпочитает правду природы условной идеальной красоте академических канонов. Итог был серьёзным: художник разорвал отношения с Обществом, которое когда-то его же и отправило учиться в Италию.",
+        "Мы тоже не упрощаем красоту до идеала. Наши спектакли — не развлечение, а культурное событие, где живое чувство важнее правильной схемы. Итальянский полдень оживает на нашем экране под звуки скрипки — таким, каким его увидел художник, а не каким его хотели видеть критики."
+      ]
+    },
+    {
+      "slug": "plamennaya-zhenshchina",
+      "number": "06",
+      "title": "Пламенная женщина",
+      "artist": "Данте Габриэль Россетти",
+      "year": "1873",
+      "frame": "rossetti",
+      "image": "06-plamennaya-zhenshchina",
+      "aspect": 0.735,
+      "placeholder": "data:image/webp;base64,UklGRvoAAABXRUJQVlA4IO4AAABQBQCdASoXACAAPu1wsFIppiSiqAgBMB2JYgCnFAubJBVVwXTFYJtAhjAhfYzauwvINwAA/sP5QPqTqm18ZaaHk+3PI+5DV+U/vTcwB/AzbIIbEVQTzoXtDsyG8fdJhOUPhTmt52rZBf65Oz6xCIjMIYNkrl3nLISTXHQcjUk2gF9fPXNn+jib4NaUMnbmUkYjzVy8X9Gcg8KbIT+EsBuS0hgXN49cHTx0A+ueeAeud9uxLFIulx/VthPAavMtiVS3x2ZtId84rFyoqEQSuz8ZeJK41O8C8ijW6uj4j5shvdV13CMHKpU7GCovgAAA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild6131-6462-4038-b439-653533616331/photo.jpg"
+      },
+      "text": [
+        "В последние годы жизни Россетти писал, по сути, одно и то же лицо — лицо Джейн Моррис, жены его близкого друга Уильяма Морриса. Картина за картиной, десятки полотен — та же тяжёлая копна волос, тот же взгляд, доведённый почти до наваждения. Россетти страдал бессонницей и зависимостью от хлоралгидрата, и современники писали, что в последние годы он будто застрял в одном образе, не в силах написать ничего другого.",
+        "Живое слово и музыка нашего концерта рассказывают о том же: о попытке искусства удержать то, что удержать невозможно — лицо, мгновение, чувство. Пламенная женщина Россетти мерцает на экране не как портрет одной женщины, а как портрет самой одержимости образом."
+      ]
+    },
+    {
+      "slug": "alenushka",
+      "number": "07",
+      "title": "Алёнушка",
+      "artist": "Виктор Васнецов",
+      "year": "1881",
+      "frame": "salon",
+      "image": "07-alenushka",
+      "aspect": 0.7031,
+      "placeholder": "data:image/webp;base64,UklGRpgAAABXRUJQVlA4IIwAAACQBQCdASoXACAAPu1kpU2ppaMiMBgMATAdiWUAuwAyy7o6OygcelNFfQ4uCBw0jQyncxUkQAD+4KbgmKc83XNPiijiF978td0raX7ioEeaNsm2I5PWN27IBEeQOw0XIB6eYplP6uMwrFBIojU4HIqmEubY4XwNIOtaT+zjqsS8GPVKeFlpvOT2knYAAA==",
+      "source": {
+        "commons": "Viktor Vasnetsov - Аленушка - Google Art Project.jpg"
+      },
+      "text": [
+        "Рабочее название картины было куда менее поэтичным — «Алёнушка-дурочка»: так в народе называли сирот, бродивших по деревням без крова. Прототипом стала реальная девочка, которую художник встретил в 1880 году в усадьбе Ахтырка под Москвой — простая крестьянская девочка с тяжёлым, недетским взглядом, поразившим Васнецова настолько, что он сделал с неё десятки этюдов, прежде чем перенести образ в сказочный сюжет.",
+        "Наши спектакли работают точно так же: доступный путь в мир большой культуры начинается с одного живого, узнаваемого чувства, а не со знания сюжета наизусть. На экране печаль реальной девочки из-под Москвы становится печалью сказочной героини — и это чувство понятно зрителю любого возраста."
+      ]
+    },
+    {
+      "slug": "utro-v-sosnovom-lesu",
+      "number": "08",
+      "title": "Утро в сосновом лесу",
+      "artist": "Иван Шишкин",
+      "year": "1889",
+      "frame": "salon",
+      "image": "08-utro-v-sosnovom-lesu",
+      "aspect": 1.4758,
+      "placeholder": "data:image/webp;base64,UklGRsoAAABXRUJQVlA4IL4AAACwBQCdASogABYAPu1kqU2ppaOiMAgBMB2JQBYeNpgk3uchk887AJyD99l91fIam1Ix1DtJ4EAA/qZGDgCbw6NXrecOve9SInTEXUlYq1ikzaIJwYT10hRWbRyYY7xudicywosAPO9lxdcJQ3KBTCW/bcEu8islvBMGjXprHy/kCYb2EY5WaI1TTS6d002I9YawPFtUsP08iLfbTZT4uXbbcYlBalhMvQif6W5vs+80IFB9X+k2qRXkkM04OwAA",
+      "source": {
+        "commons": "Shishkin, Ivan - Morning in a Pine Forest.jpg"
+      },
+      "text": [
+        "Мало кто помнит, что медведей на этой картине писал не Шишкин, а его товарищ, художник-анималист Константин Савицкий — Шишкин, мастер леса, почти никогда не изображал животных. Изначально на картине стояли две подписи. Но коллекционер Павел Третьяков, купивший полотно, распорядился стереть подпись Савицкого скипидаром, посчитав его вклад второстепенным. С тех пор картина известна как работа одного Шишкина — хотя медведи на ней принадлежат кисти другого художника.",
+        "Кинематографичная песочная анимация в наших спектаклях тоже создаётся не одной рукой — это всегда работа целой команды, где у каждого своя часть общей картины. Утро в сосновом лесу оживает на экране туманом и движением — совместным трудом, как и было задумано изначально."
+      ]
+    },
+    {
+      "slug": "demon-sidyashchiy",
+      "number": "09",
+      "title": "Демон сидящий",
+      "artist": "Михаил Врубель",
+      "year": "1890",
+      "frame": "russian",
+      "image": "09-demon-sidyashchiy",
+      "aspect": 1.819,
+      "placeholder": "data:image/webp;base64,UklGRswAAABXRUJQVlA4IMAAAADQBACdASogABIAPu1grFAppSQisBgIATAdiWYArhw0blI0srhFWydYH3uHLLbGAAD+8Q+GvKpJuElVP+zOxaD3TPOrR7v+Pa1xUNyhaF9uh6weJzmlbw6rPITJnbVLvkxmIzO21gdIofC4+3xSp2beHFvhWUCZ4eqk1zHHYRcep1VIWos2+9TaqzgeWZyWjkxqk6pJVfzq08sFn/bfDsOAJ2fmAv2bsQf+8SxbOG83+pWmhUGeKY/2blDUNsCPAAA=",
+      "source": {
+        "commons": "Mikhail Vrubel - Демон (сидящий) - Google Art Project.jpg"
+      },
+      "text": [
+        "Врубель писал демона не один раз, а фактически всю жизнь — «Демон сидящий», затем «Демон летящий», затем «Демон поверженный», над которым он переписывал лицо десятки раз прямо во время выставки, на глазах у публики, всё сильнее искажая черты. Одержимость образом в итоге привела художника в психиатрическую лечебницу, где он ослеп и провёл последние годы жизни. Врубель говорил друзьям, что демон для него — не зло, а дух, тоскующий по гармонии.",
+        "Настоящие творцы редко работают ради признания. Ван Гог не думал о Лувре, Айвазовский писал, потому что море требовало выхода изнутри — а Врубель писал демона, потому что не мог остановиться. На нашем экране этот тревожный, тоскующий взгляд оживает под живую музыку струнного квартета."
+      ]
+    },
+    {
+      "slug": "krik",
+      "number": "10",
+      "title": "Крик",
+      "artist": "Эдвард Мунк",
+      "year": "1893",
+      "frame": "plain",
+      "image": "10-krik",
+      "aspect": 0.8054,
+      "placeholder": "data:image/webp;base64,UklGRqgAAABXRUJQVlA4IJwAAABQBQCdASoaACAAPu1iq1AppSOisBgIATAdiUAWHYISJCvhyJQLNq4qX9t4E4f/QatIf5AA+jT8u/m9af/DCg+juMG7JIQHjCSGWlXdqzxBVsveFqKN7ilZMPTvEC4Vh0eCVD//TSez+/yGjWmTYcIDhylsCrVa5VNpgAeTva75BCz2af0IajP45MALQBz/OfGUYzfb+mWz/umTQAA=",
+      "source": {
+        "commons": "Edvard Munch - The Scream - NG.M.00939 - National Museum of Art, Architecture and Design.jpg"
+      },
+      "text": [
+        "Долгие годы на полотне оставалась загадочная карандашная надпись: «Может быть написано только сумасшедшим». Десятилетиями спорили, кто её оставил — сам Мунк или возмущённый зритель. Только в 2021 году Национальный музей Норвегии с помощью инфракрасного сканирования и сравнения почерка окончательно подтвердил: надпись сделал сам художник, вскоре после того, как картину освистали на выставке в Берлине в 1895 году.",
+        "Мультисенсорные спектакли нашего театра существуют для того, чтобы зритель мог пережить такую историю не как факт из учебника, а как живое чувство. Скрипка вибрирует в унисон с «Криком» — и на секунду становится понятно, что двигало рукой художника."
+      ]
+    },
+    {
+      "slug": "kuvshinki",
+      "number": "11",
+      "title": "Кувшинки",
+      "artist": "Клод Моне",
+      "year": "1897–1926",
+      "frame": "salon",
+      "image": "11-kuvshinki",
+      "aspect": 1.25,
+      "placeholder": "data:image/webp;base64,UklGRtwAAABXRUJQVlA4INAAAABwBQCdASogABoAPu1sqk8ppiOiMBgIATAdiWQAuzMO8ScXy59UJ4BTMdi/9xhLR5428tAAAP7zrjt77S6DcB48PhV8W/kZ9Zaaq5yYj264YgBuJPg+La0bvCB3P/jI2HKsIwKS5jtbYZzGS+5m/RtBChpZyFpww1ae/OUpb+927Bqnav3Ly6doJdLmq/zVfe3Qpiu6sXzBzwwCoyevf8VA9kSWopn8pd8oy5ZLGfPiqjvuK07a3rDx5a6Lh+HCX6sf/836fV9Fne5CLGXO4HAA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild3236-3034-4863-b335-393539346565/photo.jpg"
+      },
+      "text": [
+        "В последние годы жизни Моне писал знаменитую серию «Кувшинок», страдая от катаракты — причём болезнь по-разному поразила два его глаза. Один глаз видел мир в жёлтых, охристых тонах, другой — в синих и фиолетовых, и Моне на время начал писать полотна с явным перекосом в один спектр, пока в 1923 году не решился на операцию. После неё он, по свидетельствам близких, уничтожил несколько собственных картин, посчитав их искажёнными болезнью.",
+        "Настоящая вечность — это когда образ рождается заново в глазах каждого зрителя, здесь и сейчас, а не когда он остаётся неизменным. Даже сам художник видел свои кувшинки по-разному в разные годы жизни — и на нашем экране они снова оживают, на этот раз в глазах зрителя XXI века."
+      ]
+    },
+    {
+      "slug": "avinonskie-devitsy",
+      "number": "12",
+      "title": "Авиньонские девицы",
+      "artist": "Пабло Пикассо",
+      "year": "1907",
+      "frame": "modern",
+      "image": "12-avinonskie-devitsy",
+      "aspect": 0.9625,
+      "placeholder": "data:image/webp;base64,UklGRmABAABXRUJQVlA4IFQBAABwBwCdASofACAAPtVSoU2oJKMiN+gBABqJbACdMoMgpm6cYKwEyCqBHjrjTXSRfQWRxICWHwmFyKpgV0KiKbTDF4YBkAD+gp6EhGLGf9NzKdLK0qaJ6XHuh152UTTaePO4weJn8pYxM+g1D/VI/2UJfXelDEdjzqowbY/Q9avBV984GG316YCet8eQ3pyy5XAX8pP1FeJhRoMYFA6N8L8FRaYKl2ov6xst9BDsfk19vv6RDfgRwU+Rd/q71D9Jm0XqeVOGia1QdWXDnhm9MTiuDlp/3Ruv+mcNVY5Iji8XyNiaBu9i+bKj6At/RZtwmvewscKe/AhSnX/ZshfyjZ1UxsW+b+rUQ743RlP0vl2D81dX0+Cqs8h5Hwr3zbnXQnvl7rrmDK1dLICqgkCZVWzIX7vcQJ2Y6vWoxpWIH7DkdWKhOd/23s8Fbb9xDhBjidYu18AA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild3738-6434-4637-a562-646137633663/photo.jpeg"
+      },
+      "text": [
+        "Когда Пикассо впервые показал эту картину узкому кругу друзей, реакция была шоковой. Анри Матисс счёл её оскорблением и, по свидетельствам очевидцев, был по-настоящему разгневан. Сам Пикассо был так не уверен в реакции публики, что почти девять лет не выставлял полотно широко — оно висело свёрнутым в его мастерской и было показано публике только в 1916 году, а куплено музеем и вовсе десятилетия спустя.",
+        "Смелый эксперимент редко находит понимание сразу. В нашем концерте мы тоже впервые соединили песочную анимацию с компьютерной графикой — так же, как Пикассо когда-то впервые разрушил привычную форму, не зная, поймут ли его."
+      ]
+    },
+    {
+      "slug": "potseluy",
+      "number": "13",
+      "title": "Поцелуй",
+      "artist": "Густав Климт",
+      "year": "1907–1908",
+      "frame": "klimt",
+      "image": "13-potseluy",
+      "aspect": 0.9966,
+      "placeholder": "data:image/webp;base64,UklGRsAAAABXRUJQVlA4ILQAAACwBACdASogACAAPu1orU8ppiQiKA1RMB2JZACxJUAAaQgJn+EQvSYCFuyVJjfkAPrUo2H/Yk5Hjk5DQizY3WnEO/+lHiqvMjZMa3NkXglNEez12hGZWrkRmVg1VZLw5TgWTBNOV+ZfVpXUhv9va8qF2LHU4LoJ4NyjYEVHZCeVl53LpSQxE91kYNLwb8ubzRPtTPSpjDbVcJRvWfM9g5hHcT+551erHS0xOpRCOLC8rgbIAAA=",
+      "source": {
+        "commons": "The Kiss - Gustav Klimt - Google Cultural Institute.jpg"
+      },
+      "text": [
+        "Золото на этой картине настоящее — Климт использовал листовое сусальное золото, вдохновившись византийскими мозаиками Равенны, которые увидел во время поездки по Италии. Но за сияющей поверхностью скрыто напряжение: ноги женщины на картине неестественно подогнуты, а сама пара стоит на самом краю цветущего обрыва — деталь, которую редко замечают с первого взгляда, поглощённого блеском золота.",
+        "Визуально-звуковое путешествие сквозь эпохи в нашем концерте устроено так же: за красотой изображения всегда стоит живая, не всегда безмятежная человеческая история. «Поцелуй» мерцает золотом на экране — и вместе с блеском в нём проступает и эта скрытая тревога."
+      ]
+    },
+    {
+      "slug": "tanets",
+      "number": "14",
+      "title": "Танец",
+      "artist": "Анри Матисс",
+      "year": "1910",
+      "frame": "plain",
+      "image": "14-tanets",
+      "aspect": 1.4524,
+      "placeholder": "data:image/webp;base64,UklGRtIAAABXRUJQVlA4IMYAAADQBQCdASogABYAPu1kqU2ppaOiMAgBMB2JbFefRhZFhhnK5Yd9ADpdgPQsbL71NXUFyRX8MZqAAP7qFBdRlOP6rRYmk+pcuMTTH7yxR79AIWFtzuIV/Yipdnp8hHnGdbYp5w4zS7pEjb6MRbGjBLTBU+i06TNk/CtuciBHFoB0l4DcWAYhnaRzh+Veo0ty//QNi7+CHNUR3MqaoRtSVX/kx7dO3IHgY0QMKVLZIAE90vNwRiQ+bqK/LNe0vGn/mS9wYs3IAAA=",
+      "source": {
+        "commons": "La Danse II, par Henri Matisse.jpg"
+      },
+      "text": [
+        "Картину заказал русский коллекционер Сергей Щукин для своего московского особняка, но когда полотно впервые показали публике в Париже — ещё до отправки в Москву, — разразился скандал: посетители Осеннего салона были возмущены обнажёнными, почти примитивными фигурами танцующих, критики обвиняли Матисса в дурном вкусе и отходе от всякой красоты. Щукин, впрочем, своего решения не изменил и всё равно повесил «Танец» у себя дома.",
+        "Музыка не иллюстрирует образ, а ведёт с ним диалог — так же, как струнный квартет в нашем спектакле не подстраивается под картину, а говорит с ней на равных. Хоровод фигур Матисса оживает на экране в собственном, свободном от канонов ритме."
+      ]
+    },
+    {
+      "slug": "russkaya-venera",
+      "number": "15",
+      "title": "Русская Венера",
+      "artist": "Борис Кустодиев",
+      "year": "1925–1926",
+      "frame": "salon",
+      "image": "15-russkaya-venera",
+      "aspect": 0.8658,
+      "placeholder": "data:image/webp;base64,UklGRkwBAABXRUJQVlA4IEABAAAQBwCdASocACAAPu1iqU2ppaOiMAgBMB2JbACdMoM+TBBjAVTu1fbJfucceaDGOeDMHUG1gEnsYFJsB5NxjRCagAD9oP2DJlFbakcL8MTrt2vukmG6Xtmz8TsSOERONMplohSo9x9penLov8S/tKzLaEjVFgg/ZCa70q/4S/Vd7yX+2snzfEa/5WOnVqJEQJmJ9MqmNvm7v2k5JGudcrdBdzvAOPMQ2cKUiEO9QNOUZzVIK0pwEhz9SlSSBSLcl+QHEZgebE6kMDFcYaUw1hBGclNWppFOD/+AKAm/CN+1p1bNf2kAK5wc3zq29Qffa3W6sRl7jH7rGSrCEFp3G8Xf/xPDlMsEimlO69T8Nma0MEnj4KFOaGMwMfkjMQP9Jhfl1RFJVJb886kVYSiqfmGjey0E1YrYoeU+cdopfpgAAA==",
+      "source": {
+        "commons": "Kustodiev russian venus.jpg"
+      },
+      "text": [
+        "Последние пятнадцать лет жизни Кустодиев провёл прикованным к инвалидному креслу — паралич нижней части тела не позволял ему стоять у большого холста дольше нескольких часов в день. «Русскую Венеру» он писал урывками, лёжа или полусидя, специальным мольбертом с наклоном. А из-за нехватки средств художник использовал не новый холст, а оборотную сторону одной из своих же ранних семейных картин — так и не купив себе новый.",
+        "Ван Гог не думал о Лувре, Кустодиев не думал о холсте. Они делали не «вечное» — они делали необходимое, несмотря на боль и обстоятельства. На нашем экране эта румяная, полная жизни героиня оживает так, будто художник и не знал, что значит писать через силу."
+      ]
+    },
+    {
+      "slug": "pesn-o-shambale",
+      "number": "16",
+      "title": "Песнь о Шамбале",
+      "artist": "Николай Рерих",
+      "year": "1943",
+      "frame": "oak",
+      "image": "16-pesn-o-shambale",
+      "aspect": 1.8018,
+      "placeholder": "data:image/webp;base64,UklGRu4AAABXRUJQVlA4IOIAAABQBgCdASogABIAPu1qsFAppaSiqAqpMB2JbACdOUFS1O40W/WYA4vy68hgSMPOeMRuJLYRyY76F/gZAADLNjevNNgYJPzGFNxyJYb3MCKMrUxjzJPmiPzniiWQeLJziviSmaZFZ61tJlMrv3DSxBgFVGvd2jjPOgMeTNgkex4AwI7phWMzvitwWtg7SchKqGuYjoipVSZ0O8q9wBKvfJECsSFWB9n1y8O0laiiaxCgri8jIxl6kxsJiVdJ5V0ncQjxc3s4eEy4wUrsP9wU9tIQjKYizTTGO0d+PMoci+OIgAAA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild3633-3638-4061-b430-383432616266/photo.jpeg"
+      },
+      "text": [
+        "Шамбала для Рериха не была отвлечённой легендой. Вместе с женой Еленой он организовал настоящую многолетнюю экспедицию через Тибет, Монголию и Индию, буквально разыскивая следы мифической страны в горных монастырях и текстах лам. Одновременно Рерих был убеждён, что искать Шамбалу нужно не только по карте, но и «в духе» — как внутренний путь к гармонии, который важнее любой географической точки.",
+        "Наши спектакли — тоже путь: доступный путь в мир классики и больших вопросов, который начинается не со знания, а с любопытства. Горы и свет Шамбалы оживают на нашем экране под живую музыку — как приглашение отправиться в путь, который Рерих искал всю жизнь."
+      ]
+    },
+    {
+      "slug": "dve-fridy",
+      "number": "17",
+      "title": "Две Фриды",
+      "artist": "Фрида Кало",
+      "year": "1939",
+      "frame": "oak",
+      "image": "17-dve-fridy",
+      "aspect": 1,
+      "placeholder": "data:image/webp;base64,UklGRmYBAABXRUJQVlA4IFoBAACwBwCdASogACAAPt1apE2opSOiN/qoARAbiWwAtRrrpcG/7rNmAjQPoGtiDjs/gGBXMeYfqGRNdPaZ1x+IErx4FHLfUX0AAPwOCwwY1y3UiVf9Qxify+QgpoxiKU8J6WnyX3o3drrg61MALLmWhuzwqN14Vve4nR7e7S6esudUEUcGgUHYPCBcKMQz2MmkGMMUeX/rP+srk9DX22j5sT3W06wQ93UAsYo41KnnboMxcbTwBNyo8bpL2E4OHgz7VLMRBdPaWZKsdjMlC8/Ox5RgJ5prn2oP/4+ELLyesSGopPVO74c/rAvvorqhzyUfu7bu35SU42MBvuxu7gyBjTn7hTi3n2keZHZqfMTyGRakIjzk3WDicu6ahjLRpSIoJVr+7jDBDheoDWvn2kgEnoKbydig5RrsMPzM9TQpCuEnfr9FkJOAuOn9husVuoSry7MND4Be8rAAYIgA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild6536-3865-4930-a236-393963356334/photo.jpeg",
+        "trim": true
+      },
+      "text": [
+        "В детстве, перенеся полиомиелит и долгую изоляцию, маленькая Фрида придумала себе воображаемую подругу — девочку, которая жила «за окном» и повторяла все её движения. Спустя десятилетия, сразу после мучительного развода с Диего Риверой, этот детский образ неожиданно вернулся на холст: Фрида написала сразу двух себя — любимую и нелюбимую, — держащихся за руки и соединённых одной кровеносной веной.",
+        "Настоящая вечность — это когда что-то рождается заново, а не когда остаётся неизменным. Детская фантазия Кало через тридцать лет стала одной из самых узнаваемых картин XX века — оживая на нашем экране как история о разговоре с самим собой."
+      ]
+    },
+    {
+      "slug": "devochka-s-vozdushnym-sharom",
+      "number": "18",
+      "title": "Девочка с воздушным шаром",
+      "artist": "Бэнкси",
+      "year": "2002/2018",
+      "frame": "none",
+      "image": "18-devochka-s-vozdushnym-sharom",
+      "aspect": 1.7778,
+      "placeholder": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAABQBACdASogABIAPuFgpU2opiOiN/VYARAcCWkAAC30xfwPI4kulaGaQEMQAP7vxKfqdjUquZ+w5+XuyaabCUwkRe2aopalI6N2NXhap66ggylzsTvn6RFdc6amu4RQ70oyAAAA",
+      "source": {
+        "url": "https://static.tildacdn.com/tild3838-6366-4437-b938-643739366465/photo.jpg"
+      },
+      "text": [
+        "В октябре 2018 года на аукционе Sotheby's картина Бэнкси, едва пройдя молоток за больше миллиона фунтов, начала сама себя уничтожать: встроенный в раму шредер разрезал холст на полосы прямо на глазах у шокированной публики. Механизм заклинило на середине — картина уничтожилась только наполовину. Бэнкси переименовал получившуюся работу в «Любовь в мусорной корзине», а спустя три года она же была перепродана почти в 25 раз дороже первоначальной цены.",
+        "Мы работаем с песком — материалом, который исчезает, едва родившись. И, кажется, именно то, что готово рассыпаться на глазах, ценится больше всего — так же, как наполовину уничтоженная девочка с шаром стала цениться дороже, чем целая."
+      ]
+    }
+  ]
+}

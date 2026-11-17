@@ -5,11 +5,11 @@ $root = dirname(__DIR__);
 $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/');
 if (str_contains($path, '..') || str_contains($path, "\0")) { http_response_code(404); exit; }
 if (str_starts_with($path, '/api/')) { require $root . '/api/index.php'; return; }
-$staticRoot = str_starts_with($path, '/uploads/') ? (getenv('UPLOADS_DIR') ?: $root . '/uploads') : $root . '/web/dist';
-$relative = str_starts_with($path, '/uploads/') ? substr($path, 8) : $path;
+$staticRoot = str_starts_with($path, '/uploads/') ? (getenv('UPLOADS_DIR') ?: $root . '/uploads') : (str_starts_with($path, '/assets/canvas/') ? $root . '/canvas/dist' : $root . '/web/dist');
+$relative = str_starts_with($path, '/uploads/') ? substr($path, 8) : (str_starts_with($path, '/assets/canvas/') ? substr($path, 14) : $path);
 $file = realpath($staticRoot . '/' . ltrim($relative, '/'));
-if ($file && str_starts_with($file, realpath($staticRoot) . '/') && is_file($file) && preg_match('/\.(?:js|css|webp|png|jpe?g|svg|woff2?|ttf|otf|mp4|ico)$/i', $file)) {
-    $types = ['js' => 'application/javascript', 'css' => 'text/css', 'otf' => 'font/otf', 'woff2' => 'font/woff2', 'mp4' => 'video/mp4'];
+if ($file && str_starts_with($file, realpath($staticRoot) . '/') && is_file($file) && preg_match('/\.(?:js|css|webp|png|jpe?g|svg|woff2?|ttf|otf|mp4|ico|glb)$/i', $file)) {
+    $types = ['js' => 'application/javascript', 'css' => 'text/css', 'otf' => 'font/otf', 'woff2' => 'font/woff2', 'mp4' => 'video/mp4', 'glb' => 'model/gltf-binary'];
     $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
     header('Content-Type: ' . ($types[$extension] ?? mime_content_type($file)));
     // Safari requests byte ranges when loading and looping video.

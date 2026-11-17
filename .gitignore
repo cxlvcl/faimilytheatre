@@ -26,3 +26,12 @@ release/
 
 # Tauri local metadata
 admin/src-tauri/gen/
+
+# /canvas: downloaded source images (npm run media -w canvas)
+canvas/.cache/
+
+# Local tooling
+.claude/
+
+# Admin app is kept out of this repository
+admin/

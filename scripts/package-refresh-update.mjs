@@ -13,6 +13,7 @@ for (const entry of Object.values(manifest)) {
   }
 }
 for (const page of ['home', 'franchise']) await access(join(full.privateRoot, 'ssr', `${page}.html`))
+await access(join(full.privateRoot, 'canvas/manifest.json'))
 
 const stamp = new Date().toISOString().replace(/[:.]/g, '-')
 const release = join(root, 'release', `REG-RU-REFRESH-${stamp}`)
@@ -42,6 +43,7 @@ for (const name of ['src', 'config.example.php', 'bootstrap.php', 'index.php']) 
   await cp(join(full.privateRoot, 'api', name), join(privateRoot, 'api', name), { recursive: true })
 }
 await cp(join(full.privateRoot, 'ssr'), join(privateRoot, 'ssr'), { recursive: true })
+await cp(join(full.privateRoot, 'canvas'), join(privateRoot, 'canvas'), { recursive: true })
 await cp(join(full.privateRoot, 'manifest.json'), join(activateRoot, 'manifest.json'))
 await mkdir(join(activateRoot, 'api'))
 await cp(join(full.privateRoot, 'api/seo'), join(activateRoot, 'api/seo'), { recursive: true })
@@ -58,7 +60,7 @@ async function files(directory, prefix = '') {
 }
 const archives = [
   ['01-public-update.zip', publicRoot, ['assets', 'fonts', 'media', 'favicon.ico', 'favicon-black-48.png', 'favicon-black-96.png', 'favicon-black-192.png', 'favicon-white-48.png', 'favicon-white-96.png', 'favicon-white-192.png', 'apple-touch-icon.png', 'api/.htaccess']],
-  ['02-private-update.zip', privateRoot, ['api/src', 'api/config.example.php', 'api/bootstrap.php', 'api/index.php', 'ssr']],
+  ['02-private-update.zip', privateRoot, ['api/src', 'api/config.example.php', 'api/bootstrap.php', 'api/index.php', 'ssr', 'canvas']],
   ['03-activate-update.zip', activateRoot, ['manifest.json', 'api/seo']],
 ]
 const inventory = {}

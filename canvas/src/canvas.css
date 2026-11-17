@@ -1,0 +1,337 @@
+/* /canvas — booklet of «Ожившие шедевры». Brand palette and fonts from the brand book; mobile first. */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-Cyrillic.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-052F, U+1C80-1C8A, U+20BD, U+2116, U+2DE0-2DFF, U+A640-A69F;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-Latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  unicode-range: U+0000-02FF, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215;
+}
+@font-face {
+  font-family: Manrope;
+  src: url('/assets/canvas/fonts/manrope-cyrillic-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: Manrope;
+  src: url('/assets/canvas/fonts/manrope-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: Manrope;
+  src: url('/assets/canvas/fonts/manrope-cyrillic-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: Manrope;
+  src: url('/assets/canvas/fonts/manrope-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --night: #0B0A09;
+  --milk: #F4EFE6;
+  --sand: #D9C4A1;
+  --ochre: #B5823F;
+  --star: #EAA854;
+  --graphite: #35322E;
+  --column: min(760px, calc(100% - 40px));
+  color-scheme: dark;
+  background: var(--night);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  /* Transparent: the page colour comes from :root, so the fixed background (z-index −1) shows through. */
+  background: transparent;
+  color: var(--milk);
+  font: 400 16px/1.6 Manrope, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ochre); outline-offset: 6px; }
+
+/* ---------- Background: baked dark fragments of other paintings ---------- */
+.cv-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100lvh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cv-bg__layer {
+  position: absolute;
+  left: 0;
+  top: -15px;
+  width: 100%;
+  height: calc(100% + 30px);
+  object-fit: cover;
+  opacity: 0;
+  visibility: hidden;
+}
+.cv-bg__layer:first-child { opacity: 1; visibility: visible; }
+
+/* ---------- Top bar ---------- */
+.cv-bar {
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px 0;
+}
+.cv-bar__logo { display: block; width: 64px; }
+.cv-bar__logo img { display: block; width: 100%; height: auto; }
+
+/* ---------- Programme ---------- */
+/* Full width, so a turned painting is cut at the screen edge and never widens the page on phones. */
+.cv-main {
+  padding: 28px max(20px, calc((100% - 760px) / 2)) 0;
+  overflow-x: clip;
+}
+.cv-h1 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(46px, 12.4vw, 104px);
+  font-weight: 300;
+  line-height: .95;
+}
+.cv-intro {
+  max-width: 36ch;
+  margin: 18px 0 0;
+  color: var(--sand);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.cv-work { margin-top: 104px; }
+.cv-work:first-of-type { margin-top: 48px; }
+/* Paintings further down are not laid out or painted until they come near. */
+.cv-work:not(:first-of-type) { content-visibility: auto; contain-intrinsic-size: auto 760px; overflow-clip-margin: 64px; }
+.cv-work__number,
+.cv-work__title,
+.cv-work__meta,
+.cv-hint,
+.cv-text { position: relative; z-index: 1; }
+.cv-work__number {
+  margin: 0 0 14px;
+  color: var(--ochre);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: .22em;
+}
+.cv-work__title {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(34px, 9vw, 60px);
+  font-weight: 400;
+  line-height: 1.02;
+}
+.cv-work__meta {
+  margin: 10px 0 0;
+  color: var(--sand);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* The stage keeps the framed proportions from the server, so nothing moves while images load. */
+.cv-stage {
+  position: relative;
+  display: block;
+  width: min(100%, calc(80svh * var(--outer)));
+  aspect-ratio: var(--outer);
+  margin: 24px auto 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.cv-nojs .cv-stage { cursor: default; }
+.cv-stage.is-dragging { cursor: grabbing; }
+.cv-stage__body {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-origin: 50% 50%;
+}
+.cv-stage--gold .cv-stage__body { background: #8C6A34; }
+.cv-stage--dark .cv-stage__body { background: #1A1512; }
+.cv-stage--wood .cv-stage__body { background: #8A6A45; }
+.cv-stage__image {
+  position: absolute;
+  left: var(--inset-x);
+  top: var(--inset-y);
+  display: block;
+  width: calc(100% - 2 * var(--inset-x));
+  height: calc(100% - 2 * var(--inset-y));
+  background-size: 100% 100%;
+  -webkit-user-drag: none;
+}
+.cv-stage__gl { position: absolute; display: none; pointer-events: none; }
+.is-gl .cv-stage__gl { display: block; }
+.is-gl .cv-stage__body { visibility: hidden; }
+/* Zoomed in: the painting stays inside its rectangle, one finger pans instead of scrolling. */
+.is-zoomed .cv-stage { overflow: hidden; touch-action: none; cursor: move; }
+
+.cv-hint {
+  margin: 18px 0 0;
+  color: var(--sand);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: .18em;
+  text-align: center;
+  text-transform: uppercase;
+  transition: opacity .6s ease, visibility 0s;
+}
+.cv-nojs .cv-hint { display: none; }
+.cv-hint.is-gone { opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s .6s; }
+
+/* Text under the painting: open without JS, folded with JS until the painting is tapped. */
+.cv-text {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow-anchor: none;
+}
+.cv-js .cv-text {
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .5s cubic-bezier(.2, .7, .2, 1);
+}
+.cv-js .is-open .cv-text { grid-template-rows: 1fr; }
+.cv-text__inner {
+  min-height: 0;
+  max-width: 65ch;
+  overflow: hidden;
+  padding-top: 26px;
+}
+.cv-text__inner p { margin: 0 0 1em; }
+.cv-text__inner p:last-child { margin-bottom: 0; }
+
+/* ---------- Links to the theatre ---------- */
+.cv-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+  width: var(--column);
+  margin: 128px auto 0;
+  padding-top: 40px;
+  border-top: 1px solid var(--graphite);
+}
+.cv-links__date {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--sand);
+  font-size: 14px;
+}
+.cv-links__buy,
+.cv-links__afisha {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.cv-links__buy {
+  padding: 0 26px;
+  background: var(--star);
+  color: var(--night);
+  text-decoration: none;
+}
+.cv-links__afisha { text-underline-offset: 6px; }
+.cv-links__social { display: flex; gap: 6px; margin-left: auto; }
+.cv-links__social a { display: inline-flex; padding: 8px; color: var(--sand); }
+.cv-links__social a:hover { color: var(--milk); }
+
+/* ---------- Footer: the site's footer ---------- */
+.cv-footer {
+  margin-top: 120px;
+  padding: 60px 24px 35px;
+  background: #000;
+  color: #fff;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+.cv-footer p { margin: 0; }
+.cv-footer__logo {
+  display: block;
+  width: min(62vw, 260px);
+  height: auto;
+  margin: 0 auto 50px;
+  filter: invert(1);
+}
+.cv-footer__contacts {
+  display: grid;
+  gap: 38px;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.14;
+}
+.cv-footer__contacts div { display: flex; flex-direction: column; align-items: flex-start; }
+.cv-footer__contacts a { text-decoration: none; }
+.cv-footer__contacts a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.cv-footer__legal {
+  display: grid;
+  gap: 9px;
+  margin-top: 75px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, .3);
+  font-size: 13px;
+}
+.cv-footer__legal p:first-child { margin-bottom: 14px; }
+
+@media (min-width: 700px) {
+  body { font-size: 17px; }
+  .cv-bar { padding-top: 19px; }
+  .cv-bar__logo { width: 78px; }
+  .cv-main { padding-top: 64px; }
+  .cv-intro { font-size: 16px; }
+  .cv-work { margin-top: 176px; }
+  .cv-work:first-of-type { margin-top: 80px; }
+  .cv-work__meta { font-size: 15px; }
+  .cv-stage { margin-top: 40px; }
+  .cv-links { margin-top: 200px; }
+  .cv-footer { margin-top: 180px; padding: clamp(60px, 6vw, 90px) clamp(24px, 5.8vw, 112px) 40px; }
+  .cv-footer__logo { width: clamp(255px, 33vw, 450px); margin-bottom: clamp(40px, 5vw, 70px); }
+  .cv-footer__contacts { grid-template-columns: 1fr 1fr; gap: 8vw; align-items: start; font-size: clamp(27px, 3vw, 50px); }
+  .cv-footer__legal { grid-template-columns: 1fr 1fr; gap: 35px; margin-top: clamp(75px, 9vw, 135px); font-size: 15px; }
+  .cv-footer__legal p:first-child { grid-column: 1 / -1; margin-bottom: 0; }
+}
+@media (min-width: 901px) {
+  .cv-footer__legal { grid-template-columns: 1.6fr 1fr .7fr; }
+  .cv-footer__legal p:first-child { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-js .cv-text, .cv-hint, .cv-hint.is-gone { transition: none; }
+}

@@ -24,8 +24,6 @@ if (isset($redirects[$path]) && is_string($redirects[$path]) && str_starts_with(
     header('Location: ' . $seo->absolute($redirects[$path]), true, 301);
     exit;
 }
-$page = $seo->page($path);
-$meta = $page['meta'];
 $base = rtrim((string) $app->config['base_url'], '/');
 $production = ($app->config['environment'] ?? 'development') === 'production';
 $host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
@@ -34,6 +32,18 @@ $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 $trustedProxies = $app->config['seo']['trusted_proxies'] ?? [];
 if (in_array($_SERVER['REMOTE_ADDR'] ?? '', $trustedProxies, true)) $https = strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 $wrongOrigin = $production && ($host !== $expectedHost || (str_starts_with($base, 'https://') && !$https));
+// Booklet of «Ожившие шедевры» (QR code, ?utm_source=booklet): its own page from canvas/, not in the sitemap.
+if ($path === '/canvas') {
+    if ($rawPath !== $path || $wrongOrigin) {
+        $query = (string) parse_url($uri, PHP_URL_QUERY);
+        header('Location: ' . ($production ? $seo->absolute($path) : $path) . ($query !== '' ? '?' . $query : ''), true, 301);
+        exit;
+    }
+    require dirname(__DIR__, 2) . '/canvas/page.php';
+    exit;
+}
+$page = $seo->page($path);
+$meta = $page['meta'];
 if ($meta['status'] === 200 && ($rawPath !== $path || $wrongOrigin)) {
     header('Location: ' . ($production ? $seo->absolute($path) : $path), true, 301);
     exit;

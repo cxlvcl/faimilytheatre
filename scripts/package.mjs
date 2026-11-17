@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
@@ -10,6 +10,14 @@ await mkdir(publicRoot, { recursive: true })
 await mkdir(privateRoot, { recursive: true })
 for (const name of ['assets', 'media', 'fonts', 'favicon.ico', 'favicon-black-48.png', 'favicon-black-96.png', 'favicon-black-192.png', 'favicon-white-48.png', 'favicon-white-96.png', 'favicon-white-192.png', 'apple-touch-icon.png']) await cp(join(root, 'web/dist', name), join(publicRoot, name), { recursive: true })
 await cp(join(root, 'web/dist/.vite/manifest.json'), join(privateRoot, 'manifest.json'))
+// /canvas (booklet of «Ожившие шедевры»): static files under /assets/canvas, the page itself in private/canvas.
+await cp(join(root, 'canvas/dist'), join(publicRoot, 'assets/canvas'), { recursive: true, filter: path => !path.includes('/.vite') })
+await mkdir(join(privateRoot, 'canvas/assets'), { recursive: true })
+await cp(join(root, 'canvas/page.php'), join(privateRoot, 'canvas/page.php'))
+await cp(join(root, 'canvas/data'), join(privateRoot, 'canvas/data'), { recursive: true })
+await cp(join(root, 'canvas/dist/.vite/manifest.json'), join(privateRoot, 'canvas/manifest.json'))
+// page.php inlines the stylesheet, so it reads it from private/canvas/assets.
+for (const name of await readdir(join(root, 'canvas/dist/assets'))) if (name.endsWith('.css')) await cp(join(root, 'canvas/dist/assets', name), join(privateRoot, 'canvas/assets', name))
 await cp(join(root, 'web/dist/.vite/ssr'), join(privateRoot, 'ssr'), { recursive: true })
 await cp(join(root, 'api'), join(privateRoot, 'api'), { recursive: true, filter: path => !path.endsWith('/config.php') })
 await cp(join(root, 'database'), join(privateRoot, 'database'), { recursive: true })

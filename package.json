@@ -3,12 +3,12 @@
   "private": true,
   "workspaces": [
     "web",
-    "admin"
+    "canvas"
   ],
   "scripts": {
-    "build": "npm run build -w web && npm run build -w admin",
-    "lint": "npm run lint -w web && npm run lint -w admin",
-    "typecheck": "npm run typecheck -w web && npm run typecheck -w admin",
+    "build": "npm run build -w web && npm run build -w canvas",
+    "lint": "npm run lint -w web",
+    "typecheck": "npm run typecheck -w web && npm run typecheck -w canvas",
     "package:hosting": "node scripts/package.mjs",
     "test:api": "node --test tests/api.test.mjs",
     "test:hero-video": "node --experimental-strip-types --test tests/hero-video.test.mjs"
